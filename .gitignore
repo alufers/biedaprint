@@ -1,0 +1,5 @@
+_gcode/
+settings.json
+./biedaprint
+static/
+node_modules
