@@ -23,9 +23,23 @@
         <div id="navbarBasicExample" class="navbar-menu" :class="{'is-active': navbarActive}">
           <div class="navbar-start">
             <router-link class="navbar-item" to="/">Biedaprint</router-link>
-            <router-link class="navbar-item" to="/serial-console">Serial console</router-link>
-            <router-link class="navbar-item" to="/settings">Settings</router-link>
-            <router-link class="navbar-item" to="/system-info">System information</router-link>
+
+            <div class="navbar-item has-dropdown is-hoverable">
+              <router-link class="navbar-link" to="/system">Control</router-link>
+              <div class="navbar-dropdown">
+                <router-link class="navbar-item" to="/control/manual">Manual</router-link>
+                <router-link class="navbar-item" to="/control/serial-console">Serial console</router-link>
+              </div>
+            </div>
+            <div class="navbar-item has-dropdown is-hoverable">
+              <router-link class="navbar-link" to="/system">System</router-link>
+              <div class="navbar-dropdown">
+                <router-link class="navbar-item" to="/system/settings">Settings</router-link>
+                <router-link class="navbar-item" to="/system/system-info">System information</router-link>
+              </div>
+            </div>
+          </div>
+          <div class="navbar-end">
             <span class="navbar-item">
               Socket status: &nbsp;
               <span class="tag">{{socketStatus}}</span>
@@ -49,6 +63,8 @@
 import Connection from "./Connection";
 import Alerts from "./components/Alerts";
 import "bulma/css/bulma.css";
+import "@fortawesome/fontawesome-free/css/all.css";
+
 export default {
   components: {
     Alerts

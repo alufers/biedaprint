@@ -22,6 +22,7 @@ var messageHandlers = map[string]func(*websocket.Conn, interface{}){
 	"disconnectFromSerial": handleDisconnectFromSerialMessage,
 	"serialWrite":          handleSerialWriteMessage,
 	"getSysteminfo":        handleGetSystemInfoMessage,
+	"sendGCODE":            handleSendGCODEMessage,
 }
 
 func sendError(c *websocket.Conn, err error) {
@@ -146,7 +147,20 @@ func handleSerialWriteMessage(c *websocket.Conn, data interface{}) {
 	_, err := globalSerial.Write([]byte((data.(map[string]interface{}))["data"].(string)))
 	if err != nil {
 		sendError(c, errors.Wrap(err, "failed to write to serial"))
+		return
+	}
+}
 
+func handleSendGCODEMessage(c *websocket.Conn, data interface{}) {
+	if globalSerial == nil {
+		sendError(c, errors.New("Not connected to serial port"))
+		return
+	}
+	dataMap := data.(map[string]interface{})
+	gcodeStr := dataMap["data"].(string)
+	_, err := globalSerial.Write([]byte((gcodeStr + "\r\n")))
+	if err != nil {
+		sendError(c, errors.Wrap(err, "failed to write to serial"))
 		return
 	}
 }

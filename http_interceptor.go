@@ -4,6 +4,8 @@ import (
 	"net/http"
 )
 
+// http interceptor for interceping 404 and serving index.html so that the SPA works
+
 type interceptResponseWriter struct {
 	http.ResponseWriter
 	errH func(http.ResponseWriter, int)

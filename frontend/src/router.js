@@ -7,6 +7,7 @@ Vue.use(Router);
 export default new Router({
   mode: "history",
   base: process.env.BASE_URL,
+  linkActiveClass: "is-active",
   routes: [
     {
       path: "/",
@@ -14,25 +15,28 @@ export default new Router({
       component: Home
     },
     {
-      path: "/settings",
-      name: "settings",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
+      path: "/control/manual",
+      name: "manual",
       component: () =>
-        import(/* webpackChunkName: "settings" */ "./views/Settings.vue")
+        import(/* webpackChunkName: "manual" */ "./views/control/Manual.vue")
     },
     {
-      path: "/serial-console",
+      path: "/control/serial-console",
       name: "serial-console",
       component: () =>
-        import(/* webpackChunkName: "serialconsole" */ "./views/SerialConsole.vue")
+        import(/* webpackChunkName: "serialconsole" */ "./views/control/SerialConsole.vue")
     },
     {
-      path: "/system-info",
+      path: "/system/settings",
+      name: "settings",
+      component: () =>
+        import(/* webpackChunkName: "settings" */ "./views/system/Settings.vue")
+    },
+    {
+      path: "/system/system-info",
       name: "system-info",
       component: () =>
-        import(/* webpackChunkName: "systeminfo" */ "./views/SystemInfo.vue")
+        import(/* webpackChunkName: "systeminfo" */ "./views/system/SystemInfo.vue")
     }
   ]
 });
