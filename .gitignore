@@ -1,6 +1,6 @@
 _gcode/
 settings.json
-./biedaprint
+/biedaprint
 static/
 node_modules
 frontend/src/assets/gcode-docs.json

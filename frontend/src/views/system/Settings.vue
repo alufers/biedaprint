@@ -18,6 +18,10 @@
           </select>
         </div>
       </div>
+      <div class="field">
+        <label class="label">Scrollback buffer size</label>
+        <input class="input" type="number" v-model.number="settings.scrollbackBufferSize">
+      </div>
       <button class="button is-primary" @click="save">Save</button>
     </div>
   </div>

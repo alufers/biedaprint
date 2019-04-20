@@ -3,6 +3,7 @@ module github.com/alufers/biedaprint
 go 1.12
 
 require (
+	github.com/armon/circbuf v0.0.0-20190214190532-5111143e8da2
 	github.com/capnm/sysinfo v0.0.0-20130621111458-5909a53897f3
 	github.com/creack/goselect v0.0.0-20180501195510-58854f77ee8d // indirect
 	github.com/gernest/front v0.0.0-20181129160812-ed80ca338b88

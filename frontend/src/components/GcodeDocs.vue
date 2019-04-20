@@ -76,7 +76,10 @@ export default {
       let query = this.searchQuery.trim().toUpperCase();
       let searchBriefs = true;
       if (this.currentCommand.trim() !== "" && !this.forceLocalSearch) {
-        query = this.currentCommand.trim().toUpperCase();
+        query = this.currentCommand
+          .trim()
+          .toUpperCase()
+          .split(" ")[0];
         searchBriefs = false;
       }
       let keys = this.dataKeys.filter(k => k.indexOf(query) !== -1);

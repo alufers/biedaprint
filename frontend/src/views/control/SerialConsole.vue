@@ -31,7 +31,7 @@ export default {
   },
   data() {
     return {
-      backbuffer: "...\n",
+      scrollback: "...\n",
       currentCommand: ""
     };
   },
@@ -49,12 +49,19 @@ export default {
   },
   computed: {
     lines() {
-      return this.backbuffer.split("\n");
+      return this.scrollback.split("\n");
     }
   },
   created() {
+    this.connection.sendMessage("getScrollbackBuffer");
+    this.connection.once("message.getScrollbackBuffer", ({ data }) => {
+      this.scrollback += data;
+      this.$nextTick(() => {
+        this.$refs.console.scrollTop = this.$refs.console.scrollHeight;
+      });
+    });
     this.connection.on("message.serialConsole", ({ data }) => {
-      this.backbuffer += data;
+      this.scrollback += data;
       this.$refs.console.scrollTop = this.$refs.console.scrollHeight;
     });
   }

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"runtime"
 
 	"github.com/gorilla/websocket"
 	"github.com/mitchellh/mapstructure"
@@ -23,6 +24,7 @@ var messageHandlers = map[string]func(*websocket.Conn, interface{}){
 	"serialWrite":          handleSerialWriteMessage,
 	"getSysteminfo":        handleGetSystemInfoMessage,
 	"sendGCODE":            handleSendGCODEMessage,
+	"getScrollbackBuffer":  handleGetScrollbackBufferMessage,
 }
 
 func sendError(c *websocket.Conn, err error) {
@@ -46,7 +48,7 @@ func handleSerialListMessage(c *websocket.Conn, data interface{}) {
 	c.WriteJSON(jd{
 		"type": "serialList",
 		"data": jd{
-			"ports": []string{"/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/ttyUSB2", "/dev/ttyUSB3"},
+			"ports": []string{"/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/ttyUSB2", "/dev/ttyUSB3", "/dev/ttyACM0", "/dev/ttyACM1"},
 		},
 	})
 }
@@ -103,6 +105,7 @@ func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 		globalSerialStatus = "error"
 		return
 	}
+	resetScrollback()
 	globalSerialStatus = "connected"
 	select {
 	case serialReady <- true:
@@ -173,10 +176,29 @@ func handleGetSystemInfoMessage(c *websocket.Conn, data interface{}) {
 	resp["SystemTotalMemory"] = byteCountBinary(int64(v.Total))
 	resp["SystemUsedMemory"] = byteCountBinary(int64(v.Used))
 	resp["SystemFreeMemory"] = byteCountBinary(int64(v.Free))
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	resp["AppSysMemory"] = byteCountBinary(int64(m.Sys))
+	resp["AppAlloc"] = byteCountBinary(int64(m.Alloc))
+	resp["AppNumGC"] = m.NumGC
+	resp["GCCPUFractionPercent"] = fmt.Sprintf("%4.2f%%", m.GCCPUFraction*100)
 	// resp["FreeRamPercent"] = int((float64(sys.FreeRam) / float64(sys.TotalRam)) * 100.0)
 	// resp["FreeRamPercentNoBuffer"] = int((float64(sys.FreeRam+sys.BufferRam) / float64(sys.TotalRam)) * 100.0)
 	c.WriteJSON(jd{
 		"type": "getSysteminfo",
 		"data": resp,
+	})
+}
+
+func handleGetScrollbackBufferMessage(c *websocket.Conn, data interface{}) {
+	if scrollbackBuffer == nil {
+		sendError(c, errors.New("No scrollback buffer"))
+		return
+	}
+	c.WriteJSON(jd{
+		"type": "getScrollbackBuffer",
+		"data": jd{
+			"data": string(scrollbackBuffer.Bytes()),
+		},
 	})
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"log"
 
 	"go.bug.st/serial.v1"
@@ -9,8 +10,17 @@ import (
 var globalSerial serial.Port
 var globalSerialStatus = "disconnected"
 var serialReady = make(chan bool)
+var lineBuf = bytes.NewBuffer(make([]byte, 512))
 
-//serialReader runs on a separate goroutine a
+func lineParser() {
+	// for {
+	// 	var line string
+	// 	fmt.Fscanln(lineBuf, line)
+	// 	log.Println("GOT LINE", line)
+	// }
+}
+
+//serialReader runs on a separate goroutine and handles broadcasting the serial messages to websockets and saving the data in a backbuffer
 func serialReader() {
 	for {
 		<-serialReady // wait for somebody to open the serial
@@ -28,6 +38,8 @@ func serialReader() {
 			func() {
 				handlerMutex.Lock()
 				defer handlerMutex.Unlock()
+				scrollbackBuffer.Write(data[:n])
+				lineBuf.Write(data[:n])
 				strData := string(data[:n])
 				for _, a := range activeConnections {
 					a.WriteJSON(jd{

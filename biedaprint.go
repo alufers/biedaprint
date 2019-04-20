@@ -78,6 +78,7 @@ func main() {
 	log.Printf("Starting biedaprint...\n")
 	loadSettings()
 	go serialReader()
+	go lineParser()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", handleWs)
 	box := packr.NewBox("./static")
