@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/gorilla/websocket"
+)
 
 func unique(intSlice []string) []string {
 	keys := make(map[string]bool)
@@ -25,4 +29,14 @@ func byteCountBinary(b int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %ciB", float64(b)/float64(div), "KMGTPE"[exp])
+}
+
+func removeConnFromArray(c *websocket.Conn, array []*websocket.Conn) []*websocket.Conn {
+	newConnections := make([]*websocket.Conn, 0, len(array))
+	for _, a := range array {
+		if a != c {
+			newConnections = append(newConnections, a)
+		}
+	}
+	return newConnections
 }

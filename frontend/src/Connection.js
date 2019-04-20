@@ -20,8 +20,8 @@ export default class Connection extends EventEmitter {
     this.socket = new WebSocket(socketUrl);
     this.socket.addEventListener("open", ev => {
       this.emit("statusChanged", "connected");
-      this.emit("open", ev);
       this.isOpen = true;
+      this.emit("open", ev);
     });
     this.socket.addEventListener("error", e => {
       // eslint-disable-next-line
@@ -38,8 +38,10 @@ export default class Connection extends EventEmitter {
     });
   }
   sendMessage(type, data) {
+    // eslint-disable-next-line
+    console.log("MSG", { type, data });
     if (!this.isOpen) {
-      this.connect("open", () => {
+      this.once("open", () => {
         this.sendMessage(type, data);
       });
       return;

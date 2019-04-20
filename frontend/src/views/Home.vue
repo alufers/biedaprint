@@ -11,14 +11,16 @@
       @click="disconnectFromSerial"
       v-if="serialStatus === 'connected'"
     >Disconnect from printer</button>
+    <TemperatureDisplay/>
   </div>
 </template>
 
 <script>
+import TemperatureDisplay from "@/components/TemperatureDisplay";
 export default {
   name: "home",
   inject: ["connection"],
-  components: {},
+  components: { TemperatureDisplay },
   data() {
     return {
       serialStatus: null

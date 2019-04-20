@@ -30,16 +30,13 @@ func handleWs(w http.ResponseWriter, r *http.Request) {
 	}
 	activeConnections = append(activeConnections, c)
 	log.Printf("Active connections: %d", len(activeConnections))
-	defer func() {
+	defer func() { // cleanup function
 		log.Println("Connection closed")
 		// remove the connection when it drops
-		newConnections := make([]*websocket.Conn, 0, len(activeConnections))
-		for _, a := range activeConnections {
-			if a != c {
-				newConnections = append(newConnections, a)
-			}
+		activeConnections = removeConnFromArray(c, activeConnections)
+		for _, tv := range trackedValues {
+			tv.subscribers = removeConnFromArray(c, tv.subscribers)
 		}
-		activeConnections = newConnections
 	}()
 	defer c.Close()
 
@@ -78,7 +75,6 @@ func main() {
 	log.Printf("Starting biedaprint...\n")
 	loadSettings()
 	go serialReader()
-	go lineParser()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", handleWs)
 	box := packr.NewBox("./static")

@@ -15,16 +15,19 @@ import (
 type jd map[string]interface{} //json data
 
 var messageHandlers = map[string]func(*websocket.Conn, interface{}){
-	"serialList":           handleSerialListMessage,
-	"getSettings":          handleGetSettingsMessage,
-	"saveSettings":         handleSaveSettingsMessage,
-	"getSerialStatus":      handleGetSerialStatusMessage,
-	"connectToSerial":      handleConnectToSerialMessage,
-	"disconnectFromSerial": handleDisconnectFromSerialMessage,
-	"serialWrite":          handleSerialWriteMessage,
-	"getSysteminfo":        handleGetSystemInfoMessage,
-	"sendGCODE":            handleSendGCODEMessage,
-	"getScrollbackBuffer":  handleGetScrollbackBufferMessage,
+	"serialList":              handleSerialListMessage,
+	"getSettings":             handleGetSettingsMessage,
+	"saveSettings":            handleSaveSettingsMessage,
+	"getSerialStatus":         handleGetSerialStatusMessage,
+	"connectToSerial":         handleConnectToSerialMessage,
+	"disconnectFromSerial":    handleDisconnectFromSerialMessage,
+	"serialWrite":             handleSerialWriteMessage,
+	"getSysteminfo":           handleGetSystemInfoMessage,
+	"sendGCODE":               handleSendGCODEMessage,
+	"getScrollbackBuffer":     handleGetScrollbackBufferMessage,
+	"getTrackedValues":        handleGetTrackedValuesMessage,
+	"getTrackedValue":         handleGetTrackedValueMessage,
+	"subscribeToTrackedValue": handleSubscribeToTrackedValueMessage,
 }
 
 func sendError(c *websocket.Conn, err error) {
@@ -111,6 +114,8 @@ func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 	case serialReady <- true:
 	default:
 	}
+
+	globalSerial.Write([]byte("M155 S1\r\n"))
 
 	c.WriteJSON(jd{
 		"type": "getSerialStatus",
@@ -201,4 +206,35 @@ func handleGetScrollbackBufferMessage(c *websocket.Conn, data interface{}) {
 			"data": string(scrollbackBuffer.Bytes()),
 		},
 	})
+}
+
+func handleGetTrackedValuesMessage(c *websocket.Conn, data interface{}) {
+	c.WriteJSON(jd{
+		"type": "getTrackedValues",
+		"data": jd{
+			"trackedValues": trackedValues,
+		},
+	})
+}
+
+func handleGetTrackedValueMessage(c *websocket.Conn, data interface{}) {
+	dataMap := data.(map[string]interface{})
+	t, _ := trackedValues[dataMap["name"].(string)]
+	c.WriteJSON(jd{
+		"type": "getTrackedValue",
+		"data": jd{
+			"trackedValue": t,
+		},
+	})
+}
+
+func handleSubscribeToTrackedValueMessage(c *websocket.Conn, data interface{}) {
+	dataMap := data.(map[string]interface{})
+	t, ok := trackedValues[dataMap["name"].(string)]
+	if !ok {
+		sendError(c, errors.New("No such trackedValue"))
+		return
+	}
+	log.Printf("Client subscribed to %v", dataMap["name"].(string))
+	t.subscribers = append(t.subscribers, c)
 }
