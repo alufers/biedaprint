@@ -1,4 +1,5 @@
 #!/bin/bash
+go run ./gocode_docs_extractor
 cd frontend
 node_modules/.bin/vue-cli-service build --dest ../static 
 cd ..

@@ -1,22 +1,34 @@
 <template>
   <div>
     <h2 class="title">Serial console</h2>
-    <div class="box is-family-code console" ref="console">
-      <div v-for="(l, i) in lines" :key="i">{{l}}</div>
+    <div class="columns">
+      <div class="column is-9">
+        <div class="box is-family-code console" ref="console">
+          <div v-for="(l, i) in lines" :key="i">{{l}}</div>
+        </div>
+        <input
+          class="input"
+          type="text"
+          placeholder="Send commands"
+          v-model="currentCommand"
+          @keyup.enter="sendCommand"
+          ref="commandInput"
+        >
+      </div>
+      <div class="column is-4">
+        <GcodeDocs @useGcode="useGcodeFromDocs" :currentCommand="currentCommand"/>
+      </div>
     </div>
-    <input
-      class="input"
-      type="text"
-      placeholder="Send commands"
-      v-model="currentCommand"
-      @keyup.enter="sendCommand"
-    >
   </div>
 </template>
 
 <script>
+import GcodeDocs from "@/components/GcodeDocs.vue";
 export default {
   inject: ["connection"],
+  components: {
+    GcodeDocs
+  },
   data() {
     return {
       backbuffer: "...\n",
@@ -29,6 +41,10 @@ export default {
         data: this.currentCommand + "\r\n"
       });
       this.currentCommand = "";
+    },
+    useGcodeFromDocs(gcode) {
+      this.currentCommand = gcode + " ";
+      this.$refs.commandInput.focus();
     }
   },
   computed: {

@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/capnm/sysinfo v0.0.0-20130621111458-5909a53897f3
 	github.com/creack/goselect v0.0.0-20180501195510-58854f77ee8d // indirect
+	github.com/gernest/front v0.0.0-20181129160812-ed80ca338b88
 	github.com/go-vgo/robotgo v0.0.0-20190416172308-997e60a165b1
 	github.com/gobuffalo/flect v0.1.3 // indirect
 	github.com/gobuffalo/packr v1.25.0
@@ -21,4 +22,5 @@ require (
 	golang.org/x/net v0.0.0-20190415214537-1da14a5a36f2 // indirect
 	golang.org/x/sys v0.0.0-20190416152802-12500544f89f // indirect
 	golang.org/x/tools v0.0.0-20190417223002-a5870b403859 // indirect
+	gopkg.in/yaml.v2 v2.2.2 // indirect
 )

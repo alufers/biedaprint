@@ -9,6 +9,8 @@ github.com/creack/goselect v0.0.0-20180501195510-58854f77ee8d h1:6o8WW5zZ+Ny9sbk
 github.com/creack/goselect v0.0.0-20180501195510-58854f77ee8d/go.mod h1:gHrIcH/9UZDn2qgeTUeW5K9eZsVYCH6/60J/FHysWyE=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/gernest/front v0.0.0-20181129160812-ed80ca338b88 h1:fqfzqvgJfq5Sw7VZyb+OoiOKQzI27pkwhvf/V46XEl8=
+github.com/gernest/front v0.0.0-20181129160812-ed80ca338b88/go.mod h1:FwEMwQ5+xky8tbzDLj72k2RAqXnFByLNwxg+9UZDtqU=
 github.com/go-ole/go-ole v1.2.4/go.mod h1:XCwSNxSkXRo4vlyPy93sltvi/qJq0jqQhjqQNIwKuxM=
 github.com/go-vgo/robotgo v0.0.0-20190416172308-997e60a165b1 h1:XultrEV7QaxbQpC9HjrdKzMZhpkobptyrfPX/1F2sb4=
 github.com/go-vgo/robotgo v0.0.0-20190416172308-997e60a165b1/go.mod h1:qcbbeVR//U04IipkSq07PgQOHRDcb89eBbXAEJpPc3w=
@@ -117,5 +119,8 @@ golang.org/x/tools v0.0.0-20190404132500-923d25813098/go.mod h1:LCzVGOaR6xXOjkQ3
 golang.org/x/tools v0.0.0-20190416151739-9c9e1878f421/go.mod h1:LCzVGOaR6xXOjkQ3onu1FJEFr0SW1gC7cKk1uF8kGRs=
 golang.org/x/tools v0.0.0-20190417223002-a5870b403859 h1:9IwAPkJAVzY3ES7jydtY2zc5YltyS6lQuXUJoqoWQYg=
 golang.org/x/tools v0.0.0-20190417223002-a5870b403859/go.mod h1:LCzVGOaR6xXOjkQ3onu1FJEFr0SW1gC7cKk1uF8kGRs=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=
+gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
+gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=

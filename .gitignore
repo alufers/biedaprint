@@ -3,3 +3,4 @@ settings.json
 ./biedaprint
 static/
 node_modules
+frontend/src/assets/gcode-docs.json
