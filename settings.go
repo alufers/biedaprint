@@ -10,12 +10,14 @@ type Settings struct {
 	SerialPort           string `json:"serialPort"`
 	BaudRate             int    `json:"baudRate"`
 	ScrollbackBufferSize int    `json:"scrollbackBufferSize"`
+	DataPath             string `json:"dataPath"`
 }
 
 var globalSettings = &Settings{
 	SerialPort:           "<invalid>",
 	BaudRate:             250000,
 	ScrollbackBufferSize: 1024 * 10, // 10 KiB
+	DataPath:             "./biedaprint_data",
 }
 
 func loadSettings() {

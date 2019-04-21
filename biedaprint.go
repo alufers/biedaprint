@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/gobuffalo/packr"
 )
@@ -11,6 +13,11 @@ import (
 func main() {
 	log.Printf("Starting biedaprint...\n")
 	loadSettings()
+	err := os.MkdirAll(filepath.Join(globalSettings.DataPath, "gcode_files"), os.ModePerm)
+	if err != nil {
+		log.Fatalf("Failed to create gcode_files data directory: %v", err)
+		return
+	}
 	go serialReader()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", handleWs)

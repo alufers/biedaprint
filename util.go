@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 
 	"github.com/gorilla/websocket"
 )
@@ -39,4 +41,9 @@ func removeConnFromArray(c *websocket.Conn, array []*websocket.Conn) []*websocke
 		}
 	}
 	return newConnections
+}
+
+func respondJSON(w io.Writer, dat interface{}) {
+	enc := json.NewEncoder(w)
+	enc.Encode(dat)
 }

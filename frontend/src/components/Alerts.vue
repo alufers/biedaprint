@@ -26,7 +26,6 @@ export default {
     }
   },
   created() {
-    this.connection.on();
   },
   connectionSubscriptions: {
     "message.alert"(a) {
