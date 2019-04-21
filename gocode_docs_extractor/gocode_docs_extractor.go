@@ -36,7 +36,6 @@ func processJSON(d interface{}) interface{} {
 
 		return d
 	}
-	return nil
 }
 
 func main() {
