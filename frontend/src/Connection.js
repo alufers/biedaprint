@@ -30,6 +30,7 @@ export default class Connection extends EventEmitter {
     });
     this.socket.addEventListener("close", () => {
       this.emit("statusChanged", "closed");
+      setTimeout(() => this.connect(), 1000);
     });
     this.socket.addEventListener("message", ev => {
       let data = JSON.parse(ev.data);
@@ -39,7 +40,7 @@ export default class Connection extends EventEmitter {
   }
   sendMessage(type, data) {
     // eslint-disable-next-line
-    console.log("MSG", { type, data });
+    //console.log("MSG", { type, data });
     if (!this.isOpen) {
       this.once("open", () => {
         this.sendMessage(type, data);

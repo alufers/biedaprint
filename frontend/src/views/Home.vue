@@ -17,9 +17,11 @@
 
 <script>
 import TemperatureDisplay from "@/components/TemperatureDisplay";
+import connectionMixin from "@/connectionMixin";
+
 export default {
   name: "home",
-  inject: ["connection"],
+  mixins: [connectionMixin],
   components: { TemperatureDisplay },
   data() {
     return {
@@ -34,11 +36,10 @@ export default {
       this.connection.sendMessage("disconnectFromSerial");
     }
   },
-  created() {
-    this.connection.on(
-      "message.getSerialStatus",
-      ({ status }) => (this.serialStatus = status)
-    );
+  connectionSubscriptions: {
+    "message.getSerialStatus"({ status }) {
+      this.serialStatus = status;
+    }
   }
 };
 </script>

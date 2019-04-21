@@ -5,17 +5,18 @@
 </template>
 
 <script>
-import Vue from "vue";
 import Chart from "chart.js";
+import connectionMixin from "@/connectionMixin";
 
 export default {
+  mixins: [connectionMixin],
   data() {
     return {
+      chart: null,
       valuesToShow: ["hotendTemperature", "targetHotendTemperature"],
       values: {}
     };
   },
-  inject: ["connection"],
   mounted() {
     // for (let v of this.valuesToShow) {
     //   this.connection.sendMessage("subscribeToTrackedValue", {
@@ -25,7 +26,7 @@ export default {
     // this.connection.on("message.trackedValueUpdated", ({ value, name }) => {
     //   Vue.set(this.values, name, value);
     // });
-    let chart = new Chart(this.$refs.chartCanvas.getContext("2d"), {
+    this.chart = new Chart(this.$refs.chartCanvas.getContext("2d"), {
       type: "line",
       data: {
         labels: Array(300)
@@ -45,22 +46,27 @@ export default {
         name: v
       });
     }
-    this.connection.on("message.getTrackedValue", ({ trackedValue }) => {
-      chart.data.datasets.push({
+  },
+  connectionSubscriptions: {
+    "message.trackedValueUpdated"({ value, name }) {
+      let dataset = this.chart.data.datasets.find(d => d.label === name);
+      if (!dataset) {
+        return; //wait for history
+      }
+      dataset.data.push(value);
+      if (dataset.data.length > this.chart.data.labels.length) {
+        dataset.data = dataset.data.slice(1);
+      }
+      this.chart.update();
+    },
+    "message.getTrackedValue"({ trackedValue }) {
+      this.chart.data.datasets.push({
         borderColor: trackedValue.plotColor,
         label: trackedValue.name,
         data: trackedValue.history
       });
-      chart.update();
-    });
-    this.connection.on("message.trackedValueUpdated", ({ value, name }) => {
-      let dataset = chart.data.datasets.find(d => d.label === name);
-      dataset.data.push(value);
-      if (dataset.data.length > chart.data.labels.length) {
-        dataset.data = dataset.data.slice(1);
-      }
-      chart.update();
-    });
+      this.chart.update();
+    }
   }
 };
 </script>

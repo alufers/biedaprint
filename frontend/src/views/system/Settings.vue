@@ -27,7 +27,10 @@
   </div>
 </template>
 <script>
+import connectionMixin from "@/connectionMixin";
+
 export default {
+  mixins: [connectionMixin],
   data() {
     return {
       rates: [
@@ -49,7 +52,6 @@ export default {
       settings: null
     };
   },
-  inject: ["connection"],
   methods: {
     save() {
       this.connection.sendMessage("saveSettings", this.settings);
@@ -58,12 +60,14 @@ export default {
   created() {
     this.connection.sendMessage("serialList");
     this.connection.sendMessage("getSettings");
-    this.connection.on("message.serialList", ({ ports }) => {
+  },
+  connectionSubscriptions: {
+    "message.serialList"({ ports }) {
       this.serialPorts = ports;
-    });
-    this.connection.on("message.getSettings", set => {
+    },
+    "message.getSettings"(set) {
       this.settings = set;
-    });
+    }
   }
 };
 </script>

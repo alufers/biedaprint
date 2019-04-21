@@ -1,6 +1,9 @@
 <template>
   <div>
     <h2 class="title">System information</h2>
+    <button class="button is-primary" @click="loadData">
+      <i class="fas fa-sync"></i>
+    </button>
     <div v-if="systemInfo">
       <table class="table">
         <thead>
@@ -21,18 +24,27 @@
 </template>
 
 <script>
+import connectionMixin from "@/connectionMixin";
+
 export default {
-  inject: ["connection"],
+  mixins: [connectionMixin],
   data() {
     return {
       systemInfo: null
     };
   },
   created() {
-    this.connection.sendMessage("getSysteminfo");
-    this.connection.on("message.getSysteminfo", info => {
+    this.loadData();
+  },
+  methods: {
+    loadData() {
+      this.connection.sendMessage("getSysteminfo");
+    }
+  },
+  connectionSubscriptions: {
+    "message.getSysteminfo"(info) {
       this.systemInfo = info;
-    });
+    }
   }
 };
 </script>

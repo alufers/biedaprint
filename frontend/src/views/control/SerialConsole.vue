@@ -24,8 +24,10 @@
 
 <script>
 import GcodeDocs from "@/components/GcodeDocs.vue";
+import connectionMixin from "@/connectionMixin";
+
 export default {
-  inject: ["connection"],
+  mixins: [connectionMixin],
   components: {
     GcodeDocs
   },
@@ -60,10 +62,12 @@ export default {
         this.$refs.console.scrollTop = this.$refs.console.scrollHeight;
       });
     });
-    this.connection.on("message.serialConsole", ({ data }) => {
+  },
+  connectionSubscriptions: {
+    "message.serialConsole"({ data }) {
       this.scrollback += data;
       this.$refs.console.scrollTop = this.$refs.console.scrollHeight;
-    });
+    }
   }
 };
 </script>
