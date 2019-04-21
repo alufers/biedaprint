@@ -11,8 +11,10 @@
 </template>
 
 <script>
+import connectionMixin from "@/connectionMixin";
+
 export default {
-  inject: ["connection"],
+  mixins: [connectionMixin],
   data() {
     return {
       alerts: []
@@ -24,12 +26,15 @@ export default {
     }
   },
   created() {
-    this.connection.on("message.alert", a => {
+    this.connection.on();
+  },
+  connectionSubscriptions: {
+    "message.alert"(a) {
       this.alerts.push({
         ...a,
         id: Math.random()
       });
-    });
+    }
   }
 };
 </script>
