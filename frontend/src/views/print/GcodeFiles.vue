@@ -111,7 +111,6 @@ export default {
         seconds: value
       });
       let durObj = dur.normalize().toObject();
-      console.log(durObj);
       return Object.keys(durObj)
         .filter(k => durObj[k] !== 0 && k !== "seconds")
         .map(k => durObj[k].toFixed(0) + " " + k)
