@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"path/filepath"
 	"runtime"
 
 	"github.com/gorilla/websocket"
@@ -28,6 +29,8 @@ var messageHandlers = map[string]func(*websocket.Conn, interface{}){
 	"getTrackedValues":        handleGetTrackedValuesMessage,
 	"getTrackedValue":         handleGetTrackedValueMessage,
 	"subscribeToTrackedValue": handleSubscribeToTrackedValueMessage,
+	"getGcodeFileMetas":       handleGetGcodeFileMetas,
+	"deleteGcodeFile":         handleDeleteGcodeFile,
 }
 
 func sendError(c *websocket.Conn, err error) {
@@ -236,5 +239,31 @@ func handleSubscribeToTrackedValueMessage(c *websocket.Conn, data interface{}) {
 		return
 	}
 	log.Printf("Client subscribed to %v", dataMap["name"].(string))
+	for _, s := range t.subscribers {
+		if s == c {
+			return // duplicate
+		}
+	}
 	t.subscribers = append(t.subscribers, c)
+}
+
+func handleGetGcodeFileMetas(c *websocket.Conn, data interface{}) {
+	metas := []interface{}{}
+	metafilePaths, _ := filepath.Glob(filepath.Join(globalSettings.DataPath, "gcode_files/", "*.gcode.meta"))
+	for _, fp := range metafilePaths {
+		meta, err := loadGcodeFileMeta(fp)
+		if err != nil {
+			sendError(c, err)
+			// don't abort
+		}
+		metas = append(metas, meta)
+	}
+	c.WriteJSON(jd{
+		"type": "getGcodeFileMetas",
+		"data": metas,
+	})
+}
+
+func handleDeleteGcodeFile(c *websocket.Conn, data interface{}) {
+	//TODO: finish
 }

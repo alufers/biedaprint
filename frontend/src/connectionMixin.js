@@ -1,5 +1,3 @@
-import Vue from "vue";
-
 export default {
   inject: ["connection"],
   data() {

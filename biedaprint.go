@@ -21,6 +21,7 @@ func main() {
 	go serialReader()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", handleWs)
+	mux.HandleFunc("/gcode-file-upload", handleGcodeFileUpload)
 	box := packr.NewBox("./static")
 	mux.Handle("/", interceptHandler(http.FileServer(box), func(w http.ResponseWriter, status int) {
 		data, _ := box.FindString("index.html")

@@ -21,7 +21,12 @@
     <div id="navbarBasicExample" class="navbar-menu" :class="{'is-active': navbarActive}">
       <div class="navbar-start">
         <router-link class="navbar-item" to="/" active-class="huba">Biedaprint</router-link>
-
+        <div class="navbar-item has-dropdown is-hoverable">
+          <router-link class="navbar-link" to="/print">Print</router-link>
+          <div class="navbar-dropdown">
+            <router-link class="navbar-item" to="/print/gcode-files">Gcode files</router-link>
+          </div>
+        </div>
         <div class="navbar-item has-dropdown is-hoverable">
           <router-link class="navbar-link" to="/control">Control</router-link>
           <div class="navbar-dropdown">

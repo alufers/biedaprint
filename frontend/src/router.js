@@ -37,6 +37,12 @@ export default new Router({
       name: "system-info",
       component: () =>
         import(/* webpackChunkName: "systeminfo" */ "./views/system/SystemInfo.vue")
+    },
+    {
+      path: "/print/gcode-files",
+      name: "gcode-files",
+      component: () =>
+        import(/* webpackChunkName: "systeminfo" */ "./views/print/GcodeFiles.vue")
     }
   ]
 });
