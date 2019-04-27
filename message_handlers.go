@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 
 	"github.com/gorilla/websocket"
 	"github.com/mitchellh/mapstructure"
@@ -249,7 +250,7 @@ func handleSubscribeToTrackedValueMessage(c *websocket.Conn, data interface{}) {
 }
 
 func handleGetGcodeFileMetas(c *websocket.Conn, data interface{}) {
-	metas := []interface{}{}
+	metas := []*gcodeFileMeta{}
 	metafilePaths, _ := filepath.Glob(filepath.Join(globalSettings.DataPath, "gcode_files/", "*.gcode.meta"))
 	for _, fp := range metafilePaths {
 		meta, err := loadGcodeFileMeta(fp)
@@ -259,6 +260,9 @@ func handleGetGcodeFileMetas(c *websocket.Conn, data interface{}) {
 		}
 		metas = append(metas, meta)
 	}
+	sort.Slice(metas, func(i int, j int) bool {
+		return !metas[i].UploadDate.Before(metas[j].UploadDate)
+	})
 	c.WriteJSON(jd{
 		"type": "getGcodeFileMetas",
 		"data": metas,
