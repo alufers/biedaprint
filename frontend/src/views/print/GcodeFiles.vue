@@ -93,8 +93,14 @@ export default {
   connectionSubscriptions: {
     "message.getGcodeFileMetas"(metas) {
       this.gcodeFiles = metas;
-    },
-    "message.deleteGcodeFile"() {
+    }
+  },
+  methods: {
+    deleteGcodeFile(gcodeFileName) {
+      this.gcodeFileToDelete = null;
+      this.connection.sendMessage("deleteGcodeFile", {
+        gcodeFileName
+      });
       this.connection.sendMessage("getGcodeFileMetas");
     }
   },
@@ -111,15 +117,11 @@ export default {
         seconds: value
       });
       let durObj = dur.normalize().toObject();
+
       return Object.keys(durObj)
         .filter(k => durObj[k] !== 0 && k !== "seconds")
         .map(k => durObj[k].toFixed(0) + " " + k)
         .join(", ");
-    },
-    deleteGcodeFile(gcodeFileName) {
-      this.connection.sendMessage("deleteGcodeFile", {
-        gcodeFileName
-      });
     }
   },
   created() {

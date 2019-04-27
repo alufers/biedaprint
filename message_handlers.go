@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 
@@ -265,5 +266,26 @@ func handleGetGcodeFileMetas(c *websocket.Conn, data interface{}) {
 }
 
 func handleDeleteGcodeFile(c *websocket.Conn, data interface{}) {
+	dataMap := data.(map[string]interface{})
+	gcodeFileName := dataMap["gcodeFileName"].(string)
+	gcodeName := filepath.Join(globalSettings.DataPath, "gcode_files/", gcodeFileName)
+	gcodeMetaName := filepath.Join(globalSettings.DataPath, "gcode_files/", gcodeFileName+".meta")
+	err := os.Remove(gcodeName)
+	if err != nil {
+		sendError(c, err)
+		return
+	}
+	err = os.Remove(gcodeMetaName)
+	if err != nil {
+		sendError(c, err)
+		return
+	}
+	c.WriteJSON(jd{
+		"type": "alert",
+		"data": jd{
+			"type":    "success",
+			"content": "Gcode file deleted!",
+		},
+	})
 	//TODO: finish
 }
