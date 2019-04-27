@@ -250,23 +250,28 @@ func handleSubscribeToTrackedValueMessage(c *websocket.Conn, data interface{}) {
 }
 
 func handleGetGcodeFileMetas(c *websocket.Conn, data interface{}) {
+	handlerMutex.Unlock()
 	metas := []*gcodeFileMeta{}
 	metafilePaths, _ := filepath.Glob(filepath.Join(globalSettings.DataPath, "gcode_files/", "*.gcode.meta"))
 	for _, fp := range metafilePaths {
 		meta, err := loadGcodeFileMeta(fp)
 		if err != nil {
-			sendError(c, err)
+			// sendError(c, err)
 			// don't abort
+		} else {
+			metas = append(metas, meta)
 		}
-		metas = append(metas, meta)
 	}
 	sort.Slice(metas, func(i int, j int) bool {
 		return !metas[i].UploadDate.Before(metas[j].UploadDate)
 	})
+	handlerMutex.Lock()
+
 	c.WriteJSON(jd{
 		"type": "getGcodeFileMetas",
 		"data": metas,
 	})
+
 }
 
 func handleDeleteGcodeFile(c *websocket.Conn, data interface{}) {

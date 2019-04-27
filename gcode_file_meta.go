@@ -20,14 +20,21 @@ type gcodeFileMeta struct {
 	GcodeFileName string    `json:"gcodeFileName"`
 	UploadDate    time.Time `json:"uploadDate"`
 
-	TotalLines     int     `json:"totalLines"`
-	PrintTime      float32 `json:"printTime"`
-	FilamentUsedMM float32 `json:"filamentUsedMm"`
+	TotalLines     int               `json:"totalLines"`
+	PrintTime      float32           `json:"printTime"`
+	FilamentUsedMM float32           `json:"filamentUsedMm"`
+	LayerIndexes   []gcodeLayerIndex `json:"layerIndexes"`
+}
+
+type gcodeLayerIndex struct {
+	LineNumber  int `json:"lineNumber"`
+	LayerNumber int `json:"layerNumber"`
 }
 
 func init() {
 	gob.Register(gcodeLineIndex{})
 	gob.Register(gcodeFileMeta{})
+	gob.Register(gcodeLayerIndex{})
 }
 
 func (gfm *gcodeFileMeta) Save() error {
@@ -68,14 +75,19 @@ func (gfm *gcodeFileMeta) AnalyzeGcodeFile() error {
 	startTime := time.Now()
 	s := bufio.NewScanner(f)
 	gfm.TotalLines = 0
-	sim := &gcodeSimulator{}
+	sim := &gcodeSimulator{
+		layerIndexes: []gcodeLayerIndex{},
+	}
+	lineNumber := 0
 	for s.Scan() {
 		line := s.Text()
 		gfm.TotalLines++
-		sim.parseLine(line)
+		lineNumber++
+		sim.parseLine(line, lineNumber)
 	}
 	gfm.PrintTime = sim.time
 	gfm.FilamentUsedMM = sim.filamentUsed
+	gfm.LayerIndexes = sim.layerIndexes
 	log.Printf("Finished gcode analysis in %v seconds", time.Now().Sub(startTime).Seconds())
 	runtime.GC()
 	return nil

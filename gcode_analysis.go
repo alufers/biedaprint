@@ -76,9 +76,11 @@ type gcodeSimulator struct {
 	currentStatus gcodePrinterStatus
 	filamentUsed  float32 // milimeters
 	time          float32 // seconds
+	layerIndexes  []gcodeLayerIndex
+	layer         int
 }
 
-func (gs *gcodeSimulator) parseLine(line string) error {
+func (gs *gcodeSimulator) parseLine(line string, number int) error {
 	line = strings.TrimSpace(line)
 	if strings.HasPrefix(line, ";") || line == "" {
 		return nil
@@ -91,6 +93,13 @@ func (gs *gcodeSimulator) parseLine(line string) error {
 		next, time, filamentUsed, err := gs.currentStatus.nextAfterMovement(segments)
 		if err != nil {
 			return err
+		}
+		if gs.currentStatus.Z < next.Z { // next layer
+			gs.layerIndexes = append(gs.layerIndexes, gcodeLayerIndex{
+				LineNumber:  number,
+				LayerNumber: gs.layer,
+			})
+			gs.layer++
 		}
 		gs.currentStatus = next
 		gs.time += time + gcodeInstructionConstantPenality

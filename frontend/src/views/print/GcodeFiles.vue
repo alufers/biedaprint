@@ -9,6 +9,7 @@
           <th>Lines</th>
           <th>Time</th>
           <th>Filament used</th>
+          <th>Layers</th>
           <th>Upload date</th>
           <th>Actions</th>
         </tr>
@@ -19,6 +20,7 @@
           <td>{{f.totalLines}}</td>
           <td>{{f.printTime | formatDuration}}</td>
           <td>{{f.filamentUsedMm}} mm</td>
+          <td>{{f.layerIndexes && f.layerIndexes.length}}</td>
           <td>{{f.uploadDate | formatDate}}</td>
           <td>
             <div class="field has-addons">
