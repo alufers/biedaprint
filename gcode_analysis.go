@@ -1,22 +1,22 @@
 package main
 
 import (
-	"github.com/chewxy/math32"
+	"math"
 	"strconv"
 	"strings"
 )
 
-var gcodeInstructionConstantPenality float32 = 0.003 // 3 ms
+var gcodeInstructionConstantPenality float64 = 0.003 // 3 ms
 
 type gcodePrinterStatus struct {
-	X float32
-	Y float32
-	Z float32
-	F float32
-	E float32
+	X float64
+	Y float64
+	Z float64
+	F float64
+	E float64
 }
 
-func (gps gcodePrinterStatus) nextAfterMovement(segments []string) (next gcodePrinterStatus, time float32, filamentUsed float32, err error) {
+func (gps gcodePrinterStatus) nextAfterMovement(segments []string) (next gcodePrinterStatus, time float64, filamentUsed float64, err error) {
 	next = gps
 
 	for _, seg := range segments[1:] {
@@ -26,7 +26,7 @@ func (gps gcodePrinterStatus) nextAfterMovement(segments []string) (next gcodePr
 			if err != nil {
 				return
 			}
-			next.F = float32(f64)
+			next.F = float64(f64)
 		} else if strings.HasPrefix(seg, "X") {
 
 			var f64 float64
@@ -34,7 +34,7 @@ func (gps gcodePrinterStatus) nextAfterMovement(segments []string) (next gcodePr
 			if err != nil {
 				return
 			}
-			next.X = float32(f64)
+			next.X = float64(f64)
 		} else if strings.HasPrefix(seg, "Y") {
 
 			var f64 float64
@@ -42,7 +42,7 @@ func (gps gcodePrinterStatus) nextAfterMovement(segments []string) (next gcodePr
 			if err != nil {
 				return
 			}
-			next.Y = float32(f64)
+			next.Y = float64(f64)
 		} else if strings.HasPrefix(seg, "Z") {
 
 			var f64 float64
@@ -50,7 +50,7 @@ func (gps gcodePrinterStatus) nextAfterMovement(segments []string) (next gcodePr
 			if err != nil {
 				return
 			}
-			next.Z = float32(f64)
+			next.Z = float64(f64)
 		} else if strings.HasPrefix(seg, "E") {
 
 			var f64 float64
@@ -58,11 +58,11 @@ func (gps gcodePrinterStatus) nextAfterMovement(segments []string) (next gcodePr
 			if err != nil {
 				return
 			}
-			next.E = float32(f64)
+			next.E = float64(f64)
 		}
 	}
 	filamentUsed = next.E - gps.E
-	dist := math32.Sqrt((next.X-gps.X)*(next.X-gps.X) + (next.Y-gps.Y)*(next.Y-gps.Y) + (next.Z-gps.Z)*(next.Z-gps.Z))
+	dist := math.Sqrt((next.X-gps.X)*(next.X-gps.X) + (next.Y-gps.Y)*(next.Y-gps.Y) + (next.Z-gps.Z)*(next.Z-gps.Z))
 	if next.F == 0 {
 		time = 0
 	} else {
@@ -74,8 +74,8 @@ func (gps gcodePrinterStatus) nextAfterMovement(segments []string) (next gcodePr
 
 type gcodeSimulator struct {
 	currentStatus gcodePrinterStatus
-	filamentUsed  float32 // milimeters
-	time          float32 // seconds
+	filamentUsed  float64 // milimeters
+	time          float64 // seconds
 	layerIndexes  []gcodeLayerIndex
 	layer         int
 }

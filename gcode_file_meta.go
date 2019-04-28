@@ -21,8 +21,8 @@ type gcodeFileMeta struct {
 	UploadDate    time.Time `json:"uploadDate"`
 
 	TotalLines     int               `json:"totalLines"`
-	PrintTime      float32           `json:"printTime"`
-	FilamentUsedMM float32           `json:"filamentUsedMm"`
+	PrintTime      float64           `json:"printTime"`
+	FilamentUsedMM float64           `json:"filamentUsedMm"`
 	LayerIndexes   []gcodeLayerIndex `json:"layerIndexes"`
 }
 
