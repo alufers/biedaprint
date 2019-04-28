@@ -18,6 +18,7 @@ func main() {
 		log.Fatalf("Failed to create gcode_files data directory: %v", err)
 		return
 	}
+	go serialWriter()
 	go serialReader()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", handleWs)

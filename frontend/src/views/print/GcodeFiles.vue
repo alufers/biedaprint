@@ -25,7 +25,7 @@
           <td>
             <div class="field has-addons">
               <p class="control">
-                <button class="button is-primary">
+                <button class="button is-primary" @click="startPrintJob(f.gcodeFileName)">
                   <span class="icon is-small">
                     <i class="fas fa-print"></i>
                   </span>
@@ -104,6 +104,11 @@ export default {
         gcodeFileName
       });
       this.connection.sendMessage("getGcodeFileMetas");
+    },
+    startPrintJob(gcodeFileName) {
+      this.connection.sendMessage("startPrintJob", {
+        gcodeFileName
+      });
     }
   },
   filters: {

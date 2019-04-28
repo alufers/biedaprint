@@ -18,6 +18,7 @@ func handleGcodeFileUpload(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Gcode upload error: %v", err)
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	r.ParseMultipartForm(10 * 1024 * 1024)
 	file, hdr, err := r.FormFile("file")
 	if err != nil {
 		respondErr(err)
