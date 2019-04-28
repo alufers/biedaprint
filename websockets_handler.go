@@ -42,18 +42,17 @@ func handleWs(w http.ResponseWriter, r *http.Request) {
 	exit := false
 	for {
 		func() {
-			handlerMutex.Lock()
-			defer handlerMutex.Unlock()
+
 			var msgData map[string]interface{}
 			if err := c.ReadJSON(&msgData); err != nil {
-				c.WriteJSON(map[string]interface{}{
-					"msg":   "error",
-					"error": "Bad json",
-				})
+				log.Printf("Bad json from conn: %v", err)
 				c.Close()
 				exit = true
 				return
 			}
+
+			handlerMutex.Lock()
+			defer handlerMutex.Unlock()
 
 			handler, ok := messageHandlers[msgData["type"].(string)]
 			if !ok {
