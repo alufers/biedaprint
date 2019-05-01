@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/mitchellh/mapstructure"
@@ -190,6 +191,7 @@ func handleGetSystemInfoMessage(c *websocket.Conn, data interface{}) {
 	resp["SystemTotalMemory"] = byteCountBinary(int64(v.Total))
 	resp["SystemUsedMemory"] = byteCountBinary(int64(v.Used))
 	resp["SystemFreeMemory"] = byteCountBinary(int64(v.Free))
+	resp["SystemTime"] = time.Now().Format(time.RFC1123Z)
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	resp["AppSysMemory"] = byteCountBinary(int64(m.Sys))
