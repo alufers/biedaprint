@@ -51,11 +51,11 @@ export default {
     this.connection.on("statusChanged", sta => (this.socketStatus = sta));
     this.connection.on("message.getSerialStatus", data => {
       this.serialStatus = data.status;
+      setTimeout(() => this.connection.sendMessage("getSerialStatus"), 1000);
     });
-    this.connection.on("open", () => {
-      setInterval(() => this.connection.sendMessage("getSerialStatus"), 1000);
-    });
+
     this.connection.connect();
+    this.connection.sendMessage("getSerialStatus");
   }
 };
 </script>

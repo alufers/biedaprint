@@ -3,7 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"runtime"
+	"sort"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/mitchellh/mapstructure"
@@ -28,6 +32,9 @@ var messageHandlers = map[string]func(*websocket.Conn, interface{}){
 	"getTrackedValues":        handleGetTrackedValuesMessage,
 	"getTrackedValue":         handleGetTrackedValueMessage,
 	"subscribeToTrackedValue": handleSubscribeToTrackedValueMessage,
+	"getGcodeFileMetas":       handleGetGcodeFileMetas,
+	"deleteGcodeFile":         handleDeleteGcodeFile,
+	"startPrintJob":           handleStartPrintJob,
 }
 
 func sendError(c *websocket.Conn, err error) {
@@ -110,12 +117,15 @@ func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 	}
 	resetScrollback()
 	globalSerialStatus = "connected"
-	select {
-	case serialReady <- true:
-	default:
+	serialReady = true
+	for _, cc := range serialReadySems {
+		cc <- true
 	}
 
-	globalSerial.Write([]byte("M155 S1\r\n"))
+	go func() {
+		time.Sleep(time.Second * 2)
+		serialConsoleWrite <- "M115 S1\r\n" // temperature auto-reporting
+	}()
 
 	c.WriteJSON(jd{
 		"type": "getSerialStatus",
@@ -133,6 +143,7 @@ func handleDisconnectFromSerialMessage(c *websocket.Conn, data interface{}) {
 
 	err := globalSerial.Close()
 	globalSerialStatus = "disconnected"
+	serialReady = false
 	if err != nil {
 		sendError(c, err)
 
@@ -152,11 +163,12 @@ func handleSerialWriteMessage(c *websocket.Conn, data interface{}) {
 		return
 	}
 
-	_, err := globalSerial.Write([]byte((data.(map[string]interface{}))["data"].(string)))
-	if err != nil {
-		sendError(c, errors.Wrap(err, "failed to write to serial"))
-		return
-	}
+	// _, err := globalSerial.Write([]byte((data.(map[string]interface{}))["data"].(string)))
+	// if err != nil {
+	// sendError(c, errors.Wrap(err, "failed to write to serial"))
+	// return
+	// }
+	serialConsoleWrite <- (data.(map[string]interface{}))["data"].(string)
 }
 
 func handleSendGCODEMessage(c *websocket.Conn, data interface{}) {
@@ -166,11 +178,12 @@ func handleSendGCODEMessage(c *websocket.Conn, data interface{}) {
 	}
 	dataMap := data.(map[string]interface{})
 	gcodeStr := dataMap["data"].(string)
-	_, err := globalSerial.Write([]byte((gcodeStr + "\r\n")))
-	if err != nil {
-		sendError(c, errors.Wrap(err, "failed to write to serial"))
-		return
-	}
+	//_, err := globalSerial.Write([]byte((gcodeStr + "\r\n")))
+	serialConsoleWrite <- gcodeStr + "\r\n"
+	// if err != nil {
+	// 	sendError(c, errors.Wrap(err, "failed to write to serial"))
+	// 	return
+	// }
 }
 
 func handleGetSystemInfoMessage(c *websocket.Conn, data interface{}) {
@@ -181,6 +194,7 @@ func handleGetSystemInfoMessage(c *websocket.Conn, data interface{}) {
 	resp["SystemTotalMemory"] = byteCountBinary(int64(v.Total))
 	resp["SystemUsedMemory"] = byteCountBinary(int64(v.Used))
 	resp["SystemFreeMemory"] = byteCountBinary(int64(v.Free))
+	resp["SystemTime"] = time.Now().Format(time.RFC1123Z)
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	resp["AppSysMemory"] = byteCountBinary(int64(m.Sys))
@@ -236,5 +250,79 @@ func handleSubscribeToTrackedValueMessage(c *websocket.Conn, data interface{}) {
 		return
 	}
 	log.Printf("Client subscribed to %v", dataMap["name"].(string))
+	for _, s := range t.subscribers {
+		if s == c {
+			return // duplicate
+		}
+	}
 	t.subscribers = append(t.subscribers, c)
+}
+
+func handleGetGcodeFileMetas(c *websocket.Conn, data interface{}) {
+	handlerMutex.Unlock()
+	metas := []*gcodeFileMeta{}
+	metafilePaths, _ := filepath.Glob(filepath.Join(globalSettings.DataPath, "gcode_files/", "*.gcode.meta"))
+	for _, fp := range metafilePaths {
+		meta, err := loadGcodeFileMeta(fp)
+		if err != nil {
+			// sendError(c, err)
+			// don't abort
+		} else {
+			metas = append(metas, meta)
+		}
+	}
+	sort.Slice(metas, func(i int, j int) bool {
+		return !metas[i].UploadDate.Before(metas[j].UploadDate)
+	})
+	handlerMutex.Lock()
+
+	c.WriteJSON(jd{
+		"type": "getGcodeFileMetas",
+		"data": metas,
+	})
+
+}
+
+func handleDeleteGcodeFile(c *websocket.Conn, data interface{}) {
+	dataMap := data.(map[string]interface{})
+	gcodeFileName := dataMap["gcodeFileName"].(string)
+	gcodeName := filepath.Join(globalSettings.DataPath, "gcode_files/", gcodeFileName)
+	gcodeMetaName := filepath.Join(globalSettings.DataPath, "gcode_files/", gcodeFileName+".meta")
+	err := os.Remove(gcodeName)
+	if err != nil {
+		sendError(c, err)
+		return
+	}
+	err = os.Remove(gcodeMetaName)
+	if err != nil {
+		sendError(c, err)
+		return
+	}
+	c.WriteJSON(jd{
+		"type": "alert",
+		"data": jd{
+			"type":    "success",
+			"content": "Gcode file deleted!",
+		},
+	})
+}
+
+func handleStartPrintJob(c *websocket.Conn, data interface{}) {
+	dataMap := data.(map[string]interface{})
+	gcodeFileName := dataMap["gcodeFileName"].(string)
+	meta, err := loadGcodeFileMeta(filepath.Join(globalSettings.DataPath, "gcode_files/", gcodeFileName+".meta"))
+	if err != nil {
+		sendError(c, err)
+		return
+	}
+	job := &printJob{
+		gcodeMeta: meta,
+	}
+
+	select {
+	case serialPrintJobSem <- job:
+	default:
+		sendError(c, errors.New("serial writer busy with antoher job"))
+	}
+
 }

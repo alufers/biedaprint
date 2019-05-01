@@ -66,7 +66,9 @@ export default {
   connectionSubscriptions: {
     "message.serialConsole"({ data }) {
       this.scrollback += data;
-      this.$refs.console.scrollTop = this.$refs.console.scrollHeight;
+      this.$nextTick(() => {
+        this.$refs.console.scrollTop = this.$refs.console.scrollHeight;
+      });
     }
   }
 };

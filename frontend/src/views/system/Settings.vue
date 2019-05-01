@@ -22,6 +22,10 @@
         <label class="label">Scrollback buffer size</label>
         <input class="input" type="number" v-model.number="settings.scrollbackBufferSize">
       </div>
+      <div class="field">
+        <label class="label">Data path</label>
+        <input class="input" type="text" v-model="settings.dataPath">
+      </div>
       <button class="button is-primary" @click="save">Save</button>
     </div>
   </div>

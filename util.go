@@ -1,7 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"math/rand"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -39,4 +43,24 @@ func removeConnFromArray(c *websocket.Conn, array []*websocket.Conn) []*websocke
 		}
 	}
 	return newConnections
+}
+
+func respondJSON(w io.Writer, dat interface{}) {
+	enc := json.NewEncoder(w)
+	enc.Encode(dat)
+}
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+//RandStringRunes generates random stirngs of a given length
+func RandStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }

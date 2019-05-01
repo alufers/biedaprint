@@ -18,14 +18,6 @@ export default {
     };
   },
   mounted() {
-    // for (let v of this.valuesToShow) {
-    //   this.connection.sendMessage("subscribeToTrackedValue", {
-    //     name: v
-    //   });
-    // }
-    // this.connection.on("message.trackedValueUpdated", ({ value, name }) => {
-    //   Vue.set(this.values, name, value);
-    // });
     this.chart = new Chart(this.$refs.chartCanvas.getContext("2d"), {
       type: "line",
       data: {
@@ -60,6 +52,7 @@ export default {
       this.chart.update();
     },
     "message.getTrackedValue"({ trackedValue }) {
+      if (!this.valuesToShow.includes(trackedValue.name)) return;
       this.chart.data.datasets.push({
         borderColor: trackedValue.plotColor,
         label: trackedValue.name,

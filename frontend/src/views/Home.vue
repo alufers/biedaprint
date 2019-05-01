@@ -12,17 +12,21 @@
       v-if="serialStatus === 'connected'"
     >Disconnect from printer</button>
     <TemperatureDisplay/>
+    <TrackedValueTextDisplay valueName="isPrinting"/>
+    <TrackedValueTextDisplay valueName="printProgress"/>
+  <TrackedValueTextDisplay valueName="printOriginalName"/>
   </div>
 </template>
 
 <script>
 import TemperatureDisplay from "@/components/TemperatureDisplay";
 import connectionMixin from "@/connectionMixin";
+import TrackedValueTextDisplay from "@/components/TrackedValueTextDisplay";
 
 export default {
   name: "home",
   mixins: [connectionMixin],
-  components: { TemperatureDisplay },
+  components: { TemperatureDisplay, TrackedValueTextDisplay },
   data() {
     return {
       serialStatus: null

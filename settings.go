@@ -6,16 +6,19 @@ import (
 	"log"
 )
 
+//Settings holds the apps configuration
 type Settings struct {
 	SerialPort           string `json:"serialPort"`
 	BaudRate             int    `json:"baudRate"`
 	ScrollbackBufferSize int    `json:"scrollbackBufferSize"`
+	DataPath             string `json:"dataPath"`
 }
 
 var globalSettings = &Settings{
 	SerialPort:           "<invalid>",
 	BaudRate:             250000,
 	ScrollbackBufferSize: 1024 * 10, // 10 KiB
+	DataPath:             "./biedaprint_data",
 }
 
 func loadSettings() {
@@ -40,12 +43,12 @@ func loadSettings() {
 }
 
 func saveSettings() error {
-	settingsJson, err := json.Marshal(globalSettings)
+	settingsJSON, err := json.Marshal(globalSettings)
 	if err != nil {
 		log.Printf("Failed to stringify settings %v", err)
 		return err
 	}
-	err = ioutil.WriteFile("settings.json", settingsJson, 0644)
+	err = ioutil.WriteFile("settings.json", settingsJSON, 0644)
 	if err != nil {
 		log.Printf("Failed to save settings %v", err)
 	}

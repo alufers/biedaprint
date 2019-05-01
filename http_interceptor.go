@@ -20,6 +20,7 @@ func (w *interceptResponseWriter) WriteHeader(status int) {
 	}
 }
 
+//ErrorHandler handles intercepted errors
 type ErrorHandler func(http.ResponseWriter, int)
 
 func (w *interceptResponseWriter) Write(p []byte) (n int, err error) {
