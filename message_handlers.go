@@ -139,6 +139,7 @@ func handleDisconnectFromSerialMessage(c *websocket.Conn, data interface{}) {
 
 	err := globalSerial.Close()
 	globalSerialStatus = "disconnected"
+	serialReady = false
 	if err != nil {
 		sendError(c, err)
 

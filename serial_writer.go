@@ -34,6 +34,7 @@ func serialWriter() {
 				}
 				var sendAndMaybeResend func(string)
 				sendAndMaybeResend = func(l string) {
+					log.Printf("sending: %#v", l)
 					globalSerial.Write([]byte(l))
 					select {
 					case <-serialOkSem:

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 )
 
@@ -14,6 +15,7 @@ type printJob struct {
 	lineResendBuffer      map[int]string
 	lineResendBufferMutex *sync.RWMutex
 	currentLine           int
+	currentNonBlankLine   int
 	gcodeFile             *os.File
 	scanner               *bufio.Scanner
 }
@@ -44,16 +46,21 @@ func (pj *printJob) jobLines() (chan string, error) {
 		defer pj.gcodeFile.Close()
 		log.Printf("Starting jobLines goroutine...")
 		for pj.scanner.Scan() {
-			rawLine := pj.scanner.Text()
-			lineWithNumber := fmt.Sprintf("N%d %v ", pj.currentLine+1, rawLine)
+			rawLine := strings.Split(pj.scanner.Text(), ";")[0]
+
+			lineWithNumber := fmt.Sprintf("N%d %v", pj.currentNonBlankLine+1, rawLine)
 			lineWithChecksum := fmt.Sprintf("%v*%v\r\n", lineWithNumber, pj.computeLineChecksum(lineWithNumber))
-			log.Printf("Sending gcode line %v of %v", pj.currentLine+1, pj.gcodeMeta.TotalLines)
-			c <- lineWithChecksum
-			pj.lineResendBufferMutex.Lock()
-			pj.lineResendBuffer[pj.currentLine] = lineWithChecksum
+			if strings.TrimSpace(rawLine) != "" {
+				log.Printf("Sending gcode line %v of %v", pj.currentLine+1, pj.gcodeMeta.TotalLines)
+				c <- lineWithChecksum
+				pj.lineResendBufferMutex.Lock()
+				pj.lineResendBuffer[pj.currentNonBlankLine] = lineWithChecksum
+				pj.currentNonBlankLine++
+				delete(pj.lineResendBuffer, pj.currentNonBlankLine-10)
+				pj.lineResendBufferMutex.Unlock()
+			}
 			pj.currentLine++
-			delete(pj.lineResendBuffer, pj.currentLine-10)
-			pj.lineResendBufferMutex.Unlock()
+
 		}
 	}()
 
