@@ -39,6 +39,8 @@ func serialWriter() {
 					select {
 					case <-serialOkSem:
 					case num := <-serialResendSem:
+						log.Printf("Resending line %v", num)
+						<-serialOkSem
 						sendAndMaybeResend(job.getLineForResend(num))
 					}
 				}
