@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var gcodeInstructionConstantPenality float64 = 0.003 // 3 ms
+var gcodeInstructionConstantPenality = 0.003 // 3 ms
 
 type gcodePrinterStatus struct {
 	X float64

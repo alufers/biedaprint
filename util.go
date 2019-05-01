@@ -56,6 +56,7 @@ func init() {
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
+//RandStringRunes generates random stirngs of a given length
 func RandStringRunes(n int) string {
 	b := make([]rune, n)
 	for i := range b {
