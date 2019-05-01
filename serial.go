@@ -43,6 +43,13 @@ func parseLine(line string) {
 		case serialOkSem <- true:
 		default:
 		}
+	} else if strings.HasPrefix(line, "Resend:") {
+		var lineNumber int
+		fmt.Sscanf(line, "Resend: %d", lineNumber)
+		select {
+		case serialResendSem <- lineNumber:
+		default:
+		}
 	}
 }
 
