@@ -26,10 +26,12 @@ export default {
       if (name === this.valueName) {
         this.value = value;
       }
+    },
+    "message.getTrackedValue"({ trackedValue }) {
+      if (trackedValue.name === this.valueName) {
+        this.value = trackedValue.value;
+      }
     }
-    // "message.getTrackedValue"({ trackedValue }) {
-
-    // }
   }
 };
 </script>

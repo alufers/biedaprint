@@ -27,13 +27,25 @@ var trackedValues = map[string]*trackedValue{
 		History:          []interface{}{},
 		subscribers:      []*websocket.Conn{},
 	},
+	// current print values
+	"isPrinting": &trackedValue{
+		Name:        "isPrinting",
+		DisplayType: "boolean",
+		Value:       false,
+		subscribers: []*websocket.Conn{},
+	},
 	"printProgress": &trackedValue{
-		Name:             "printProgress",
-		Unit:             "%",
-		DisplayType:      "number",
-		Value:            0.0,
-		MaxHistoryLength: 0,
-		subscribers:      []*websocket.Conn{},
+		Name:        "printProgress",
+		Unit:        "%",
+		DisplayType: "number",
+		Value:       0.0,
+		subscribers: []*websocket.Conn{},
+	},
+	"printOriginalName": &trackedValue{
+		Name:        "printOriginalName",
+		DisplayType: "string",
+		Value:       "",
+		subscribers: []*websocket.Conn{},
 	},
 }
 
@@ -54,17 +66,19 @@ type trackedValue struct {
 }
 
 func (tv *trackedValue) updateValue(val interface{}) {
-	if tv.MaxHistoryLength != 0 {
-		if len(tv.History) >= tv.MaxHistoryLength {
-			tv.History = append(tv.History[1:], val)
-		} else {
-			tv.History = append(tv.History, val)
-		}
-	}
-	tv.LastUpdate = time.Now()
+
 	go func() {
 		handlerMutex.Lock()
 		defer handlerMutex.Unlock()
+		if tv.MaxHistoryLength != 0 {
+			if len(tv.History) >= tv.MaxHistoryLength {
+				tv.History = append(tv.History[1:], val)
+			} else {
+				tv.History = append(tv.History, val)
+			}
+		}
+		tv.Value = val
+		tv.LastUpdate = time.Now()
 		for _, s := range tv.subscribers {
 			s.WriteJSON(jd{
 				"type": "trackedValueUpdated",

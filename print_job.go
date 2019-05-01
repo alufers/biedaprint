@@ -45,6 +45,9 @@ func (pj *printJob) jobLines() (chan string, error) {
 		defer close(c)
 		defer pj.gcodeFile.Close()
 		log.Printf("Starting jobLines goroutine...")
+		trackedValues["printOriginalName"].updateValue(pj.gcodeMeta.OriginalName)
+		trackedValues["isPrinting"].updateValue(true)
+		defer trackedValues["isPrinting"].updateValue(false)
 		c <- "M110 N0\r\n"
 		for pj.scanner.Scan() {
 			rawLine := strings.Split(pj.scanner.Text(), ";")[0]

@@ -12,7 +12,9 @@
       v-if="serialStatus === 'connected'"
     >Disconnect from printer</button>
     <TemperatureDisplay/>
+    <TrackedValueTextDisplay valueName="isPrinting"/>
     <TrackedValueTextDisplay valueName="printProgress"/>
+  <TrackedValueTextDisplay valueName="printOriginalName"/>
   </div>
 </template>
 
