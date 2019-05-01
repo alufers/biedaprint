@@ -122,7 +122,10 @@ func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 		cc <- true
 	}
 
-	globalSerial.Write([]byte("M155 S1\r\n"))
+	go func() {
+		time.Sleep(time.Second * 2)
+		serialConsoleWrite <- "M115 S1\r\n" // temperature auto-reporting
+	}()
 
 	c.WriteJSON(jd{
 		"type": "getSerialStatus",

@@ -52,6 +52,7 @@ export default {
       this.chart.update();
     },
     "message.getTrackedValue"({ trackedValue }) {
+      if (!this.valuesToShow.includes(trackedValue.name)) return;
       this.chart.data.datasets.push({
         borderColor: trackedValue.plotColor,
         label: trackedValue.name,

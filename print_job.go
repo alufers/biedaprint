@@ -59,6 +59,7 @@ func (pj *printJob) jobLines() (chan string, error) {
 				pj.currentNonBlankLine++
 				delete(pj.lineResendBuffer, pj.currentNonBlankLine-10)
 				pj.lineResendBufferMutex.Unlock()
+				trackedValues["printProgress"].updateValue((float64(pj.currentLine) / float64(pj.gcodeMeta.TotalLines)) * 100)
 			}
 			pj.currentLine++
 
