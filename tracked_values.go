@@ -60,6 +60,12 @@ var trackedValues = map[string]*trackedValue{
 		Value:       0,
 		subscribers: []*websocket.Conn{},
 	},
+	"printTotalLayers": &trackedValue{
+		Name:        "printTotalLayers",
+		DisplayType: "number",
+		Value:       0,
+		subscribers: []*websocket.Conn{},
+	},
 }
 
 type trackedValue struct {

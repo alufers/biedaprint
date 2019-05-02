@@ -5,7 +5,7 @@
     <TrackedValueModel @change="printOriginalName = $event" valueName="printOriginalName"/>
     <TrackedValueModel @change="printStartTime = $event" valueName="printStartTime"/>
     <TrackedValueModel @change="printCurrentLayer = $event" valueName="printCurrentLayer"/>
-
+    <TrackedValueModel @change="printTotalLayers = $event" valueName="printTotalLayers"/>
     <article class="message is-primary" v-if="isPrinting">
       <div class="message-header">
         <p>Print status</p>
@@ -26,7 +26,7 @@
         </div>
         <div class="print-stat">
           <div>Layer</div>
-          <div class="value">{{printCurrentLayer}}</div>
+          <div class="value">{{printCurrentLayer}}/{{printTotalLayers}}</div>
         </div>
         <br>
         <br>
@@ -62,7 +62,8 @@ export default {
       printProgress: 0,
       printOriginalName: "",
       printStartTime: null,
-      printCurrentLayer: 0
+      printCurrentLayer: 0,
+      printTotalLayers: 0
     };
   },
   components: { TrackedValueModel },

@@ -54,6 +54,7 @@ func (pj *printJob) jobLines() (chan string, error) {
 		trackedValues["isPrinting"].updateValue(true)
 		trackedValues["printStartTime"].updateValue(pj.startedTime.Format(time.RFC3339))
 		trackedValues["printCurrentLayer"].updateValue(0)
+		trackedValues["printTotalLayers"].updateValue(len(pj.gcodeMeta.LayerIndexes))
 		defer trackedValues["isPrinting"].updateValue(false)
 		c <- "M110 N0\r\n"
 		for pj.scanner.Scan() {
