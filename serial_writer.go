@@ -8,6 +8,7 @@ var serialConsoleWrite = make(chan string, 20)
 var serialOkSem = make(chan bool)
 var serialResendSem = make(chan int, 10)
 var serialPrintJobSem = make(chan *printJob)
+var serialAbortPrintJobSem = make(chan bool, 1)
 
 //serialWriter runs on a separate goroutine
 func serialWriter() {
@@ -43,7 +44,14 @@ func serialWriter() {
 						sendAndMaybeResend(job.getLineForResend(num))
 					}
 				}
+			LineLoop:
 				for line := range lineChan {
+					select {
+					case <-serialAbortPrintJobSem:
+						job.abort()
+						break LineLoop
+					default:
+					}
 					sendAndMaybeResend(line)
 				}
 			}

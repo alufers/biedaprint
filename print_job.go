@@ -8,16 +8,19 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 )
 
 type printJob struct {
 	gcodeMeta             *gcodeFileMeta
+	startedTime           time.Time
 	lineResendBuffer      map[int]string
 	lineResendBufferMutex *sync.RWMutex
 	currentLine           int
 	currentNonBlankLine   int
 	gcodeFile             *os.File
 	scanner               *bufio.Scanner
+	abortSem              chan bool
 }
 
 func (pj *printJob) computeLineChecksum(line string) int {
@@ -32,6 +35,7 @@ func (pj *printJob) computeLineChecksum(line string) int {
 //jobLines returns a channel which sends lines together with newline chars and checksums
 func (pj *printJob) jobLines() (chan string, error) {
 	pj.lineResendBufferMutex = &sync.RWMutex{}
+	pj.abortSem = make(chan bool)
 	pj.lineResendBuffer = make(map[int]string)
 	var err error
 	pj.gcodeFile, err = os.Open(filepath.Join(globalSettings.DataPath, "gcode_files/", pj.gcodeMeta.GcodeFileName))
@@ -56,7 +60,12 @@ func (pj *printJob) jobLines() (chan string, error) {
 			lineWithChecksum := fmt.Sprintf("%v*%v\r\n", lineWithNumber, pj.computeLineChecksum(lineWithNumber))
 			if strings.TrimSpace(rawLine) != "" {
 				log.Printf("Sending gcode line %v of %v", pj.currentLine+1, pj.gcodeMeta.TotalLines)
-				c <- lineWithChecksum
+				select {
+				case c <- lineWithChecksum:
+				case <-pj.abortSem:
+					return
+				}
+
 				pj.lineResendBufferMutex.Lock()
 				pj.lineResendBuffer[pj.currentNonBlankLine] = lineWithChecksum
 				pj.currentNonBlankLine++
@@ -76,4 +85,8 @@ func (pj *printJob) getLineForResend(number int) string {
 	pj.lineResendBufferMutex.RLock()
 	defer pj.lineResendBufferMutex.RUnlock()
 	return pj.lineResendBuffer[number]
+}
+
+func (pj *printJob) abort() {
+	pj.abortSem <- true
 }
