@@ -35,16 +35,35 @@ var trackedValues = map[string]*trackedValue{
 		subscribers: []*websocket.Conn{},
 	},
 	"printProgress": &trackedValue{
-		Name:        "printProgress",
-		Unit:        "%",
-		DisplayType: "number",
-		Value:       0.0,
-		subscribers: []*websocket.Conn{},
+		Name:              "printProgress",
+		Unit:              "%",
+		DisplayType:       "number",
+		Value:             0.0,
+		MinUpdateInterval: time.Second * 1,
+		subscribers:       []*websocket.Conn{},
 	},
 	"printOriginalName": &trackedValue{
 		Name:        "printOriginalName",
 		DisplayType: "string",
 		Value:       "",
+		subscribers: []*websocket.Conn{},
+	},
+	"printStartTime": &trackedValue{
+		Name:        "printStartTime",
+		DisplayType: "time",
+		Value:       nil,
+		subscribers: []*websocket.Conn{},
+	},
+	"printCurrentLayer": &trackedValue{
+		Name:        "printCurrentLayer",
+		DisplayType: "number",
+		Value:       0,
+		subscribers: []*websocket.Conn{},
+	},
+	"printTotalLayers": &trackedValue{
+		Name:        "printTotalLayers",
+		DisplayType: "number",
+		Value:       0,
 		subscribers: []*websocket.Conn{},
 	},
 }
@@ -57,7 +76,9 @@ type trackedValue struct {
 
 	Value interface{} `json:"value"`
 
-	LastUpdate time.Time `json:"lastUpdate"`
+	LastUpdate        time.Time `json:"lastUpdate"`
+	lastSent          time.Time
+	MinUpdateInterval time.Duration `json:"minUpdateInterval"`
 
 	History          []interface{} `json:"history"`
 	MaxHistoryLength int           `json:"maxHistoryLength"`
@@ -79,15 +100,23 @@ func (tv *trackedValue) updateValue(val interface{}) {
 		}
 		tv.Value = val
 		tv.LastUpdate = time.Now()
-		for _, s := range tv.subscribers {
-			s.WriteJSON(jd{
-				"type": "trackedValueUpdated",
-				"data": jd{
-					"name":  tv.Name,
-					"value": val,
-				},
-			})
+		if time.Now().Sub(tv.lastSent) > tv.MinUpdateInterval {
+			tv.lastSent = time.Now()
+			tv.broadcastValue()
 		}
+
 	}()
 
+}
+
+func (tv *trackedValue) broadcastValue() {
+	for _, s := range tv.subscribers {
+		s.WriteJSON(jd{
+			"type": "trackedValueUpdated",
+			"data": jd{
+				"name":  tv.Name,
+				"value": tv.Value,
+			},
+		})
+	}
 }

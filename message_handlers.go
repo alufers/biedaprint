@@ -35,6 +35,7 @@ var messageHandlers = map[string]func(*websocket.Conn, interface{}){
 	"getGcodeFileMetas":       handleGetGcodeFileMetas,
 	"deleteGcodeFile":         handleDeleteGcodeFile,
 	"startPrintJob":           handleStartPrintJob,
+	"abortPrintJob":           handleAbortPrintJob,
 }
 
 func sendError(c *websocket.Conn, err error) {
@@ -58,7 +59,7 @@ func handleSerialListMessage(c *websocket.Conn, data interface{}) {
 	c.WriteJSON(jd{
 		"type": "serialList",
 		"data": jd{
-			"ports": []string{"/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/ttyUSB2", "/dev/ttyUSB3", "/dev/ttyACM0", "/dev/ttyACM1"},
+			"ports": []string{"/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/ttyUSB2", "/dev/ttyUSB3", "/dev/ttyACM0", "/dev/ttyACM1", "/dev/ttyACM2"},
 		},
 	})
 }
@@ -316,7 +317,8 @@ func handleStartPrintJob(c *websocket.Conn, data interface{}) {
 		return
 	}
 	job := &printJob{
-		gcodeMeta: meta,
+		gcodeMeta:   meta,
+		startedTime: time.Now(),
 	}
 
 	select {
@@ -325,4 +327,11 @@ func handleStartPrintJob(c *websocket.Conn, data interface{}) {
 		sendError(c, errors.New("serial writer busy with antoher job"))
 	}
 
+}
+
+func handleAbortPrintJob(c *websocket.Conn, data interface{}) {
+	select {
+	case serialAbortPrintJobSem <- true:
+	default:
+	}
 }
