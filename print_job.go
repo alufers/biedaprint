@@ -18,6 +18,7 @@ type printJob struct {
 	lineResendBufferMutex *sync.RWMutex
 	currentLine           int
 	currentNonBlankLine   int
+	currentLayerIndex     int
 	gcodeFile             *os.File
 	scanner               *bufio.Scanner
 	abortSem              chan bool
@@ -51,6 +52,8 @@ func (pj *printJob) jobLines() (chan string, error) {
 		log.Printf("Starting jobLines goroutine...")
 		trackedValues["printOriginalName"].updateValue(pj.gcodeMeta.OriginalName)
 		trackedValues["isPrinting"].updateValue(true)
+		trackedValues["printStartTime"].updateValue(pj.startedTime.Format(time.RFC3339))
+		trackedValues["printCurrentLayer"].updateValue(0)
 		defer trackedValues["isPrinting"].updateValue(false)
 		c <- "M110 N0\r\n"
 		for pj.scanner.Scan() {
@@ -74,6 +77,13 @@ func (pj *printJob) jobLines() (chan string, error) {
 				trackedValues["printProgress"].updateValue((float64(pj.currentLine) / float64(pj.gcodeMeta.TotalLines)) * 100)
 			}
 			pj.currentLine++
+
+			if pj.currentLayerIndex < len(pj.gcodeMeta.LayerIndexes) {
+				if pj.currentLine >= pj.gcodeMeta.LayerIndexes[pj.currentLayerIndex].LineNumber {
+					pj.currentLayerIndex++
+					trackedValues["printCurrentLayer"].updateValue(pj.gcodeMeta.LayerIndexes[pj.currentLayerIndex].LayerNumber)
+				}
+			}
 
 		}
 	}()

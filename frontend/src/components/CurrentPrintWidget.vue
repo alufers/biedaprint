@@ -3,6 +3,9 @@
     <TrackedValueModel @change="isPrinting = $event" valueName="isPrinting"/>
     <TrackedValueModel @change="printProgress = $event" valueName="printProgress"/>
     <TrackedValueModel @change="printOriginalName = $event" valueName="printOriginalName"/>
+    <TrackedValueModel @change="printStartTime = $event" valueName="printStartTime"/>
+    <TrackedValueModel @change="printCurrentLayer = $event" valueName="printCurrentLayer"/>
+
     <article class="message is-primary" v-if="isPrinting">
       <div class="message-header">
         <p>Print status</p>
@@ -16,6 +19,14 @@
         <div class="print-stat">
           <div>Print progress (lines)</div>
           <div class="value">{{printProgress.toFixed(2)}}%</div>
+        </div>
+        <div class="print-stat">
+          <div>Print start time</div>
+          <div class="value">{{printStartTime | formatDate}}</div>
+        </div>
+        <div class="print-stat">
+          <div>Layer</div>
+          <div class="value">{{printCurrentLayer}}</div>
         </div>
         <br>
         <br>
@@ -41,6 +52,7 @@
 <script>
 import TrackedValueModel from "@/components/TrackedValueModel";
 import connectionMixin from "@/connectionMixin";
+import { DateTime } from "luxon";
 
 export default {
   mixins: [connectionMixin],
@@ -48,13 +60,22 @@ export default {
     return {
       isPrinting: false,
       printProgress: 0,
-      printOriginalName: ""
+      printOriginalName: "",
+      printStartTime: null,
+      printCurrentLayer: 0
     };
   },
   components: { TrackedValueModel },
   methods: {
     abortJob() {
       this.connection.sendMessage("abortPrintJob");
+    }
+  },
+  filters: {
+    formatDate(value) {
+      if (!value) return "";
+      let dt = DateTime.fromISO(value);
+      return dt.toISODate() + " " + dt.toLocaleString(DateTime.TIME_24_SIMPLE);
     }
   }
 };

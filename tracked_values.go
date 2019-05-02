@@ -48,6 +48,18 @@ var trackedValues = map[string]*trackedValue{
 		Value:       "",
 		subscribers: []*websocket.Conn{},
 	},
+	"printStartTime": &trackedValue{
+		Name:        "printStartTime",
+		DisplayType: "time",
+		Value:       nil,
+		subscribers: []*websocket.Conn{},
+	},
+	"printCurrentLayer": &trackedValue{
+		Name:        "printCurrentLayer",
+		DisplayType: "number",
+		Value:       0,
+		subscribers: []*websocket.Conn{},
+	},
 }
 
 type trackedValue struct {
