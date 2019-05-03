@@ -47,6 +47,9 @@ func serialWriter() {
 			LineLoop:
 				for line := range lineChan {
 					select {
+					case c := <-serialConsoleWrite:
+						sendAndMaybeResend(c)
+						continue
 					case <-serialAbortPrintJobSem:
 						job.abort()
 						break LineLoop
