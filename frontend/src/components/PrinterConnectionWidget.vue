@@ -1,5 +1,6 @@
 <template>
   <div>
+    <TrackedValueModel @change="serialStatus = $event" valueName="serialStatus"/>
     <h2 class="subtitle">Connect to printer</h2>
     <div v-if="settings && (serialStatus === 'disconnected' || serialStatus == 'error')">
       <div class="field">
@@ -25,7 +26,7 @@
       >Connect to printer</button>
     </div>
     <button
-      class="button is-danger"
+      class="button is-danger is-outlined"
       @click="disconnectFromSerial"
       v-if="serialStatus === 'connected'"
     >Disconnect from printer</button>
@@ -33,6 +34,7 @@
 </template>
 <script>
 import connectionMixin from "@/connectionMixin";
+import TrackedValueModel from "@/components/TrackedValueModel";
 
 export default {
   mixins: [connectionMixin],
@@ -58,6 +60,9 @@ export default {
       serialStatus: null
     };
   },
+  components: {
+    TrackedValueModel
+  },
   methods: {
     connectToSerial() {
       this.connection.sendMessage("connectToSerial");
@@ -79,9 +84,6 @@ export default {
     },
     "message.getSettings"(set) {
       this.settings = set;
-    },
-    "message.getSerialStatus"({ status }) {
-      this.serialStatus = status;
     }
   }
 };
@@ -89,6 +91,6 @@ export default {
 
 <style scoped>
 .button {
-    width: 100%;
+  width: 100%;
 }
 </style>

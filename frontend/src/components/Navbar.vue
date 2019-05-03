@@ -46,7 +46,10 @@
         <span class="navbar-item">
           <div class="tags has-addons">
             <span class="tag">Socket status</span>
-            <span class="tag" :class="{'is-danger': socketStatus === 'closed', 'is-success': socketStatus === 'connected'}">{{socketStatus}}</span>
+            <span
+              class="tag"
+              :class="{'is-danger': socketStatus === 'closed', 'is-success': socketStatus === 'connected'}"
+            >{{socketStatus}}</span>
           </div>
         </span>
         <span class="navbar-item">
@@ -56,6 +59,7 @@
               class="tag"
               :class="{'is-danger': serialStatus === 'disconnected' || serialStatus === 'error', 'is-success': serialStatus === 'connected' }"
             >{{serialStatus}}</span>
+            <TrackedValueModel @change="serialStatus = $event" valueName="serialStatus"/>
           </div>
         </span>
       </div>
@@ -64,11 +68,17 @@
 </template>
 
 <script>
+import TrackedValueModel from "@/components/TrackedValueModel";
+
 export default {
-  props: ["socketStatus", "serialStatus"],
+  props: ["socketStatus"],
+  components: {
+    TrackedValueModel
+  },
   data() {
     return {
-      navbarActive: false
+      navbarActive: false,
+      serialStatus: "?"
     };
   }
 };

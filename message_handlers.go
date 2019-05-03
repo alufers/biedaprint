@@ -113,11 +113,11 @@ func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 	})
 	if err != nil {
 		sendError(c, errors.Wrap(err, "failed to connect to printer"))
-		globalSerialStatus = "error"
+		trackedValues["serialStatus"].updateValue("error")
 		return
 	}
 	resetScrollback()
-	globalSerialStatus = "connected"
+	trackedValues["serialStatus"].updateValue("connected")
 	serialReady = true
 	for _, cc := range serialReadySems {
 		cc <- true
@@ -143,7 +143,7 @@ func handleDisconnectFromSerialMessage(c *websocket.Conn, data interface{}) {
 	}
 
 	err := globalSerial.Close()
-	globalSerialStatus = "disconnected"
+	trackedValues["serialStatus"].updateValue("disconnected")
 	serialReady = false
 	if err != nil {
 		sendError(c, err)

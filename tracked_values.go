@@ -27,6 +27,12 @@ var trackedValues = map[string]*trackedValue{
 		History:          []interface{}{},
 		subscribers:      []*websocket.Conn{},
 	},
+	"serialStatus": &trackedValue{
+		Name:        "serialStatus",
+		DisplayType: "string",
+		Value:       "disconnected",
+		subscribers: []*websocket.Conn{},
+	},
 	// current print values
 	"isPrinting": &trackedValue{
 		Name:        "isPrinting",

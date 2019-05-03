@@ -66,7 +66,7 @@ func serialReader() {
 			n, err := globalSerial.Read(data)
 			if err != nil {
 				log.Printf("Serial error %v", err)
-				globalSerialStatus = "error"
+				trackedValues["serialStatus"].updateValue("error")
 				break
 			}
 			func() {

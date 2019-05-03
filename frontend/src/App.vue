@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Navbar :socketStatus="socketStatus" :serialStatus="serialStatus"/>
+    <Navbar :socketStatus="socketStatus"/>
     <section class="section">
       <div class="container">
         <Alerts/>
@@ -28,7 +28,6 @@ export default {
     return {
       connection: new Connection(),
       socketStatus: "disconnected",
-      serialStatus: "?",
       navbarActive: false
     };
   },
@@ -49,13 +48,8 @@ export default {
   },
   created() {
     this.connection.on("statusChanged", sta => (this.socketStatus = sta));
-    this.connection.on("message.getSerialStatus", data => {
-      this.serialStatus = data.status;
-      setTimeout(() => this.connection.sendMessage("getSerialStatus"), 1000);
-    });
 
     this.connection.connect();
-    this.connection.sendMessage("getSerialStatus");
   }
 };
 </script>
