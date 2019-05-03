@@ -28,6 +28,7 @@ var messageHandlers = map[string]func(*websocket.Conn, interface{}){
 	"serialWrite":             handleSerialWriteMessage,
 	"getSysteminfo":           handleGetSystemInfoMessage,
 	"sendGCODE":               handleSendGCODEMessage,
+	"sendConsoleCommand":      handleSendConsoleCommand,
 	"getScrollbackBuffer":     handleGetScrollbackBufferMessage,
 	"getTrackedValues":        handleGetTrackedValuesMessage,
 	"getTrackedValue":         handleGetTrackedValueMessage,
@@ -158,20 +159,16 @@ func handleDisconnectFromSerialMessage(c *websocket.Conn, data interface{}) {
 	})
 }
 
+//handleSerialWriteMessage writes arbitrary data to the serial
 func handleSerialWriteMessage(c *websocket.Conn, data interface{}) {
 	if globalSerial == nil {
 		sendError(c, errors.New("Not connected to serial port"))
 		return
 	}
-
-	// _, err := globalSerial.Write([]byte((data.(map[string]interface{}))["data"].(string)))
-	// if err != nil {
-	// sendError(c, errors.Wrap(err, "failed to write to serial"))
-	// return
-	// }
 	serialConsoleWrite <- (data.(map[string]interface{}))["data"].(string)
 }
 
+//handleSendGCODEMessage sends a command and appends \r\n to it. Used by the manual control buttons.
 func handleSendGCODEMessage(c *websocket.Conn, data interface{}) {
 	if globalSerial == nil {
 		sendError(c, errors.New("Not connected to serial port"))
@@ -179,12 +176,19 @@ func handleSendGCODEMessage(c *websocket.Conn, data interface{}) {
 	}
 	dataMap := data.(map[string]interface{})
 	gcodeStr := dataMap["data"].(string)
-	//_, err := globalSerial.Write([]byte((gcodeStr + "\r\n")))
 	serialConsoleWrite <- gcodeStr + "\r\n"
-	// if err != nil {
-	// 	sendError(c, errors.Wrap(err, "failed to write to serial"))
-	// 	return
-	// }
+}
+
+//handleSendConsoleCommand sends a command and appends \r\n to it. additionally it saves it in the recentCOmmadns buffer.
+func handleSendConsoleCommand(c *websocket.Conn, data interface{}) {
+	if globalSerial == nil {
+		sendError(c, errors.New("Not connected to serial port"))
+		return
+	}
+	dataMap := data.(map[string]interface{})
+	cmd := dataMap["data"].(string)
+	serialConsoleWrite <- cmd + "\r\n"
+	addRecentCommand(cmd)
 }
 
 func handleGetSystemInfoMessage(c *websocket.Conn, data interface{}) {
