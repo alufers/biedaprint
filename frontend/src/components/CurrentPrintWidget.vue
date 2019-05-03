@@ -6,11 +6,17 @@
     <TrackedValueModel @change="printStartTime = $event" valueName="printStartTime"/>
     <TrackedValueModel @change="printCurrentLayer = $event" valueName="printCurrentLayer"/>
     <TrackedValueModel @change="printTotalLayers = $event" valueName="printTotalLayers"/>
-    <article class="message is-primary" v-if="isPrinting">
-      <div class="message-header">
-        <p>Print status</p>
+    <div v-if="isPrinting">
+      <div class="print-stat">
+        <h2 class="subtitle">Print status</h2>
+        <button class="button is-danger" @click="abortJob">
+          <span class="icon">
+            <i class="fas fa-stop"></i>
+          </span>
+          <span>Abort job</span>
+        </button>
       </div>
-      <div class="message-body">
+      <div>
         <progress class="progress is-primary" :value="printProgress" max="100">{{printProgress}}</progress>
         <div class="print-stat">
           <div>Print name</div>
@@ -28,24 +34,16 @@
           <div>Layer</div>
           <div class="value">{{printCurrentLayer}}/{{printTotalLayers}}</div>
         </div>
-        <br>
-        <br>
-        <button class="button is-danger" @click="abortJob">
-          <span class="icon">
-            <i class="fas fa-stop"></i>
-          </span>
-          <span>Abort job</span>
-        </button>
       </div>
-    </article>
-    <article class="message is-dark" v-else>
-      <div class="message-body msg-noprint">
-        <p>Nothing is being printed at the moment. You can select or uload a file to be printed.</p>
+    </div>
+    <div class="" v-else>
+      <div class="msg-noprint">
+        <p>Nothing is being printed at the moment. You can select or upload a file to be printed.</p>
         <br>
         <br>
         <router-link to="/print/gcode-files" class="button is-primary">View gcode files</router-link>
       </div>
-    </article>
+    </div>
   </div>
 </template>
 

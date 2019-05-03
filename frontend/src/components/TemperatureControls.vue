@@ -1,5 +1,9 @@
 <template>
+
   <div>
+    <TrackedValueModel @change="hotendTemperature = $event" valueName="hotendTemperature"/>
+    <TrackedValueModel @change="targetHotendTemperature = $event" valueName="targetHotendTemperature"/>
+
     <h2 class="subtitle">Temperature control</h2>
     <div v-for="(heater, index) in heaters" :key="`heater-${index}`" class="field" >
       <label class="label">{{heater}} temperature</label>
@@ -7,7 +11,7 @@
       <div class="print-stat">
         <div class="controls tags has-addons are-medium">
           <span class="tag">Actual</span>
-          <span class="tag is-primary">135</span>
+          <span class="tag is-primary">{{hotendTemperature}}</span>
         </div>
 
         <div class="controls tags has-addons are-medium">
@@ -19,7 +23,7 @@
               type="number"
               min="0"
               max="300"
-              v-model="hotendTemperature"
+              v-model="targetHotendTemperature"
             >
           </span>
         </div>
@@ -49,7 +53,8 @@ export default {
   mixins: [connectionMixin],
   data() {
     return {
-      hotendTemperature: 0
+      hotendTemperature: 0,
+      targetHotendTemperature: 0
     };
   },
   components: { TrackedValueModel }

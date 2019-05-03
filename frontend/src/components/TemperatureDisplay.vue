@@ -1,6 +1,7 @@
 <template>
   <div>
-    <canvas ref="chartCanvas" width="400" height="400"></canvas>
+    <h2 class="subtitle">Temperature graph</h2>
+    <canvas ref="chartCanvas" class="chart" height="400"></canvas>
   </div>
 </template>
 
@@ -64,5 +65,8 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.chart {
+  width: 100%;
+}
 </style>
