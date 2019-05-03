@@ -37,6 +37,7 @@ var messageHandlers = map[string]func(*websocket.Conn, interface{}){
 	"deleteGcodeFile":         handleDeleteGcodeFile,
 	"startPrintJob":           handleStartPrintJob,
 	"abortPrintJob":           handleAbortPrintJob,
+	"getRecentCommands":       handleGetRecentCommands,
 }
 
 func sendError(c *websocket.Conn, err error) {
@@ -338,4 +339,11 @@ func handleAbortPrintJob(c *websocket.Conn, data interface{}) {
 	case serialAbortPrintJobSem <- true:
 	default:
 	}
+}
+
+func handleGetRecentCommands(c *websocket.Conn, data interface{}) {
+	c.WriteJSON(jd{
+		"type": "getRecentCommands",
+		"data": recentCommands,
+	})
 }
