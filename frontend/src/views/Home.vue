@@ -14,6 +14,7 @@
     <div class="columns">
       <div class="column">
         <TemperatureDisplay/>
+        <TemperatureControls :heaters="heaters"/>
       </div>
       <div class="column">
         <CurrentPrintWidget/>
@@ -24,6 +25,7 @@
 
 <script>
 import TemperatureDisplay from "@/components/TemperatureDisplay";
+import TemperatureControls from "@/components/TemperatureControls";
 import connectionMixin from "@/connectionMixin";
 // import TrackedValueTextDisplay from "@/components/TrackedValueTextDisplay";
 import CurrentPrintWidget from "@/components/CurrentPrintWidget";
@@ -33,11 +35,13 @@ export default {
   mixins: [connectionMixin],
   components: {
     TemperatureDisplay,
+    TemperatureControls,
     // TrackedValueTextDisplay,
     CurrentPrintWidget
   },
   data() {
     return {
+      heaters: ["Hotend", "Heatbed"],
       serialStatus: null
     };
   },

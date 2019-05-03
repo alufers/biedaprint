@@ -59,7 +59,7 @@ func handleSerialListMessage(c *websocket.Conn, data interface{}) {
 	c.WriteJSON(jd{
 		"type": "serialList",
 		"data": jd{
-			"ports": []string{"/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/ttyUSB2", "/dev/ttyUSB3", "/dev/ttyACM0", "/dev/ttyACM1", "/dev/ttyACM2"},
+			"ports": []string{"/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/ttyUSB2", "/dev/ttyUSB3", "/dev/ttyACM0", "/dev/ttyACM1", "/dev/ttyACM2", "/dev/cu.wchusbserial14d10"},
 		},
 	})
 }

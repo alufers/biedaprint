@@ -44,18 +44,19 @@
       </div>
       <div class="navbar-end">
         <span class="navbar-item">
-          Socket status: &nbsp;
-          <span
-            class="tag"
-            :class="{'is-danger': socketStatus === 'closed'}"
-          >{{socketStatus}}</span>
+          <div class="tags has-addons">
+            <span class="tag">Socket status</span>
+            <span class="tag" :class="{'is-danger': socketStatus === 'closed', 'is-success': socketStatus === 'connected'}">{{socketStatus}}</span>
+          </div>
         </span>
         <span class="navbar-item">
-          Serial status: &nbsp;
-          <span
-            class="tag"
-            :class="{'is-danger': serialStatus === 'disconnected' || serialStatus === 'error', 'is-success': serialStatus === 'connected' }"
-          >{{serialStatus}}</span>
+          <div class="tags has-addons">
+            <span class="tag">Serial status</span>
+            <span
+              class="tag"
+              :class="{'is-danger': serialStatus === 'disconnected' || serialStatus === 'error', 'is-success': serialStatus === 'connected' }"
+            >{{serialStatus}}</span>
+          </div>
         </span>
       </div>
     </div>
