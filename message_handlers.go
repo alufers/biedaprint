@@ -108,9 +108,9 @@ func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 	options := serial.OpenOptions{
 		PortName:        globalSettings.SerialPort,
 		BaudRate:        250000,
-		ParityMode:      serial.PARITY_EVEN,
+		ParityMode:      serial.PARITY_NONE,
 		MinimumReadSize: 4,
-		DataBits:        7,
+		DataBits:        8,
 		StopBits:        1,
 	}
 	globalSerial, err = serial.Open(options)
