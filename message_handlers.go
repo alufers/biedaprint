@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/jacobsa/go-serial/serial"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 	"github.com/shirou/gopsutil/mem"
-	"go.bug.st/serial.v1"
 )
 
 type jd map[string]interface{} //json data
@@ -28,7 +28,6 @@ var messageHandlers = map[string]func(*websocket.Conn, interface{}){
 	"serialWrite":             handleSerialWriteMessage,
 	"getSysteminfo":           handleGetSystemInfoMessage,
 	"sendGCODE":               handleSendGCODEMessage,
-	"sendConsoleCommand":      handleSendConsoleCommand,
 	"getScrollbackBuffer":     handleGetScrollbackBufferMessage,
 	"getTrackedValues":        handleGetTrackedValuesMessage,
 	"getTrackedValue":         handleGetTrackedValueMessage,
@@ -37,7 +36,6 @@ var messageHandlers = map[string]func(*websocket.Conn, interface{}){
 	"deleteGcodeFile":         handleDeleteGcodeFile,
 	"startPrintJob":           handleStartPrintJob,
 	"abortPrintJob":           handleAbortPrintJob,
-	"getRecentCommands":       handleGetRecentCommands,
 }
 
 func sendError(c *websocket.Conn, err error) {
@@ -107,12 +105,15 @@ func handleGetSerialStatusMessage(c *websocket.Conn, data interface{}) {
 func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 
 	var err error
-	globalSerial, err = serial.Open(globalSettings.SerialPort, &serial.Mode{
-		BaudRate: globalSettings.BaudRate,
-		Parity:   serial.EvenParity,
-		DataBits: 7,
-		StopBits: serial.OneStopBit,
-	})
+	options := serial.OpenOptions{
+		PortName:        globalSettings.SerialPort,
+		BaudRate:        250000,
+		ParityMode:      serial.PARITY_EVEN,
+		MinimumReadSize: 4,
+		DataBits:        7,
+		StopBits:        1,
+	}
+	globalSerial, err = serial.Open(options)
 	if err != nil {
 		sendError(c, errors.Wrap(err, "failed to connect to printer"))
 		trackedValues["serialStatus"].updateValue("error")
@@ -160,16 +161,20 @@ func handleDisconnectFromSerialMessage(c *websocket.Conn, data interface{}) {
 	})
 }
 
-//handleSerialWriteMessage writes arbitrary data to the serial
 func handleSerialWriteMessage(c *websocket.Conn, data interface{}) {
 	if globalSerial == nil {
 		sendError(c, errors.New("Not connected to serial port"))
 		return
 	}
+
+	// _, err := globalSerial.Write([]byte((data.(map[string]interface{}))["data"].(string)))
+	// if err != nil {
+	// sendError(c, errors.Wrap(err, "failed to write to serial"))
+	// return
+	// }
 	serialConsoleWrite <- (data.(map[string]interface{}))["data"].(string)
 }
 
-//handleSendGCODEMessage sends a command and appends \r\n to it. Used by the manual control buttons.
 func handleSendGCODEMessage(c *websocket.Conn, data interface{}) {
 	if globalSerial == nil {
 		sendError(c, errors.New("Not connected to serial port"))
@@ -177,19 +182,12 @@ func handleSendGCODEMessage(c *websocket.Conn, data interface{}) {
 	}
 	dataMap := data.(map[string]interface{})
 	gcodeStr := dataMap["data"].(string)
+	//_, err := globalSerial.Write([]byte((gcodeStr + "\r\n")))
 	serialConsoleWrite <- gcodeStr + "\r\n"
-}
-
-//handleSendConsoleCommand sends a command and appends \r\n to it. additionally it saves it in the recentCOmmadns buffer.
-func handleSendConsoleCommand(c *websocket.Conn, data interface{}) {
-	if globalSerial == nil {
-		sendError(c, errors.New("Not connected to serial port"))
-		return
-	}
-	dataMap := data.(map[string]interface{})
-	cmd := dataMap["data"].(string)
-	serialConsoleWrite <- cmd + "\r\n"
-	addRecentCommand(cmd)
+	// if err != nil {
+	// 	sendError(c, errors.Wrap(err, "failed to write to serial"))
+	// 	return
+	// }
 }
 
 func handleGetSystemInfoMessage(c *websocket.Conn, data interface{}) {
@@ -339,11 +337,4 @@ func handleAbortPrintJob(c *websocket.Conn, data interface{}) {
 	case serialAbortPrintJobSem <- true:
 	default:
 	}
-}
-
-func handleGetRecentCommands(c *websocket.Conn, data interface{}) {
-	c.WriteJSON(jd{
-		"type": "getRecentCommands",
-		"data": recentCommands,
-	})
 }
