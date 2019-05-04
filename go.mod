@@ -13,6 +13,7 @@ require (
 	github.com/gobuffalo/packr v1.25.0
 	github.com/gobuffalo/packr/v2 v2.2.0 // indirect
 	github.com/gorilla/websocket v1.4.0
+	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pty v1.1.4 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
