@@ -17,7 +17,6 @@ export default class Connection extends EventEmitter {
       //local development
       socketUrl = "ws://localhost:4444/ws";
     }
-    socketUrl = "ws://192.168.254.120:4444/ws";
     this.socket = new WebSocket(socketUrl);
     this.socket.addEventListener("open", ev => {
       this.emit("statusChanged", "connected");

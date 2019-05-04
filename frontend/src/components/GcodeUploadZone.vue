@@ -104,7 +104,7 @@ export default {
       req.open(
         "POST",
         window.location.port === "8080"
-          ? "http://192.168.254.120:4444/gcode-file-upload"
+          ? "http://localhost:4444/gcode-file-upload"
           : "/gcode-file-upload",
         true
       );

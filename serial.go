@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"strings"
+
+	"go.bug.st/serial.v1"
 )
 
-var globalSerial io.ReadWriteCloser
+var globalSerial serial.Port
 var globalSerialStatus = "disconnected"
 var serialReady bool
 var serialReadySems = []chan bool{}
