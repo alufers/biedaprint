@@ -89,12 +89,16 @@ export default {
   created() {
     this.connection.sendMessage("getScrollbackBuffer");
     this.connection.sendMessage("getRecentCommands");
+    this.connection.sendMessage("subscribeToSerialConsole");
     this.connection.once("message.getScrollbackBuffer", ({ data }) => {
       this.scrollback += data;
       this.$nextTick(() => {
         this.$refs.console.scrollTop = this.$refs.console.scrollHeight;
       });
     });
+  },
+  destroyed() {
+    this.connection.sendMessage("unsubscribeToSerialConsole");
   },
   connectionSubscriptions: {
     "message.serialConsole"({ data }) {

@@ -19,25 +19,27 @@ import (
 type jd map[string]interface{} //json data
 
 var messageHandlers = map[string]func(*websocket.Conn, interface{}){
-	"serialList":              handleSerialListMessage,
-	"getSettings":             handleGetSettingsMessage,
-	"saveSettings":            handleSaveSettingsMessage,
-	"getSerialStatus":         handleGetSerialStatusMessage,
-	"connectToSerial":         handleConnectToSerialMessage,
-	"disconnectFromSerial":    handleDisconnectFromSerialMessage,
-	"serialWrite":             handleSerialWriteMessage,
-	"getSysteminfo":           handleGetSystemInfoMessage,
-	"sendGCODE":               handleSendGCODEMessage,
-	"sendConsoleCommand":      handleSendConsoleCommand,
-	"getScrollbackBuffer":     handleGetScrollbackBufferMessage,
-	"getTrackedValues":        handleGetTrackedValuesMessage,
-	"getTrackedValue":         handleGetTrackedValueMessage,
-	"subscribeToTrackedValue": handleSubscribeToTrackedValueMessage,
-	"getGcodeFileMetas":       handleGetGcodeFileMetas,
-	"deleteGcodeFile":         handleDeleteGcodeFile,
-	"startPrintJob":           handleStartPrintJob,
-	"abortPrintJob":           handleAbortPrintJob,
-	"getRecentCommands":       handleGetRecentCommands,
+	"serialList":                 handleSerialListMessage,
+	"getSettings":                handleGetSettingsMessage,
+	"saveSettings":               handleSaveSettingsMessage,
+	"getSerialStatus":            handleGetSerialStatusMessage,
+	"connectToSerial":            handleConnectToSerialMessage,
+	"disconnectFromSerial":       handleDisconnectFromSerialMessage,
+	"serialWrite":                handleSerialWriteMessage,
+	"getSysteminfo":              handleGetSystemInfoMessage,
+	"sendGCODE":                  handleSendGCODEMessage,
+	"sendConsoleCommand":         handleSendConsoleCommand,
+	"subscribeToSerialConsole":   handleSubscribeToSerialConsoleMessage,
+	"unsubscribeToSerialConsole": handleUnsubscribeToSerialConsoleMessage,
+	"getScrollbackBuffer":        handleGetScrollbackBufferMessage,
+	"getTrackedValues":           handleGetTrackedValuesMessage,
+	"getTrackedValue":            handleGetTrackedValueMessage,
+	"subscribeToTrackedValue":    handleSubscribeToTrackedValueMessage,
+	"getGcodeFileMetas":          handleGetGcodeFileMetas,
+	"deleteGcodeFile":            handleDeleteGcodeFile,
+	"startPrintJob":              handleStartPrintJob,
+	"abortPrintJob":              handleAbortPrintJob,
+	"getRecentCommands":          handleGetRecentCommands,
 }
 
 func sendError(c *websocket.Conn, err error) {
@@ -126,7 +128,7 @@ func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 	}
 
 	go func() {
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 5)
 		serialConsoleWrite <- "M115 S1\r\n" // temperature auto-reporting
 	}()
 
@@ -190,6 +192,14 @@ func handleSendConsoleCommand(c *websocket.Conn, data interface{}) {
 	cmd := dataMap["data"].(string)
 	serialConsoleWrite <- cmd + "\r\n"
 	addRecentCommand(cmd)
+}
+
+func handleSubscribeToSerialConsoleMessage(c *websocket.Conn, data interface{}) {
+	serialConsoleSubscribers = append(serialConsoleSubscribers, c)
+}
+
+func handleUnsubscribeToSerialConsoleMessage(c *websocket.Conn, data interface{}) {
+	serialConsoleSubscribers = removeConnFromArray(c, serialConsoleSubscribers)
 }
 
 func handleGetSystemInfoMessage(c *websocket.Conn, data interface{}) {

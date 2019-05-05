@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/gorilla/websocket"
 	"go.bug.st/serial.v1"
 )
 
@@ -12,6 +13,7 @@ var globalSerial serial.Port
 var globalSerialStatus = "disconnected"
 var serialReady bool
 var serialReadySems = []chan bool{}
+var serialConsoleSubscribers = []*websocket.Conn{}
 
 func waitForSerialReady() {
 	if serialReady {
@@ -82,7 +84,7 @@ func serialReader() {
 					}
 				}
 				strData := string(data[:n])
-				for _, a := range activeConnections {
+				for _, a := range serialConsoleSubscribers {
 					a.WriteJSON(jd{
 						"type": "serialConsole",
 						"data": jd{

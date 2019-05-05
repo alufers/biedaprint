@@ -3,7 +3,7 @@
     <TrackedValueModel @change="serialStatus = $event" valueName="serialStatus"/>
     <h2 class="subtitle">Connect to printer</h2>
     <div v-if="settings && (serialStatus === 'disconnected' || serialStatus == 'error')">
-      <div class="field">
+      <!-- <div class="field">
         <label class="label">Serial</label>
         <div class="select">
           <select v-model="settings.serialPort">
@@ -18,7 +18,7 @@
             <option v-for="rate in rates" :key="rate">{{rate}}</option>
           </select>
         </div>
-      </div>
+      </div> -->
       <button
         class="button is-success"
         @click="connectToSerial"

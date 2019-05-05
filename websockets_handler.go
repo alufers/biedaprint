@@ -37,6 +37,7 @@ func handleWs(w http.ResponseWriter, r *http.Request) {
 		for _, tv := range trackedValues {
 			tv.subscribers = removeConnFromArray(c, tv.subscribers)
 		}
+		serialConsoleSubscribers = removeConnFromArray(c, serialConsoleSubscribers)
 	}()
 	defer c.Close()
 	exit := false
