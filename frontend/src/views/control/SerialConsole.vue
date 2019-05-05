@@ -11,7 +11,10 @@
           type="text"
           placeholder="Send commands"
           v-model="currentCommand"
+          @keyup="resetCurrentRecentCommand"
           @keyup.enter="sendCommand"
+          @keyup.up="previousRecentCommand"
+          @keyup.down="nextRecentCommand"
           ref="commandInput"
         >
       </div>
@@ -27,6 +30,7 @@ import GcodeDocs from "@/components/GcodeDocs.vue";
 import connectionMixin from "@/connectionMixin";
 
 export default {
+  name: "SerialConsole",
   mixins: [connectionMixin],
   components: {
     GcodeDocs
@@ -34,19 +38,47 @@ export default {
   data() {
     return {
       scrollback: "...\n",
-      currentCommand: ""
+      currentCommand: "",
+      recentCommands: [],
+      currentRecentCommand: 0
     };
   },
   methods: {
     sendCommand() {
-      this.connection.sendMessage("serialWrite", {
-        data: this.currentCommand + "\r\n"
+      this.connection.sendMessage("sendConsoleCommand", {
+        data: this.currentCommand
       });
+      this.recentCommands.push(this.currentCommand);
+      this.currentRecentCommand = 0;
       this.currentCommand = "";
     },
     useGcodeFromDocs(gcode) {
       this.currentCommand = gcode + " ";
       this.$refs.commandInput.focus();
+    },
+    previousRecentCommand() {
+      if (this.recentCommands.length - this.currentRecentCommand > 0) {
+        this.currentRecentCommand++;
+        this.currentCommand = this.recentCommands[
+          this.recentCommands.length - this.currentRecentCommand
+        ];
+      }
+    },
+    nextRecentCommand() {
+      if (this.currentRecentCommand > 0) {
+        this.currentRecentCommand--;
+        if (this.currentRecentCommand === 0) {
+          this.currentCommand = "";
+          return;
+        }
+        this.currentCommand = this.recentCommands[
+          this.recentCommands.length - this.currentRecentCommand
+        ];
+      }
+    },
+    resetCurrentRecentCommand(ev) {
+      if (ev.keyCode === 38 || ev.keyCode === 40) return;
+      this.currentRecentCommand = 0;
     }
   },
   computed: {
@@ -56,6 +88,7 @@ export default {
   },
   created() {
     this.connection.sendMessage("getScrollbackBuffer");
+    this.connection.sendMessage("getRecentCommands");
     this.connection.once("message.getScrollbackBuffer", ({ data }) => {
       this.scrollback += data;
       this.$nextTick(() => {
@@ -69,6 +102,9 @@ export default {
       this.$nextTick(() => {
         this.$refs.console.scrollTop = this.$refs.console.scrollHeight;
       });
+    },
+    "message.getRecentCommands"(recentCommands) {
+      this.recentCommands = recentCommands;
     }
   }
 };

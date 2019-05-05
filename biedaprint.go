@@ -18,6 +18,10 @@ func main() {
 		log.Fatalf("Failed to create gcode_files data directory: %v", err)
 		return
 	}
+	err = loadRecentCommands()
+	if err != nil {
+		log.Printf("Failed to load recent_commands.meta: %v", err)
+	}
 	go serialWriter()
 	go serialReader()
 	mux := http.NewServeMux()
