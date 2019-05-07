@@ -1,39 +1,36 @@
 <template>
-
   <div>
-    <TrackedValueModel @change="hotendTemperature = $event" valueName="hotendTemperature"/>
-    <TrackedValueModel @change="targetHotendTemperature = $event" valueName="targetHotendTemperature"/>
-
-    <h2 class="subtitle">Temperature control</h2>
-    <div v-for="(heater, index) in heaters" :key="`heater-${index}`" class="field" >
-      <label class="label">{{heater}} temperature</label>
+    <TrackedValueModel @change="temperature = $event" :valueName="temperatureTrackedValueName"/>
+    <TrackedValueModel @change="target = $event" :valueName="targetTrackedValueName"/>
+    <div class="field">
+      <label class="label">{{name}}</label>
 
       <div class="print-stat">
         <div class="controls tags has-addons are-medium">
           <span class="tag">Actual</span>
-          <span class="tag is-primary">{{hotendTemperature}}</span>
+          <span class="tag">{{temperature}}</span>
         </div>
 
         <div class="controls tags has-addons are-medium">
           <span class="tag">Target</span>
-          <span class="tag is-info">
+          <span class="tag is-primary">
             <input
               class="temperature-input"
-              placeholder="220"
               type="number"
               min="0"
               max="300"
-              v-model="targetHotendTemperature"
+              v-model.number="targetEdit"
+              @keyup.enter="setTarget"
             >
           </span>
         </div>
 
         <div class="field has-addons">
           <p class="control">
-            <a class="button">SET</a>
+            <a class="button is-primary" @click="setTarget">SET</a>
           </p>
           <p class="control">
-            <a class="button is-danger">OFF</a>
+            <a class="button" @click="heaterOff">OFF</a>
           </p>
         </div>
       </div>
@@ -44,17 +41,36 @@
 <script>
 import TrackedValueModel from "@/components/TrackedValueModel";
 import connectionMixin from "@/connectionMixin";
-//import { DateTime } from "luxon";
 
 export default {
-  props: {
-    heaters: Array
-  },
   mixins: [connectionMixin],
+  props: {
+    name: String,
+    temperatureTrackedValueName: String,
+    targetTrackedValueName: String
+  },
+  methods: {
+    heaterOff() {
+      this.connection.sendMessage("sendGCODE", { data: "M104 S0" });
+    },
+    setTarget() {
+      this.connection.sendMessage("sendGCODE", {
+        data: `M104 S${this.targetEdit}`
+      });
+    }
+  },
+  watch: {
+    target(newTarget, oldTarget) {
+      if (this.targetEdit === oldTarget) {
+        this.targetEdit = newTarget;
+      }
+    }
+  },
   data() {
     return {
-      hotendTemperature: 0,
-      targetHotendTemperature: 0
+      target: 0,
+      targetEdit: 0,
+      temperature: 0
     };
   },
   components: { TrackedValueModel }

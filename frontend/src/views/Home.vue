@@ -7,8 +7,12 @@
       </div>
       <div class="column">
         <div class="box">
-        <TemperatureDisplay class=""/>
-        <TemperatureControls class="" :heaters="heaters"/>
+          <TemperatureDisplay class/>
+          <HeaterControl
+            name="Hotend"
+            temperatureTrackedValueName="hotendTemperature"
+            targetTrackedValueName="targetHotendTemperature"
+          />
         </div>
       </div>
     </div>
@@ -17,7 +21,7 @@
 
 <script>
 import TemperatureDisplay from "@/components/TemperatureDisplay";
-import TemperatureControls from "@/components/TemperatureControls";
+import HeaterControl from "@/components/HeaterControl";
 import PrinterConnectionWidget from "@/components/PrinterConnectionWidget";
 
 import connectionMixin from "@/connectionMixin";
@@ -29,16 +33,14 @@ export default {
   mixins: [connectionMixin],
   components: {
     TemperatureDisplay,
-    TemperatureControls,
+    HeaterControl,
     PrinterConnectionWidget,
     // TrackedValueTextDisplay,
     CurrentPrintWidget
   },
   data() {
-    return {
-      heaters: ["Hotend", "Heatbed"],
-    };
-  },
+    return {};
+  }
 };
 </script>
 
@@ -46,5 +48,4 @@ export default {
 .box {
   padding: 16px;
 }
-
 </style>
