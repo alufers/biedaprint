@@ -109,6 +109,7 @@ export default {
       this.connection.sendMessage("startPrintJob", {
         gcodeFileName
       });
+      this.$router.push("/"); // redirect to main page
     }
   },
   filters: {
