@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"strings"
 
 	"github.com/gorilla/websocket"
-	"go.bug.st/serial.v1"
 )
 
-var globalSerial serial.Port
+var globalSerial io.ReadWriteCloser
 var globalSerialStatus = "disconnected"
 var serialReady bool
 var serialReadySems = []chan bool{}
