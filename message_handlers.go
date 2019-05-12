@@ -134,7 +134,7 @@ func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 
 	go func() {
 		time.Sleep(time.Second * 5)
-		serialConsoleWrite <- "M115 S1\r\n" // temperature auto-reporting
+		serialConsoleWrite <- "M115 S1" // temperature auto-reporting
 	}()
 
 	c.WriteJSON(jd{
@@ -184,7 +184,7 @@ func handleSendGCODEMessage(c *websocket.Conn, data interface{}) {
 	}
 	dataMap := data.(map[string]interface{})
 	gcodeStr := dataMap["data"].(string)
-	serialConsoleWrite <- gcodeStr + "\r\n"
+	serialConsoleWrite <- gcodeStr
 }
 
 //handleSendConsoleCommand sends a command and appends \r\n to it. additionally it saves it in the recentCOmmadns buffer.
@@ -195,8 +195,8 @@ func handleSendConsoleCommand(c *websocket.Conn, data interface{}) {
 	}
 	dataMap := data.(map[string]interface{})
 	cmd := dataMap["data"].(string)
-	serialConsoleWrite <- cmd + "\r\n"
-	addRecentCommand(cmd)
+	serialConsoleWrite <- cmd
+	addRecentCommand(cmd + "\r\n")
 }
 
 func handleSubscribeToSerialConsoleMessage(c *websocket.Conn, data interface{}) {

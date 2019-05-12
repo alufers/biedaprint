@@ -57,6 +57,7 @@ func (pj *printJob) jobLines() (chan string, error) {
 		trackedValues["printTotalLayers"].updateValue(len(pj.gcodeMeta.LayerIndexes))
 		defer trackedValues["isPrinting"].updateValue(false)
 		c <- "M110 N0\r\n"
+		globalLineCounter = 0
 		for pj.scanner.Scan() {
 			rawLine := strings.Split(pj.scanner.Text(), ";")[0]
 

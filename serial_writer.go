@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 )
 
@@ -9,6 +10,16 @@ var serialOkSem = make(chan bool)
 var serialResendSem = make(chan int, 10)
 var serialPrintJobSem = make(chan *printJob)
 var serialAbortPrintJobSem = make(chan bool, 1)
+var globalLineCounter = 0
+
+func computeLineChecksum(line string) int {
+	var cs int
+	for i := 0; i < len(line) && line[i] != '*'; i++ {
+		cs = cs ^ int(line[i])
+	}
+	cs &= 0xff
+	return cs
+}
 
 //serialWriter runs on a separate goroutine
 func serialWriter() {
@@ -22,9 +33,13 @@ func serialWriter() {
 			select {
 			case c := <-serialConsoleWrite:
 				log.Print("Serial writer: serialConsoleWrite", c)
-				_, err := globalSerial.Write([]byte(c))
+				lineWithNumber := fmt.Sprintf("N%d %v", globalLineCounter, c)
+				lineWithChecksum := fmt.Sprintf("%v*%v\r\n", lineWithNumber, computeLineChecksum(lineWithNumber))
+				_, err := globalSerial.Write([]byte(lineWithChecksum))
 				if err != nil {
 					log.Printf("error while writing from serial console to serial: %v", err)
+				} else {
+					globalLineCounter++
 				}
 			case job := <-serialPrintJobSem:
 				log.Printf("New job %v", job)
