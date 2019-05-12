@@ -115,7 +115,7 @@ func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 		BaudRate:        baudrate,
 		ParityMode:      serial.PARITY_NONE,
 		MinimumReadSize: 4,
-		DataBits:        8,
+		DataBits:        7,
 		StopBits:        1,
 	}
 	globalSerial, err = serial.Open(options)
