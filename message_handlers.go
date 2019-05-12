@@ -133,7 +133,7 @@ func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 
 	go func() {
 		time.Sleep(time.Second * 5)
-		serialConsoleWrite <- "M110 N1\r\n"
+		serialConsoleWrite <- "M110 N0\r\n"
 		serialConsoleWrite <- "M115 S1" // temperature auto-reporting
 	}()
 
