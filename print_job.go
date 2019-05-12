@@ -65,6 +65,8 @@ func (pj *printJob) jobLines() (chan string, error) {
 			lineWithChecksum := fmt.Sprintf("%v*%v\r\n", lineWithNumber, pj.computeLineChecksum(lineWithNumber))
 			if strings.TrimSpace(rawLine) != "" {
 				log.Printf("Sending gcode line %v of %v", pj.currentLine+1, pj.gcodeMeta.TotalLines)
+				log.Printf(rawLine)
+
 				select {
 				case c <- lineWithChecksum:
 				case <-pj.abortSem:
