@@ -12,6 +12,13 @@
             name="Hotend"
             temperatureTrackedValueName="hotendTemperature"
             targetTrackedValueName="targetHotendTemperature"
+            temperatureGcode="M104"
+          />
+            <HeaterControl
+            name="Hotbed"
+            temperatureTrackedValueName="hotbedTemperature"
+            targetTrackedValueName="targetHotbedTemperature"
+            temperatureGcode="M140"
           />
         </div>
       </div>

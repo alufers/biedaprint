@@ -37,9 +37,18 @@ func parseLine(line string) {
 		var temp float64
 		var target float64
 		var power int
-		fmt.Sscanf(line, "T:%f /%f @:%d", &temp, &target, &power)
+		var bedTemp float64
+		var betTargetTemp float64
+		var bedPower float64
+		if strings.Contains(line, "B:") { // has heated bed
+			fmt.Sscanf(line, "T:%f /%f B:%f /%f @:%d B@:%d", &temp, &target, &bedTemp, &betTargetTemp, &power, &bedPower)
+		} else {
+			fmt.Sscanf(line, "T:%f /%f @:%d", &temp, &target, &power)
+		}
 		trackedValues["hotendTemperature"].updateValue(temp)
 		trackedValues["targetHotendTemperature"].updateValue(target)
+		trackedValues["hotbedTemperature"].updateValue(bedTemp)
+		trackedValues["targetHotbedTemperature"].updateValue(betTargetTemp)
 	} else if strings.HasPrefix(line, "ok") {
 		select {
 		case serialOkSem <- true:

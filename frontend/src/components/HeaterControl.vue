@@ -47,15 +47,16 @@ export default {
   props: {
     name: String,
     temperatureTrackedValueName: String,
-    targetTrackedValueName: String
+    targetTrackedValueName: String,
+    temperatureGcode: String
   },
   methods: {
     heaterOff() {
-      this.connection.sendMessage("sendGCODE", { data: "M104 S0" });
+      this.connection.sendMessage("sendGCODE", { data: `${this.temperatureGcode} S0` });
     },
     setTarget() {
       this.connection.sendMessage("sendGCODE", {
-        data: `M104 S${this.targetEdit}`
+        data: `${this.temperatureGcode} S${this.targetEdit}`
       });
     }
   },

@@ -14,7 +14,12 @@ export default {
   data() {
     return {
       chart: null,
-      valuesToShow: ["hotendTemperature", "targetHotendTemperature"],
+      valuesToShow: [
+        "hotendTemperature",
+        "targetHotendTemperature",
+        "hotbedTemperature",
+        "targetHotbedTemperature"
+      ],
       values: {}
     };
   },
