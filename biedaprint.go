@@ -22,6 +22,7 @@ func main() {
 	if err != nil {
 		log.Printf("Failed to load recent_commands.meta: %v", err)
 	}
+	runStartupCommand()
 	go serialWriter()
 	go serialReader()
 	mux := http.NewServeMux()

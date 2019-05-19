@@ -26,6 +26,10 @@
         <label class="label">Data path</label>
         <input class="input" type="text" v-model="settings.dataPath">
       </div>
+      <div class="field">
+        <label class="label">Startup command</label>
+        <input class="input" type="text" v-model="settings.startupCommand">
+      </div>
       <button class="button is-primary" @click="save">Save</button>
     </div>
   </div>

@@ -12,6 +12,7 @@ type Settings struct {
 	BaudRate             int    `json:"baudRate"`
 	ScrollbackBufferSize int    `json:"scrollbackBufferSize"`
 	DataPath             string `json:"dataPath"`
+	StartupCommand       string `json:"startupCommand"`
 }
 
 var globalSettings = &Settings{
@@ -19,6 +20,7 @@ var globalSettings = &Settings{
 	BaudRate:             250000,
 	ScrollbackBufferSize: 1024 * 10, // 10 KiB
 	DataPath:             "./biedaprint_data",
+	StartupCommand:       "",
 }
 
 func loadSettings() {
