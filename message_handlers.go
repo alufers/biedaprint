@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/jacobsa/go-serial/serial"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 	"github.com/shirou/gopsutil/mem"
+	"go.bug.st/serial.v1"
 )
 
 type jd map[string]interface{} //json data
@@ -109,17 +109,12 @@ func handleGetSerialStatusMessage(c *websocket.Conn, data interface{}) {
 func handleConnectToSerialMessage(c *websocket.Conn, data interface{}) {
 
 	var err error
-	baudrate := uint(globalSettings.BaudRate)
-	options := serial.OpenOptions{
-		PortName:        globalSettings.SerialPort,
-		BaudRate:        baudrate,
-		ParityMode:      serial.PARITY_NONE,
-		MinimumReadSize: 4,
-		DataBits:        8,
-		StopBits:        1,
-	}
-	globalSerial, err = serial.Open(options)
-
+	globalSerial, err = serial.Open(globalSettings.SerialPort, &serial.Mode{
+		BaudRate: globalSettings.BaudRate,
+		Parity:   serial.EvenParity,
+		DataBits: 7,
+		StopBits: serial.OneStopBit,
+	})
 	if err != nil {
 		sendError(c, errors.Wrap(err, "failed to connect to printer"))
 		trackedValues["serialStatus"].updateValue("error")
