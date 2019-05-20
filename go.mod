@@ -3,6 +3,7 @@ module github.com/alufers/biedaprint
 go 1.12
 
 require (
+	github.com/99designs/gqlgen v0.9.0
 	github.com/armon/circbuf v0.0.0-20190214190532-5111143e8da2
 	github.com/capnm/sysinfo v0.0.0-20130621111458-5909a53897f3
 	github.com/chewxy/math32 v1.0.0
@@ -19,10 +20,9 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/shirou/gopsutil v2.18.12+incompatible
 	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/vektah/gqlparser v1.1.2
 	go.bug.st/serial.v1 v0.0.0-20180827123349-5f7892a7bb45
 	golang.org/x/crypto v0.0.0-20190418165655-df01cb2cc480 // indirect
 	golang.org/x/net v0.0.0-20190420063019-afa5a82059c6 // indirect
 	golang.org/x/sys v0.0.0-20190419153524-e8e3143a4f4a // indirect
-	golang.org/x/tools v0.0.0-20190420181800-aa740d480789 // indirect
-	gopkg.in/yaml.v2 v2.2.2 // indirect
 )

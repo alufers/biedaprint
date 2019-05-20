@@ -1,0 +1,96 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+scalar Any
+scalar Time
+scalar Map
+scalar Upload
+
+type Settings {
+  serialPort: String!
+  baudRate: Int!
+  scrollbackBufferSize: Int!
+  dataPath: String!
+  startupCommand: String!
+}
+
+enum TrackedValueDisplayType {
+  PLOT
+  TIME
+  NUMBER
+  BOOLEAN
+  STRING
+}
+
+type TrackedValue {
+  name: String!
+  unit: String!
+  displayType: TrackedValueDisplayType!
+  plotColor: String!
+  value: Any!
+  lastUpdate: Time!
+  lastSent: Time!
+  minUpdateInterval: Int!
+
+  history: [Any!]!
+  maxHistoryLength: Int!
+}
+
+type GcodeLayerIndex {
+  lineNumber: Int!
+  layerNumber: Int!
+}
+
+type GcodeFileMeta {
+  originalName: String!
+  gcodeFileName: String!
+  uploadDate: Time!
+
+  totalLines: Int!
+  printTime: Float!
+  filamentUsedMm: Float!
+  layerIndexes: [GcodeLayerIndex!]!
+}
+
+type PrintJob {
+  gcodeMeta: GcodeFileMeta!
+  startedTime: Time!
+}
+
+input NewSettings {
+  serialPort: String!
+  baudRate: Int!
+  scrollbackBufferSize: Int!
+  dataPath: String!
+  startupCommand: String!
+}
+
+type Query {
+  settings: Settings!
+  trackedValues: [TrackedValue!]!
+  trackedValue(name: String!): TrackedValue!
+  scrollbackBuffer: String!
+  recentCommands: [String!]!
+  gcodeFileMetas: [GcodeFileMeta!]!
+  currentPrintJob: PrintJob
+  systemInformation: Map
+}
+
+type Mutation {
+  updateSettings(settings: NewSettings!): Settings! # update the system settings
+  connectToSerial(void: Boolean): Boolean
+  disconnectFromSerial(void: Boolean):Boolean
+  sendGcode(cmd: String!): Boolean # send gcode to the printer without saving it in recent commands, used by all the manual control buttons
+  sendConsoleCommand(cmd: String!): Boolean # sebd command from the serial console input
+  uploadGcode(file: Upload!): Boolean
+  deleteGcodeFile(gcodeFilename: String!): Boolean
+  startPrintJob(gcodeFilename: String!): Boolean
+  abortPrintJob(void: Boolean): Boolean
+}
+
+type Subscription {
+  trackedValueUpdated(name: String!): TrackedValue!
+  currentPrintJobUpdated: PrintJob
+  serialConsoleData: String!
+}

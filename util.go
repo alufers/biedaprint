@@ -1,13 +1,9 @@
-package main
+package biedaprint
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"math/rand"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
 
 func unique(intSlice []string) []string {
@@ -33,21 +29,6 @@ func byteCountBinary(b int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %ciB", float64(b)/float64(div), "KMGTPE"[exp])
-}
-
-func removeConnFromArray(c *websocket.Conn, array []*websocket.Conn) []*websocket.Conn {
-	newConnections := make([]*websocket.Conn, 0, len(array))
-	for _, a := range array {
-		if a != c {
-			newConnections = append(newConnections, a)
-		}
-	}
-	return newConnections
-}
-
-func respondJSON(w io.Writer, dat interface{}) {
-	enc := json.NewEncoder(w)
-	enc.Encode(dat)
 }
 
 func init() {
