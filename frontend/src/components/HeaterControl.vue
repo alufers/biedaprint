@@ -8,7 +8,7 @@
       <div class="print-stat">
         <div class="controls tags has-addons are-medium">
           <span class="tag">Actual</span>
-          <span class="tag">{{temperature}}</span>
+          <span class="tag">{{temperature.toFixed(2)}}</span>
         </div>
 
         <div class="controls tags has-addons are-medium">

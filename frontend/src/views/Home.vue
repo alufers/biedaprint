@@ -14,7 +14,7 @@
             targetTrackedValueName="targetHotendTemperature"
             temperatureGcode="M104"
           />
-            <HeaterControl
+          <HeaterControl
             name="Hotbed"
             temperatureTrackedValueName="hotbedTemperature"
             targetTrackedValueName="targetHotbedTemperature"
