@@ -3,6 +3,7 @@ package biedaprint
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -55,7 +56,35 @@ func (r *mutationResolver) SendConsoleCommand(ctx context.Context, cmd string) (
 	return nil, r.App.RecentCommandsManager.AddRecentCommand(cmd)
 }
 func (r *mutationResolver) UploadGcode(ctx context.Context, file graphql.Upload) (*bool, error) {
-	panic("not implemented")
+	dataPath := r.App.GetSettings().DataPath
+	gcodeFilename := RandStringRunes(8) + ".gcode"
+	// copy example
+	f, err := os.OpenFile(filepath.Join(dataPath, "gcode_files/"+gcodeFilename), os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to open gcode file for writing")
+	}
+	defer f.Close()
+	_, err = io.Copy(f, file.File)
+	if err != nil {
+
+		return nil, errors.Wrap(err, "failed to copy file from request")
+	}
+	meta := &GcodeFileMeta{
+		OriginalName:  file.Filename,
+		UploadDate:    time.Now(),
+		GcodeFileName: gcodeFilename,
+	}
+	err = meta.AnalyzeGcodeFile(dataPath)
+	if err != nil {
+
+		return nil, errors.Wrap(err, "failed to analyze gcode file")
+	}
+	err = meta.Save(dataPath)
+	if err != nil {
+		errors.Wrap(err, "failed to save gcode file meta")
+
+	}
+	return nil, nil
 }
 func (r *mutationResolver) DeleteGcodeFile(ctx context.Context, gcodeFilename string) (*bool, error) {
 	dataPath := r.App.GetSettings().DataPath
