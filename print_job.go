@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 )
 
 type PrintJobInternal struct {
@@ -49,12 +50,12 @@ func (pj *PrintJobInternal) jobLines() (chan string, error) {
 		defer close(c)
 		defer pj.gcodeFile.Close()
 		log.Printf("Starting jobLines goroutine...")
-		// trackedValues["printOriginalName"].updateValue(pj.gcodeMeta.OriginalName)
-		// trackedValues["isPrinting"].updateValue(true)
-		// trackedValues["printStartTime"].updateValue(pj.startedTime.Format(time.RFC3339))
-		// trackedValues["printCurrentLayer"].updateValue(0)
-		// trackedValues["printTotalLayers"].updateValue(len(pj.gcodeMeta.LayerIndexes))
-		//defer trackedValues["isPrinting"].updateValue(false)
+		pj.app.TrackedValuesManager.TrackedValues["printOriginalName"].UpdateValue(pj.GcodeMeta.OriginalName)
+		pj.app.TrackedValuesManager.TrackedValues["isPrinting"].UpdateValue(true)
+		pj.app.TrackedValuesManager.TrackedValues["printStartTime"].UpdateValue(pj.StartedTime.Format(time.RFC3339))
+		pj.app.TrackedValuesManager.TrackedValues["printCurrentLayer"].UpdateValue(0)
+		pj.app.TrackedValuesManager.TrackedValues["printTotalLayers"].UpdateValue(len(pj.GcodeMeta.LayerIndexes))
+		defer pj.app.TrackedValuesManager.TrackedValues["isPrinting"].UpdateValue(false)
 		c <- "M110 N0\r\n"
 		for pj.scanner.Scan() {
 			rawLine := strings.Split(pj.scanner.Text(), ";")[0]
@@ -74,14 +75,14 @@ func (pj *PrintJobInternal) jobLines() (chan string, error) {
 				pj.currentNonBlankLine++
 				delete(pj.lineResendBuffer, pj.currentNonBlankLine-10)
 				pj.lineResendBufferMutex.Unlock()
-				//trackedValues["printProgress"].updateValue((float64(pj.currentLine) / float64(pj.GcodeMeta.TotalLines)) * 100)
+				pj.app.TrackedValuesManager.TrackedValues["printProgress"].UpdateValue((float64(pj.currentLine) / float64(pj.GcodeMeta.TotalLines)) * 100)
 			}
 			pj.currentLine++
 
 			if pj.currentLayerIndex < len(pj.GcodeMeta.LayerIndexes) {
 				if pj.currentLine >= pj.GcodeMeta.LayerIndexes[pj.currentLayerIndex].LineNumber {
 					pj.currentLayerIndex++
-					//trackedValues["printCurrentLayer"].updateValue(pj.GcodeMeta.LayerIndexes[pj.currentLayerIndex].LayerNumber)
+					pj.app.TrackedValuesManager.TrackedValues["printCurrentLayer"].UpdateValue(pj.GcodeMeta.LayerIndexes[pj.currentLayerIndex].LayerNumber)
 				}
 			}
 

@@ -138,7 +138,7 @@ type QueryResolver interface {
 	SystemInformation(ctx context.Context) (*map[string]interface{}, error)
 }
 type SubscriptionResolver interface {
-	TrackedValueUpdated(ctx context.Context, name string) (<-chan *TrackedValue, error)
+	TrackedValueUpdated(ctx context.Context, name string) (<-chan interface{}, error)
 	CurrentPrintJobUpdated(ctx context.Context) (<-chan *PrintJob, error)
 	SerialConsoleData(ctx context.Context) (<-chan string, error)
 }
@@ -672,8 +672,8 @@ type TrackedValue {
   displayType: TrackedValueDisplayType!
   plotColor: String!
   value: Any!
-  lastUpdate: Time!
-  lastSent: Time!
+  lastUpdate: Time
+  lastSent: Time
   minUpdateInterval: Int!
 
   history: [Any!]!
@@ -723,7 +723,7 @@ type Query {
 type Mutation {
   updateSettings(settings: NewSettings!): Settings! # update the system settings
   connectToSerial(void: Boolean): Boolean
-  disconnectFromSerial(void: Boolean):Boolean
+  disconnectFromSerial(void: Boolean): Boolean
   sendGcode(cmd: String!): Boolean # send gcode to the printer without saving it in recent commands, used by all the manual control buttons
   sendConsoleCommand(cmd: String!): Boolean # sebd command from the serial console input
   uploadGcode(file: Upload!): Boolean
@@ -733,7 +733,7 @@ type Mutation {
 }
 
 type Subscription {
-  trackedValueUpdated(name: String!): TrackedValue!
+  trackedValueUpdated(name: String!): Any!
   currentPrintJobUpdated: PrintJob
   serialConsoleData: String!
 }
@@ -1958,7 +1958,7 @@ func (ec *executionContext) _Subscription_trackedValueUpdated(ctx context.Contex
 			w.Write([]byte{'{'})
 			graphql.MarshalString(field.Alias).MarshalGQL(w)
 			w.Write([]byte{':'})
-			ec.marshalNTrackedValue2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐTrackedValue(ctx, field.Selections, res).MarshalGQL(w)
+			ec.marshalNAny2interface(ctx, field.Selections, res).MarshalGQL(w)
 			w.Write([]byte{'}'})
 		})
 	}
@@ -2171,15 +2171,12 @@ func (ec *executionContext) _TrackedValue_lastUpdate(ctx context.Context, field 
 		return obj.LastUpdate, nil
 	})
 	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _TrackedValue_lastSent(ctx context.Context, field graphql.CollectedField, obj *TrackedValue) graphql.Marshaler {
@@ -2198,15 +2195,12 @@ func (ec *executionContext) _TrackedValue_lastSent(ctx context.Context, field gr
 		return obj.LastSent, nil
 	})
 	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _TrackedValue_minUpdateInterval(ctx context.Context, field graphql.CollectedField, obj *TrackedValue) graphql.Marshaler {
@@ -3584,14 +3578,8 @@ func (ec *executionContext) _TrackedValue(ctx context.Context, sel ast.Selection
 			}
 		case "lastUpdate":
 			out.Values[i] = ec._TrackedValue_lastUpdate(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "lastSent":
 			out.Values[i] = ec._TrackedValue_lastSent(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "minUpdateInterval":
 			out.Values[i] = ec._TrackedValue_minUpdateInterval(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4518,6 +4506,29 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return ec.marshalOString2string(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	return graphql.UnmarshalTime(v)
+}
+
+func (ec *executionContext) marshalOTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	return graphql.MarshalTime(v)
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOTime2timeᚐTime(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOTime2timeᚐTime(ctx, sel, *v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

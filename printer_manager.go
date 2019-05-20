@@ -72,7 +72,7 @@ func (pm *PrinterManager) ConnectToSerial() error {
 	defer pm.serialReadyCond.L.Unlock()
 	pm.serialReady = true
 	pm.serialReadyCond.Broadcast()
-
+	pm.app.TrackedValuesManager.TrackedValues["serialStatus"].UpdateValue("connected")
 	return nil
 }
 
@@ -83,6 +83,7 @@ func (pm *PrinterManager) DisconnectFromSerial() error {
 		return errors.New("serial not connected")
 	}
 	pm.serialReady = false
+	pm.app.TrackedValuesManager.TrackedValues["serialStatus"].UpdateValue("disconnected")
 	return pm.serial.Close()
 }
 
@@ -149,7 +150,6 @@ func (pm *PrinterManager) parseLine(line string) {
 	line = strings.TrimSpace(line)
 	//log.Println("GOT LINE: ", line)
 	if strings.HasPrefix(line, "T:") {
-		//trackedValues["hotendTemperature"]
 		var temp float64
 		var target float64
 		var power int
@@ -161,10 +161,10 @@ func (pm *PrinterManager) parseLine(line string) {
 		} else {
 			fmt.Sscanf(line, "T:%f /%f @:%d", &temp, &target, &power)
 		}
-		// trackedValues["hotendTemperature"].updateValue(temp)
-		// trackedValues["targetHotendTemperature"].updateValue(target)
-		// trackedValues["hotbedTemperature"].updateValue(bedTemp)
-		// trackedValues["targetHotbedTemperature"].updateValue(betTargetTemp)
+		pm.app.TrackedValuesManager.TrackedValues["hotendTemperature"].UpdateValue(temp)
+		pm.app.TrackedValuesManager.TrackedValues["targetHotendTemperature"].UpdateValue(target)
+		pm.app.TrackedValuesManager.TrackedValues["hotbedTemperature"].UpdateValue(bedTemp)
+		pm.app.TrackedValuesManager.TrackedValues["targetHotbedTemperature"].UpdateValue(betTargetTemp)
 	} else if strings.HasPrefix(line, "ok") {
 		select {
 		case pm.okSem <- true:

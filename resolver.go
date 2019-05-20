@@ -101,10 +101,31 @@ func (r *mutationResolver) DeleteGcodeFile(ctx context.Context, gcodeFilename st
 	return nil, nil
 }
 func (r *mutationResolver) StartPrintJob(ctx context.Context, gcodeFilename string) (*bool, error) {
-	panic("not implemented")
+	meta, err := loadGcodeFileMeta(filepath.Join(r.App.GetSettings().DataPath, "gcode_files/", gcodeFilename+".meta"))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load gcode meta")
+	}
+	job := &PrintJobInternal{
+		app: r.App,
+		PrintJob: &PrintJob{
+			GcodeMeta:   meta,
+			StartedTime: time.Now(),
+		},
+	}
+
+	select {
+	case r.App.PrinterManager.printJobSem <- job:
+	default:
+		return nil, errors.New("serial writer busy with antoher job")
+	}
+	return nil, nil
 }
 func (r *mutationResolver) AbortPrintJob(ctx context.Context, void *bool) (*bool, error) {
-	panic("not implemented")
+	select {
+	case r.App.PrinterManager.abortPrintSem <- true:
+	default:
+	}
+	return nil, nil
 }
 
 type queryResolver struct{ *Resolver }
@@ -113,11 +134,25 @@ func (r *queryResolver) Settings(ctx context.Context) (*Settings, error) {
 	set := r.App.GetSettings()
 	return &set, nil
 }
-func (r *queryResolver) TrackedValues(ctx context.Context) ([]*TrackedValue, error) {
-	panic("not implemented")
+func (r *queryResolver) TrackedValues(ctx context.Context) (resp []*TrackedValue, err error) {
+	resp = []*TrackedValue{}
+	for _, tv := range r.App.TrackedValuesManager.TrackedValues {
+		tv.ValueMutex.RLock()
+		val := *tv.TrackedValue
+		resp = append(resp, &val)
+		tv.ValueMutex.RUnlock()
+	}
+	return resp, nil
 }
 func (r *queryResolver) TrackedValue(ctx context.Context, name string) (*TrackedValue, error) {
-	panic("not implemented")
+	tv, ok := r.App.TrackedValuesManager.TrackedValues[name]
+	tv.ValueMutex.RLock()
+	defer tv.ValueMutex.RUnlock()
+	if !ok {
+		return nil, errors.New("tracked value with this name not found")
+	}
+	val := *tv.TrackedValue
+	return &val, nil
 }
 func (r *queryResolver) ScrollbackBuffer(ctx context.Context) (string, error) {
 	r.App.PrinterManager.scrollbackBufferMutex.Lock()
@@ -166,8 +201,29 @@ func (r *queryResolver) SystemInformation(ctx context.Context) (*map[string]inte
 
 type subscriptionResolver struct{ *Resolver }
 
-func (r *subscriptionResolver) TrackedValueUpdated(ctx context.Context, name string) (<-chan *TrackedValue, error) {
-	panic("not implemented")
+func (r *subscriptionResolver) TrackedValueUpdated(ctx context.Context, name string) (<-chan interface{}, error) {
+	tv, ok := r.App.TrackedValuesManager.TrackedValues[name]
+	tv.ValueMutex.RLock()
+	defer tv.ValueMutex.RUnlock()
+	if !ok {
+		return nil, errors.New("tracked value with this name not found")
+	}
+	outChan := make(chan interface{})
+	sub, can := tv.ValueUpdatedBroadcaster.Subscribe()
+	go func() {
+	Loop:
+		for {
+			select {
+			case data := <-sub:
+				outChan <- data
+			case <-ctx.Done():
+				can()
+				break Loop
+			}
+		}
+	}()
+
+	return outChan, nil
 }
 func (r *subscriptionResolver) CurrentPrintJobUpdated(ctx context.Context) (<-chan *PrintJob, error) {
 	panic("not implemented")

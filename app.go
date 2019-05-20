@@ -7,6 +7,7 @@ type App struct {
 	settingsMutex         *sync.RWMutex
 	PrinterManager        *PrinterManager
 	RecentCommandsManager *RecentCommandsManager
+	TrackedValuesManager  *TrackedValuesManager
 }
 
 func NewApp() *App {
@@ -22,6 +23,7 @@ func NewApp() *App {
 	}
 	app.PrinterManager = NewPrinterManager(app)
 	app.RecentCommandsManager = NewRecentCommandsManager(app)
+	app.TrackedValuesManager = NewTrackedValuesManager(app)
 	return app
 }
 

@@ -51,8 +51,8 @@ type TrackedValue struct {
 	DisplayType       TrackedValueDisplayType `json:"displayType"`
 	PlotColor         string                  `json:"plotColor"`
 	Value             interface{}             `json:"value"`
-	LastUpdate        time.Time               `json:"lastUpdate"`
-	LastSent          time.Time               `json:"lastSent"`
+	LastUpdate        *time.Time              `json:"lastUpdate"`
+	LastSent          *time.Time              `json:"lastSent"`
 	MinUpdateInterval int                     `json:"minUpdateInterval"`
 	History           []interface{}           `json:"history"`
 	MaxHistoryLength  int                     `json:"maxHistoryLength"`
