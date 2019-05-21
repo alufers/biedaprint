@@ -82,6 +82,7 @@ type ComplexityRoot struct {
 		GcodeFileMetas    func(childComplexity int) int
 		RecentCommands    func(childComplexity int) int
 		ScrollbackBuffer  func(childComplexity int) int
+		SerialPorts       func(childComplexity int) int
 		Settings          func(childComplexity int) int
 		SystemInformation func(childComplexity int) int
 		TrackedValue      func(childComplexity int, name string) int
@@ -128,6 +129,7 @@ type MutationResolver interface {
 	AbortPrintJob(ctx context.Context, void *bool) (*bool, error)
 }
 type QueryResolver interface {
+	SerialPorts(ctx context.Context) ([]string, error)
 	Settings(ctx context.Context) (*Settings, error)
 	TrackedValues(ctx context.Context) ([]*TrackedValue, error)
 	TrackedValue(ctx context.Context, name string) (*TrackedValue, error)
@@ -370,6 +372,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.ScrollbackBuffer(childComplexity), true
+
+	case "Query.serialPorts":
+		if e.complexity.Query.SerialPorts == nil {
+			break
+		}
+
+		return e.complexity.Query.SerialPorts(childComplexity), true
 
 	case "Query.settings":
 		if e.complexity.Query.Settings == nil {
@@ -710,6 +719,7 @@ input NewSettings {
 }
 
 type Query {
+  serialPorts: [String!]!
   settings: Settings!
   trackedValues: [TrackedValue!]!
   trackedValue(name: String!): TrackedValue!
@@ -1521,6 +1531,33 @@ func (ec *executionContext) _PrintJob_startedTime(ctx context.Context, field gra
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_serialPorts(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SerialPorts(rctx)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2ᚕstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_settings(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -3348,6 +3385,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "serialPorts":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_serialPorts(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "settings":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {

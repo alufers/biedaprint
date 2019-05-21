@@ -7,10 +7,25 @@ export default class LoadableMixin extends Vue {
 
   async withLoader<T = any>(cbFn: () => Promise<T>): Promise<T> {
     this.loading = true;
+    let shouldWarn = false;
+    setTimeout(
+      () =>
+        shouldWarn &&
+        console.warn(
+          "LoadableMixin.withLoader(...) executed synchronously! Did you forget about an await?"
+        )
+    );
     try {
-      return await cbFn();
+      let val = await cbFn();
+      shouldWarn = true;
+      return val;
     } finally {
       this.loading = false;
     }
+  }
+  get isLoadingClass() {
+    return {
+      "is-loading": this.loading
+    };
   }
 }

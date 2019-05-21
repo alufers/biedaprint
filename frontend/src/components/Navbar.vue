@@ -45,21 +45,11 @@
       <div class="navbar-end">
         <span class="navbar-item">
           <div class="tags has-addons">
-            <span class="tag">Socket status</span>
-            <span
-              class="tag"
-              :class="{'is-danger': socketStatus === 'closed', 'is-success': socketStatus === 'connected'}"
-            >{{socketStatus}}</span>
-          </div>
-        </span>
-        <span class="navbar-item">
-          <div class="tags has-addons">
             <span class="tag">Serial status</span>
             <span
               class="tag"
               :class="{'is-danger': serialStatus === 'disconnected' || serialStatus === 'error', 'is-success': serialStatus === 'connected' }"
             >{{serialStatus}}</span>
-            <TrackedValueModel @change="serialStatus = $event" valueName="serialStatus"/>
           </div>
         </span>
       </div>
@@ -67,21 +57,17 @@
   </nav>
 </template>
 
-<script>
-import TrackedValueModel from "@/components/TrackedValueModel";
+<script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
+import TrackedValueSubscription from "../TrackedValueSubscription";
 
-export default {
-  props: ["socketStatus"],
-  components: {
-    TrackedValueModel
-  },
-  data() {
-    return {
-      navbarActive: false,
-      serialStatus: "?"
-    };
-  }
-};
+@Component({})
+export default class Navbar extends Vue {
+  @TrackedValueSubscription("serialStatus")
+  serialStatus = "?";
+  navbarActive = false;
+}
 </script>
 
 <style>

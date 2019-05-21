@@ -130,6 +130,10 @@ func (r *mutationResolver) AbortPrintJob(ctx context.Context, void *bool) (*bool
 
 type queryResolver struct{ *Resolver }
 
+func (r *queryResolver) SerialPorts(ctx context.Context) ([]string, error) {
+	return []string{"/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/ttyUSB2", "/dev/ttyUSB3", "/dev/ttyACM0", "/dev/ttyACM1", "/dev/ttyACM2", "/dev/cu.wchusbserial14d10"}, nil
+}
+
 func (r *queryResolver) Settings(ctx context.Context) (*Settings, error) {
 	set := r.App.GetSettings()
 	return &set, nil

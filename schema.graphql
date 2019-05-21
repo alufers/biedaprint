@@ -67,6 +67,7 @@ input NewSettings {
 }
 
 type Query {
+  serialPorts: [String!]!
   settings: Settings!
   trackedValues: [TrackedValue!]!
   trackedValue(name: String!): TrackedValue!

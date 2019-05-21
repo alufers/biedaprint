@@ -1,0 +1,10 @@
+query getSettingsAndSerialPorts {
+  settings {
+    serialPort
+    baudRate
+    dataPath
+    startupCommand
+    scrollbackBufferSize
+  }
+  serialPorts
+}

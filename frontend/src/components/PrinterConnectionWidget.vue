@@ -4,13 +4,14 @@
     <div v-if="serialStatus === 'disconnected' || serialStatus == 'error'">
       <button
         class="button is-success"
-        :class="{'is-loading': loading}"
+        :class="isLoadingClass"
         @click="connectToSerial"
         v-if="serialStatus === 'disconnected' || serialStatus == 'error'"
       >Connect to printer</button>
     </div>
     <button
       class="button is-danger is-outlined"
+      :class="isLoadingClass"
       @click="disconnectFromSerial"
       v-if="serialStatus === 'connected'"
     >Disconnect from printer</button>
@@ -18,34 +19,37 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import Component from "vue-class-component";
+import Component, { mixins } from "vue-class-component";
 import gql from "graphql-tag";
 import TrackedValueSubscription from "../TrackedValueSubscription";
 import { TrackedValue } from "../graphql-models-gen";
+import LoadableMixin from "../LoadableMixin";
 
 @Component({})
-export default class PrinterConnectionWidget extends Vue {
-  loading = false;
-
+export default class PrinterConnectionWidget extends mixins(LoadableMixin) {
   @TrackedValueSubscription("serialStatus")
   serialStatus: string = "disconnected";
 
-  async connectToSerial() {
-    this.$apollo.mutate({
-      mutation: gql`
-        mutation {
-          connectToSerial(void: null)
-        }
-      `
+  connectToSerial() {
+    this.withLoader(async () => {
+      await this.$apollo.mutate({
+        mutation: gql`
+          mutation {
+            connectToSerial(void: null)
+          }
+        `
+      });
     });
   }
   async disconnectFromSerial() {
-    this.$apollo.mutate({
-      mutation: gql`
-        mutation {
-          disconnectFromSerial(void: null)
-        }
-      `
+    this.withLoader(async () => {
+      await this.$apollo.mutate({
+        mutation: gql`
+          mutation {
+            disconnectFromSerial(void: null)
+          }
+        `
+      });
     });
   }
 }

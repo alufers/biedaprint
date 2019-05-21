@@ -23,30 +23,30 @@
   </div>
 </template>
 
-<script>
-import connectionMixin from "@/connectionMixin";
+<script lang="ts">
+import Vue from "vue";
+import Component, { mixins } from "vue-class-component";
+import LoadableMixin from "../../LoadableMixin";
+import gql from "graphql-tag";
+import getSystemInformation from "../../../../queries/getSystemInformation.graphql";
+import { GetSystemInformationQuery } from "../../graphql-models-gen";
 
-export default {
-  mixins: [connectionMixin],
-  data() {
-    return {
-      systemInfo: null
-    };
-  },
+@Component({})
+export default class SystemInfo extends mixins(LoadableMixin) {
+  systemInfo: any = null;
   created() {
     this.loadData();
-  },
-  methods: {
-    loadData() {
-      this.connection.sendMessage("getSysteminfo");
-    }
-  },
-  connectionSubscriptions: {
-    "message.getSysteminfo"(info) {
-      this.systemInfo = info;
-    }
   }
-};
+  loadData() {
+    this.withLoader(async () => {
+      let { data } = await this.$apollo.query<GetSystemInformationQuery>({
+        query: getSystemInformation,
+        fetchPolicy: "network-only"
+      });
+      this.systemInfo = data.systemInformation;
+    });
+  }
+}
 </script>
 
 <style>
