@@ -5,24 +5,39 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "graphql-codegen": "graphql-codegen"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.8.1",
-    "bulma": "^0.7.4",
+    "@fortawesome/fontawesome-free": "^5.8.2",
+    "@graphql-codegen/cli": "^1.2.0",
+    "@graphql-codegen/typescript": "^1.2.0",
+    "@graphql-codegen/typescript-graphql-files-modules": "^1.2.0",
+    "@graphql-codegen/typescript-operations": "^1.2.0",
+    "@types/graphql": "^14.2.0",
+    "bulma": "^0.7.5",
     "chart.js": "^2.8.0",
-    "core-js": "^2.6.5",
-    "luxon": "^1.12.1",
+    "core-js": "^2.6.7",
+    "graphql": "^14.3.0",
+    "luxon": "^1.15.0",
     "vue": "^2.6.10",
+    "vue-apollo": "^3.0.0-beta.11",
+    "vue-class-component": "^7.0.2",
+    "vue-property-decorator": "^8.1.0",
     "vue-router": "^3.0.3"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.6.0",
-    "@vue/cli-plugin-eslint": "^3.6.0",
-    "@vue/cli-service": "^3.6.0",
+    "@vue/cli-plugin-babel": "^3.7.0",
+    "@vue/cli-plugin-eslint": "^3.7.0",
+    "@vue/cli-plugin-typescript": "^3.7.0",
+    "@vue/cli-service": "^3.7.0",
+    "@vue/eslint-config-typescript": "^4.0.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "graphql-tag": "^2.10.1",
+    "typescript": "^3.4.3",
+    "vue-cli-plugin-apollo": "^0.20.0",
     "vue-template-compiler": "^2.5.21"
   },
   "eslintConfig": {
@@ -32,11 +47,12 @@
     },
     "extends": [
       "plugin:vue/essential",
-      "eslint:recommended"
+      "eslint:recommended",
+      "@vue/typescript"
     ],
     "rules": {},
     "parserOptions": {
-      "parser": "babel-eslint"
+      "parser": "@typescript-eslint/parser"
     }
   },
   "postcss": {

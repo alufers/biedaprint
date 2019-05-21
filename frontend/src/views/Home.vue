@@ -3,11 +3,11 @@
     <div class="columns">
       <div class="column is-one-third">
         <PrinterConnectionWidget class="box"/>
-        <CurrentPrintWidget class="box"/>
+        <!-- <CurrentPrintWidget class="box"/> -->
       </div>
       <div class="column">
         <div class="box">
-          <TemperatureDisplay class/>
+          <!-- <TemperatureDisplay class/>
           <HeaterControl
             name="Hotend"
             temperatureTrackedValueName="hotendTemperature"
@@ -19,7 +19,7 @@
             temperatureTrackedValueName="hotbedTemperature"
             targetTrackedValueName="targetHotbedTemperature"
             temperatureGcode="M140"
-          />
+          /> -->
         </div>
       </div>
     </div>

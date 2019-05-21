@@ -1,0 +1,8 @@
+schema: ../schema.graphql
+documents: src/**/*.{ts,tsx}
+generates:
+  src/graphql-models-gen.ts:
+    - typescript
+    - typescript-operations
+  src/graphql-queries-gen.d.ts:
+    - typescript-graphql-files-modules

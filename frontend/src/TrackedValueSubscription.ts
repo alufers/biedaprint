@@ -1,0 +1,61 @@
+import Component, { createDecorator } from "vue-class-component";
+import Vue from "vue";
+import gql from "graphql-tag";
+import {
+  GetTrackedValueByNameOnlyValueQuery,
+  SubscribeToTrackedValueUpdatedByNameSubscription,
+  SubscribeToTrackedValueUpdatedByNameSubscriptionVariables
+} from "./graphql-models-gen";
+import { QueryResult } from "vue-apollo/types/vue-apollo";
+
+/**
+ * TrackedValueSubscription is a decorator which binds to a vue instance property that will be updated every time the tracked value changes and an update event is sent via the subscription.
+ * @param tvName the name of the tracked value
+ */
+export default function TrackedValueSubscription(tvName: string) {
+  return createDecorator((options, key) => {
+    @Component
+    class TrackedValueSubscriptionDecoratorMixin extends Vue {
+      async created() {
+        let tv = await this.$apollo.query<GetTrackedValueByNameOnlyValueQuery>({
+          variables: {
+            name: tvName
+          },
+          query: gql`
+            query getTrackedValueByNameOnlyValue($name: String!) {
+              trackedValue(name: $name) {
+                value
+              }
+            }
+          `
+        });
+        this[key] = tv.data.trackedValue.value;
+
+        // create the real subscription
+        let observable = this.$apollo.subscribe<
+          QueryResult<SubscribeToTrackedValueUpdatedByNameSubscription>
+        >({
+          variables: <
+            SubscribeToTrackedValueUpdatedByNameSubscriptionVariables
+          >{
+            name: tvName
+          },
+
+          query: gql`
+            subscription subscribeToTrackedValueUpdatedByName($name: String!) {
+              trackedValueUpdated(name: $name)
+            }
+          `
+        });
+
+        observable.subscribe(val => {
+          this[key] = val.data.trackedValueUpdated;
+        });
+      }
+    }
+    options.mixins = [
+      ...options.mixins,
+      TrackedValueSubscriptionDecoratorMixin
+    ];
+  });
+}

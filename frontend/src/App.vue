@@ -48,8 +48,6 @@ export default {
   },
   created() {
     this.connection.on("statusChanged", sta => (this.socketStatus = sta));
-
-    this.connection.connect();
   }
 };
 </script>
