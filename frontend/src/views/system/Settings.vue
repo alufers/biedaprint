@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <LoaderGuard>
     <h2 class="subtitle">Settings</h2>
     <progress class="progress is-large is-primary" max="100" v-if="loading">15%</progress>
     <div v-if="settings">
@@ -33,7 +33,7 @@
       </div>
       <button class="button is-primary" @click="save">Save</button>
     </div>
-  </div>
+  </LoaderGuard>
 </template>
 <script lang="ts">
 import Vue from "vue";
@@ -48,8 +48,13 @@ import {
   UpdateSettingsMutationVariables,
   Settings as SettingsModel
 } from "../../graphql-models-gen";
+import LoaderGuard from "../../components/LoaderGuard.vue";
 
-@Component({})
+@Component({
+  components: {
+    LoaderGuard
+  }
+})
 export default class SettingsPage extends mixins(LoadableMixin) {
   readonly rates = [
     300,

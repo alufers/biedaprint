@@ -1,10 +1,11 @@
 import Vue from "vue";
 import Component from "vue-class-component";
+import { Provide } from "vue-property-decorator";
 
 @Component({})
 export default class LoadableMixin extends Vue {
   loading = false;
-
+  
   async withLoader<T = any>(cbFn: () => Promise<T>): Promise<T> {
     this.loading = true;
     let shouldWarn = false;

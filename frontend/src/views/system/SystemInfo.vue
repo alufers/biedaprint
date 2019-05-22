@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <LoaderGuard>
     <h2 class="title">System information</h2>
     <button class="button is-primary" @click="loadData">
       <i class="fas fa-sync"></i>
@@ -20,7 +20,7 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </LoaderGuard>
 </template>
 
 <script lang="ts">
@@ -30,12 +30,20 @@ import LoadableMixin from "../../LoadableMixin";
 import gql from "graphql-tag";
 import getSystemInformation from "../../../../queries/getSystemInformation.graphql";
 import { GetSystemInformationQuery } from "../../graphql-models-gen";
+import LoaderGuard from "../../components/LoaderGuard.vue";
+import { Watch } from "vue-property-decorator";
 
-@Component({})
+@Component({
+  components: { LoaderGuard }
+})
 export default class SystemInfo extends mixins(LoadableMixin) {
   systemInfo: any = null;
   created() {
     this.loadData();
+  }
+  @Watch("loading")
+  onLoadingCHanged(ddd) {
+    console.log(ddd)
   }
   loadData() {
     this.withLoader(async () => {
