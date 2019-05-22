@@ -15,8 +15,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import LoadableMixin from "../LoadableMixin";
-import { Inject } from "vue-property-decorator";
+
 @Component({})
 export default class LoaderGuard extends Vue {
 

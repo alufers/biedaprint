@@ -20,27 +20,30 @@
     </div>
     <div id="navbarBasicExample" class="navbar-menu" :class="{'is-active': navbarActive}">
       <div class="navbar-start">
-        <router-link class="navbar-item" to="/" active-class="huba">Biedaprint</router-link>
-        <div class="navbar-item has-dropdown is-hoverable">
-          <router-link class="navbar-link" to="/print">Print</router-link>
-          <div class="navbar-dropdown">
-            <router-link class="navbar-item" to="/print/gcode-files">Gcode files</router-link>
+        <template v-for="route in topLevelRoutes">
+          <div
+            v-if="route.children && route.children.length > 0"
+            class="navbar-item has-dropdown is-hoverable"
+            exact
+            :key="route.path"
+          >
+            <router-link class="navbar-link" :to="route.path">{{route.menuName || route.name}}</router-link>
+            <div class="navbar-dropdown" v-if="route.children && route.children.length > 0">
+              <router-link
+                class="navbar-item"
+                :to="urlJoin(route.path, child.path)"
+                v-for="child in route.children"
+                :key="child.path"
+              >{{child.menuName || child.name}}</router-link>
+            </div>
           </div>
-        </div>
-        <div class="navbar-item has-dropdown is-hoverable">
-          <router-link class="navbar-link" to="/control">Control</router-link>
-          <div class="navbar-dropdown">
-            <router-link class="navbar-item" to="/control/manual">Manual</router-link>
-            <router-link class="navbar-item" to="/control/serial-console">Serial console</router-link>
-          </div>
-        </div>
-        <div class="navbar-item has-dropdown is-hoverable">
-          <router-link class="navbar-link" to="/system">System</router-link>
-          <div class="navbar-dropdown">
-            <router-link class="navbar-item" to="/system/settings">Settings</router-link>
-            <router-link class="navbar-item" to="/system/system-info">System information</router-link>
-          </div>
-        </div>
+          <router-link
+            :key="route.path"
+            class="navbar-item"
+            :to="route.path"
+            v-else
+          >{{route.menuName || route.name}}</router-link>
+        </template>
       </div>
       <div class="navbar-end">
         <span class="navbar-item">
@@ -61,12 +64,20 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import TrackedValueSubscription from "../TrackedValueSubscription";
+import { routerConfig } from "../router";
+import urlJoin from "url-join";
 
 @Component({})
 export default class Navbar extends Vue {
   @TrackedValueSubscription("serialStatus")
   serialStatus = "?";
   navbarActive = false;
+  get topLevelRoutes() {
+    return routerConfig.routes;
+  }
+  urlJoin(...u: string[]) {
+    return urlJoin(u);
+  }
 }
 </script>
 
