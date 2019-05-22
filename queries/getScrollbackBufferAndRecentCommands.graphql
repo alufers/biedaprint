@@ -1,0 +1,4 @@
+query getScrollbackBufferAndRecentCommands {
+  scrollbackBuffer
+  recentCommands
+}

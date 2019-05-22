@@ -37,14 +37,15 @@ import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import GcodeDocs from "../../components/GcodeDocs.vue";
 import sendConsoleCommand from "../../../../queries/sendConsoleCommand.graphql";
-import getScrollbackBuffer from "../../../../queries/getScrollbackBuffer.graphql";
+import getScrollbackBufferAndRecentCommands from "../../../../queries/getScrollbackBufferAndRecentCommands.graphql";
 import serialConsoleDataSubscription from "../../../../queries/serialConsoleDataSubscription.graphql";
 import LoadableMixin from "../../LoadableMixin";
 import {
   SendConsoleCommandMutation,
   SendConsoleCommandMutationVariables,
   GetScrollbackBufferQuery,
-  SerialConsoleDataSubscriptionSubscription
+  SerialConsoleDataSubscriptionSubscription,
+  GetScrollbackBufferAndRecentCommandsQuery
 } from "../../graphql-models-gen";
 import gql from "graphql-tag";
 import { QueryResult } from "vue-apollo/types/vue-apollo";
@@ -61,10 +62,14 @@ export default class SerialConsole extends mixins(LoadableMixin) {
   currentRecentCommand = 0;
   created() {
     this.withLoader(async () => {
-      let { data } = await this.$apollo.query<GetScrollbackBufferQuery>({
-        query: getScrollbackBuffer
+      let { data } = await this.$apollo.query<
+        GetScrollbackBufferAndRecentCommandsQuery
+      >({
+        query: getScrollbackBufferAndRecentCommands
       });
       this.scrollback = data.scrollbackBuffer;
+      this.recentCommands = data.recentCommands;
+
       this.scrollToBottom();
 
       let obs = this.$apollo.subscribe<
