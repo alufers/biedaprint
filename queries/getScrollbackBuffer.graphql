@@ -1,0 +1,3 @@
+query getScrollbackBuffer {
+  scrollbackBuffer
+}

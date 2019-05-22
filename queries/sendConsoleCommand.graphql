@@ -1,0 +1,3 @@
+mutation sendConsoleCommand($cmd: String!) {
+  sendConsoleCommand(cmd: $cmd)
+}
