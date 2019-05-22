@@ -85,6 +85,7 @@ export default class SerialConsole extends mixins(LoadableMixin) {
   }
   async sendCommand() {
     if (this.loading) return;
+    let commandToSend = this.currentCommand;
     this.recentCommands.push(this.currentCommand);
     this.currentRecentCommand = 0;
     this.currentCommand = "";
@@ -92,7 +93,7 @@ export default class SerialConsole extends mixins(LoadableMixin) {
       await this.$apollo.mutate<SendConsoleCommandMutation>({
         mutation: sendConsoleCommand,
         variables: <SendConsoleCommandMutationVariables>{
-          cmd: this.currentCommand
+          cmd: commandToSend
         }
       });
     });
