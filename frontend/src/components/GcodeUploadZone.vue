@@ -39,7 +39,7 @@
             <button class="delete" @click="isFinished = false"></button>
             Upload finished
           </div>
-          <progress class="progress" max="100">15%</progress>
+          <progress class="progress" max="100" v-if="!isFinished">15%</progress>
         </section>
         <footer class="modal-card-foot">
           <!-- <button class="button">Cancel</button> -->

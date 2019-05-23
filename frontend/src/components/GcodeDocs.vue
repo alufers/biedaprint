@@ -59,52 +59,52 @@
     </nav>
   </div>
 </template>
+<script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
+import { Prop, Watch } from "vue-property-decorator";
+import gcodeDocsData from "../assets/gcode-docs.json";
 
-<script>
-import gcodeDocsData from "@/assets/gcode-docs.json";
-export default {
-  props: ["currentCommand"],
-  data() {
-    return {
-      searchQuery: "",
-      dataKeys: Object.keys(gcodeDocsData),
-      forceLocalSearch: false
-    };
-  },
-  computed: {
-    filteredKeys() {
-      let query = this.searchQuery.trim().toUpperCase();
-      let searchBriefs = true;
-      if (this.currentCommand.trim() !== "" && !this.forceLocalSearch) {
-        query = this.currentCommand
-          .trim()
-          .toUpperCase()
-          .split(" ")[0];
-        searchBriefs = false;
-      }
-      let keys = this.dataKeys.filter(k => k.indexOf(query) !== -1);
-      if (keys.length < 10 && searchBriefs) {
-        this.dataKeys
-          .filter(
-            k => gcodeDocsData[k].brief.toUpperCase().indexOf(query) !== -1
-          )
-          .forEach(k => keys.push(k));
-      }
-      return keys.slice(0, 10);
-    },
-    filteredDocs() {
-      return this.filteredKeys.map(k => gcodeDocsData[k]);
+@Component({})
+export default class GcodeDocs extends Vue {
+  @Prop({ type: String })
+  currentCommand: string;
+  searchQuery = "";
+  dataKeys = Object.keys(gcodeDocsData);
+  forceLocalSearch = false;
+
+  get filteredKeys() {
+    let query = this.searchQuery.trim().toUpperCase();
+    let searchBriefs = true;
+    if (this.currentCommand.trim() !== "" && !this.forceLocalSearch) {
+      query = this.currentCommand
+        .trim()
+        .toUpperCase()
+        .split(" ")[0];
+      searchBriefs = false;
     }
-  },
-  watch: {
-    searchQuery() {
-      this.forceLocalSearch = true;
-    },
-    currentCommand() {
-      this.forceLocalSearch = false;
+    let keys = this.dataKeys.filter(k => k.indexOf(query) !== -1);
+    if (keys.length < 10 && searchBriefs) {
+      this.dataKeys
+        .filter(k => gcodeDocsData[k].brief.toUpperCase().indexOf(query) !== -1)
+        .forEach(k => keys.push(k));
     }
+    return keys.slice(0, 10);
   }
-};
+  get filteredDocs() {
+    return this.filteredKeys.map(k => gcodeDocsData[k]);
+  }
+
+  @Watch("searchQuery")
+  searchQueryWatch() {
+    this.forceLocalSearch = true;
+  }
+
+  @Watch("currentCommand")
+  currentCommandWatch() {
+    this.forceLocalSearch = false;
+  }
+}
 </script>
 
 <style scoped>
