@@ -1,9 +1,9 @@
 <template>
   <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-      <a class="navbar-item" href="/">
+      <router-link class="navbar-item" to="/">
         <img src="@/assets/logo.png" alt="Biedaprint logo" srcset>
-      </a>
+      </router-link>
       <a
         role="button"
         class="navbar-burger burger"
