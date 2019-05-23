@@ -17,6 +17,8 @@ func NewApp() *App {
 			SerialPort:           "<invalid>",
 			BaudRate:             250000,
 			ScrollbackBufferSize: 1024 * 10, // 10 KiB
+			Parity:               SerialParityEven,
+			DataBits:             7,
 			DataPath:             "./biedaprint_data",
 			StartupCommand:       "",
 		},

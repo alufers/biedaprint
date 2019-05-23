@@ -38,6 +38,8 @@ func (r *mutationResolver) UpdateSettings(ctx context.Context, settings NewSetti
 	r.App.settings.BaudRate = settings.BaudRate
 	r.App.settings.ScrollbackBufferSize = settings.ScrollbackBufferSize
 	r.App.settings.DataPath = settings.DataPath
+	r.App.settings.Parity = settings.Parity
+	r.App.settings.DataBits = settings.DataBits
 	r.App.settings.StartupCommand = settings.StartupCommand
 	return r.App.settings, nil
 }

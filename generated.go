@@ -91,7 +91,9 @@ type ComplexityRoot struct {
 
 	Settings struct {
 		BaudRate             func(childComplexity int) int
+		DataBits             func(childComplexity int) int
 		DataPath             func(childComplexity int) int
+		Parity               func(childComplexity int) int
 		ScrollbackBufferSize func(childComplexity int) int
 		SerialPort           func(childComplexity int) int
 		StartupCommand       func(childComplexity int) int
@@ -420,12 +422,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Settings.BaudRate(childComplexity), true
 
+	case "Settings.dataBits":
+		if e.complexity.Settings.DataBits == nil {
+			break
+		}
+
+		return e.complexity.Settings.DataBits(childComplexity), true
+
 	case "Settings.dataPath":
 		if e.complexity.Settings.DataPath == nil {
 			break
 		}
 
 		return e.complexity.Settings.DataPath(childComplexity), true
+
+	case "Settings.parity":
+		if e.complexity.Settings.Parity == nil {
+			break
+		}
+
+		return e.complexity.Settings.Parity(childComplexity), true
 
 	case "Settings.scrollbackBufferSize":
 		if e.complexity.Settings.ScrollbackBufferSize == nil {
@@ -664,6 +680,8 @@ type Settings {
   baudRate: Int!
   scrollbackBufferSize: Int!
   dataPath: String!
+  parity: SerialParity!
+  dataBits: Int!
   startupCommand: String!
 }
 
@@ -673,6 +691,11 @@ enum TrackedValueDisplayType {
   NUMBER
   BOOLEAN
   STRING
+}
+
+enum SerialParity {
+  EVEN
+  NONE
 }
 
 type TrackedValue {
@@ -713,6 +736,8 @@ type PrintJob {
 input NewSettings {
   serialPort: String!
   baudRate: Int!
+  parity: SerialParity!
+  dataBits: Int!
   scrollbackBufferSize: Int!
   dataPath: String!
   startupCommand: String!
@@ -1938,6 +1963,60 @@ func (ec *executionContext) _Settings_dataPath(ctx context.Context, field graphq
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_parity(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Settings",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Parity, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(SerialParity)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚐSerialParity(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_dataBits(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Settings",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DataBits, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Settings_startupCommand(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
@@ -3170,6 +3249,18 @@ func (ec *executionContext) unmarshalInputNewSettings(ctx context.Context, v int
 			if err != nil {
 				return it, err
 			}
+		case "parity":
+			var err error
+			it.Parity, err = ec.unmarshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚐSerialParity(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "dataBits":
+			var err error
+			it.DataBits, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "scrollbackBufferSize":
 			var err error
 			it.ScrollbackBufferSize, err = ec.unmarshalNInt2int(ctx, v)
@@ -3548,6 +3639,16 @@ func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "dataPath":
 			out.Values[i] = ec._Settings_dataPath(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "parity":
+			out.Values[i] = ec._Settings_parity(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "dataBits":
+			out.Values[i] = ec._Settings_dataBits(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -4100,6 +4201,15 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 
 func (ec *executionContext) unmarshalNNewSettings2githubᚗcomᚋalufersᚋbiedaprintᚐNewSettings(ctx context.Context, v interface{}) (NewSettings, error) {
 	return ec.unmarshalInputNewSettings(ctx, v)
+}
+
+func (ec *executionContext) unmarshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚐSerialParity(ctx context.Context, v interface{}) (SerialParity, error) {
+	var res SerialParity
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚐSerialParity(ctx context.Context, sel ast.SelectionSet, v SerialParity) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNSettings2githubᚗcomᚋalufersᚋbiedaprintᚐSettings(ctx context.Context, sel ast.SelectionSet, v Settings) graphql.Marshaler {

@@ -25,11 +25,13 @@ type GcodeLayerIndex struct {
 }
 
 type NewSettings struct {
-	SerialPort           string `json:"serialPort"`
-	BaudRate             int    `json:"baudRate"`
-	ScrollbackBufferSize int    `json:"scrollbackBufferSize"`
-	DataPath             string `json:"dataPath"`
-	StartupCommand       string `json:"startupCommand"`
+	SerialPort           string       `json:"serialPort"`
+	BaudRate             int          `json:"baudRate"`
+	Parity               SerialParity `json:"parity"`
+	DataBits             int          `json:"dataBits"`
+	ScrollbackBufferSize int          `json:"scrollbackBufferSize"`
+	DataPath             string       `json:"dataPath"`
+	StartupCommand       string       `json:"startupCommand"`
 }
 
 type PrintJob struct {
@@ -38,11 +40,13 @@ type PrintJob struct {
 }
 
 type Settings struct {
-	SerialPort           string `json:"serialPort"`
-	BaudRate             int    `json:"baudRate"`
-	ScrollbackBufferSize int    `json:"scrollbackBufferSize"`
-	DataPath             string `json:"dataPath"`
-	StartupCommand       string `json:"startupCommand"`
+	SerialPort           string       `json:"serialPort"`
+	BaudRate             int          `json:"baudRate"`
+	ScrollbackBufferSize int          `json:"scrollbackBufferSize"`
+	DataPath             string       `json:"dataPath"`
+	Parity               SerialParity `json:"parity"`
+	DataBits             int          `json:"dataBits"`
+	StartupCommand       string       `json:"startupCommand"`
 }
 
 type TrackedValue struct {
@@ -56,6 +60,47 @@ type TrackedValue struct {
 	MinUpdateInterval int                     `json:"minUpdateInterval"`
 	History           []interface{}           `json:"history"`
 	MaxHistoryLength  int                     `json:"maxHistoryLength"`
+}
+
+type SerialParity string
+
+const (
+	SerialParityEven SerialParity = "EVEN"
+	SerialParityNone SerialParity = "NONE"
+)
+
+var AllSerialParity = []SerialParity{
+	SerialParityEven,
+	SerialParityNone,
+}
+
+func (e SerialParity) IsValid() bool {
+	switch e {
+	case SerialParityEven, SerialParityNone:
+		return true
+	}
+	return false
+}
+
+func (e SerialParity) String() string {
+	return string(e)
+}
+
+func (e *SerialParity) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SerialParity(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SerialParity", str)
+	}
+	return nil
+}
+
+func (e SerialParity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type TrackedValueDisplayType string

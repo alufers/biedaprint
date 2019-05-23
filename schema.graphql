@@ -12,6 +12,8 @@ type Settings {
   baudRate: Int!
   scrollbackBufferSize: Int!
   dataPath: String!
+  parity: SerialParity!
+  dataBits: Int!
   startupCommand: String!
 }
 
@@ -21,6 +23,11 @@ enum TrackedValueDisplayType {
   NUMBER
   BOOLEAN
   STRING
+}
+
+enum SerialParity {
+  EVEN
+  NONE
 }
 
 type TrackedValue {
@@ -61,6 +68,8 @@ type PrintJob {
 input NewSettings {
   serialPort: String!
   baudRate: Int!
+  parity: SerialParity!
+  dataBits: Int!
   scrollbackBufferSize: Int!
   dataPath: String!
   startupCommand: String!

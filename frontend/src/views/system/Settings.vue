@@ -20,6 +20,22 @@
         </div>
       </div>
       <div class="field">
+        <label class="label">Serial parity</label>
+        <div class="select">
+          <select v-model.number="settings.parity">
+            <option v-for="parity in parities" :key="parity">{{parity}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Serial data bits</label>
+        <div class="select">
+          <select v-model.number="settings.dataBits">
+            <option v-for="dataBit in dataBits" :key="dataBit">{{dataBit}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
         <label class="label">Scrollback buffer size</label>
         <input class="input" type="number" v-model.number="settings.scrollbackBufferSize">
       </div>
@@ -56,6 +72,8 @@ import LoaderGuard from "../../components/LoaderGuard.vue";
   }
 })
 export default class SettingsPage extends mixins(LoadableMixin) {
+  readonly parities = ["NONE", "EVEN"];
+  readonly dataBits = [5, 7, 8];
   readonly rates = [
     300,
     600,
