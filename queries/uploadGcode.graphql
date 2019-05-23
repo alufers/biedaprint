@@ -1,0 +1,14 @@
+mutation uploadGcode($file: Upload!) {
+  uploadGcode(file: $file) {
+    originalName
+    gcodeFileName
+    uploadDate
+    totalLines
+    printTime
+    filamentUsedMm
+    layerIndexes {
+      lineNumber
+      layerNumber
+    }
+  }
+}

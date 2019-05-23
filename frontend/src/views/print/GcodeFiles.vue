@@ -2,7 +2,7 @@
   <div>
     <h2 class="title">Gcode files</h2>
     <GcodeUploadZone/>
-    <table class="table is-fullwidth is-hoverable" v-if="!!gcodeFiles">
+    <table class="table is-fullwidth is-hoverable" v-if="!!gcodeFileMetas">
       <thead>
         <tr>
           <th>Name</th>
@@ -15,7 +15,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="f in gcodeFiles" :key="f.gcodeFileName">
+        <tr v-for="f in gcodeFileMetas" :key="f.gcodeFileName">
           <td>{{f.originalName}}</td>
           <td>{{f.totalLines}}</td>
           <td>{{f.printTime | formatDuration}}</td>
@@ -94,6 +94,8 @@ import {
   GcodeFileMeta
 } from "../../graphql-models-gen";
 import { getGcodeFileMetas } from "../../../../queries/getGcodeFileMetas.graphql";
+import ApolloQuery from "../../ApolloQuery";
+import { Watch } from "vue-property-decorator";
 
 @Component({
   components: {
@@ -121,16 +123,13 @@ import { getGcodeFileMetas } from "../../../../queries/getGcodeFileMetas.graphql
   }
 })
 export default class GcodeFiles extends mixins(LoadableMixin) {
-  gcodeFiles: GcodeFileMeta[] = null;
+  @ApolloQuery({
+    query: getGcodeFileMetas
+  })
+  gcodeFileMetas: GcodeFileMeta[] = null;
   gcodeFileToDelete: GcodeFileMeta = null; // used to show the confirm modal
-  created() {
-    this.withLoader(async () => {
-      let { data } = await this.$apollo.query<GetGcodeFileMetasQuery>({
-        query: getGcodeFileMetas
-      });
-      this.gcodeFiles = data.gcodeFileMetas;
-    });
-  }
+
+
   deleteGcodeFile(gcodeFilename: string) {
     this.gcodeFileToDelete = null;
     this.withLoader(async () => {

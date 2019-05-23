@@ -84,7 +84,7 @@ type Mutation {
   disconnectFromSerial(void: Boolean): Boolean
   sendGcode(cmd: String!): Boolean # send gcode to the printer without saving it in recent commands, used by all the manual control buttons
   sendConsoleCommand(cmd: String!): Boolean # sebd command from the serial console input
-  uploadGcode(file: Upload!): Boolean
+  uploadGcode(file: Upload!): GcodeFileMeta
   deleteGcodeFile(gcodeFilename: String!): Boolean
   startPrintJob(gcodeFilename: String!): Boolean
   abortPrintJob(void: Boolean): Boolean

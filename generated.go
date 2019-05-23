@@ -123,7 +123,7 @@ type MutationResolver interface {
 	DisconnectFromSerial(ctx context.Context, void *bool) (*bool, error)
 	SendGcode(ctx context.Context, cmd string) (*bool, error)
 	SendConsoleCommand(ctx context.Context, cmd string) (*bool, error)
-	UploadGcode(ctx context.Context, file graphql.Upload) (*bool, error)
+	UploadGcode(ctx context.Context, file graphql.Upload) (*GcodeFileMeta, error)
 	DeleteGcodeFile(ctx context.Context, gcodeFilename string) (*bool, error)
 	StartPrintJob(ctx context.Context, gcodeFilename string) (*bool, error)
 	AbortPrintJob(ctx context.Context, void *bool) (*bool, error)
@@ -736,7 +736,7 @@ type Mutation {
   disconnectFromSerial(void: Boolean): Boolean
   sendGcode(cmd: String!): Boolean # send gcode to the printer without saving it in recent commands, used by all the manual control buttons
   sendConsoleCommand(cmd: String!): Boolean # sebd command from the serial console input
-  uploadGcode(file: Upload!): Boolean
+  uploadGcode(file: Upload!): GcodeFileMeta
   deleteGcodeFile(gcodeFilename: String!): Boolean
   startPrintJob(gcodeFilename: String!): Boolean
   abortPrintJob(void: Boolean): Boolean
@@ -1380,10 +1380,10 @@ func (ec *executionContext) _Mutation_uploadGcode(ctx context.Context, field gra
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*bool)
+	res := resTmp.(*GcodeFileMeta)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalOGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteGcodeFile(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -4494,6 +4494,17 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
+}
+
+func (ec *executionContext) marshalOGcodeFileMeta2githubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v GcodeFileMeta) graphql.Marshaler {
+	return ec._GcodeFileMeta(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v *GcodeFileMeta) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._GcodeFileMeta(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOMap2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {

@@ -55,7 +55,7 @@ func (r *mutationResolver) SendConsoleCommand(ctx context.Context, cmd string) (
 	r.App.PrinterManager.consoleWriteSem <- cmd + "\r\n"
 	return nil, r.App.RecentCommandsManager.AddRecentCommand(cmd)
 }
-func (r *mutationResolver) UploadGcode(ctx context.Context, file graphql.Upload) (*bool, error) {
+func (r *mutationResolver) UploadGcode(ctx context.Context, file graphql.Upload) (*GcodeFileMeta, error) {
 	dataPath := r.App.GetSettings().DataPath
 	gcodeFilename := RandStringRunes(8) + ".gcode"
 	// copy example
@@ -66,7 +66,6 @@ func (r *mutationResolver) UploadGcode(ctx context.Context, file graphql.Upload)
 	defer f.Close()
 	_, err = io.Copy(f, file.File)
 	if err != nil {
-
 		return nil, errors.Wrap(err, "failed to copy file from request")
 	}
 	meta := &GcodeFileMeta{
@@ -76,15 +75,13 @@ func (r *mutationResolver) UploadGcode(ctx context.Context, file graphql.Upload)
 	}
 	err = meta.AnalyzeGcodeFile(dataPath)
 	if err != nil {
-
 		return nil, errors.Wrap(err, "failed to analyze gcode file")
 	}
 	err = meta.Save(dataPath)
 	if err != nil {
-		errors.Wrap(err, "failed to save gcode file meta")
-
+		return nil, errors.Wrap(err, "failed to save gcode file meta")
 	}
-	return nil, nil
+	return meta, nil
 }
 func (r *mutationResolver) DeleteGcodeFile(ctx context.Context, gcodeFilename string) (*bool, error) {
 	dataPath := r.App.GetSettings().DataPath
