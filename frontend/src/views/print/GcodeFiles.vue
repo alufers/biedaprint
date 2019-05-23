@@ -76,7 +76,87 @@
   </div>
 </template>
 
-<script>
+
+<script lang="ts">
+import Vue from "vue";
+import Component, { mixins } from "vue-class-component";
+import { DateTime, Duration } from "luxon";
+import GcodeUploadZone from "../../components/GcodeUploadZone.vue";
+import { startPrintJob } from "../../../../queries/startPrintJob.graphql";
+import { deleteGcodeFile } from "../../../../queries/deleteGcodeFile.graphql";
+import LoadableMixin from "../../LoadableMixin";
+import {
+  StartPrintJobMutation,
+  StartPrintJobMutationVariables,
+  DeleteGcodeFileMutation,
+  DeleteGcodeFileMutationVariables,
+  GetGcodeFileMetasQuery,
+  GcodeFileMeta
+} from "../../graphql-models-gen";
+import { getGcodeFileMetas } from "../../../../queries/getGcodeFileMetas.graphql";
+
+@Component({
+  components: {
+    GcodeUploadZone
+  },
+  filters: {
+    formatDate(value: string) {
+      let dt = DateTime.fromISO(value);
+      return dt.toISODate() + " " + dt.toLocaleString(DateTime.TIME_24_SIMPLE);
+    },
+    formatDuration(value: number) {
+      let dur = Duration.fromObject({
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: value
+      });
+      let durObj = dur.normalize().toObject();
+
+      return Object.keys(durObj)
+        .filter(k => durObj[k] !== 0 && k !== "seconds")
+        .map(k => durObj[k].toFixed(0) + " " + k)
+        .join(", ");
+    }
+  }
+})
+export default class GcodeFiles extends mixins(LoadableMixin) {
+  gcodeFiles: GcodeFileMeta[] = null;
+  gcodeFileToDelete: GcodeFileMeta = null; // used to show the confirm modal
+  created() {
+    this.withLoader(async () => {
+      let { data } = await this.$apollo.query<GetGcodeFileMetasQuery>({
+        query: getGcodeFileMetas
+      });
+      this.gcodeFiles = data.gcodeFileMetas;
+    });
+  }
+  deleteGcodeFile(gcodeFilename: string) {
+    this.gcodeFileToDelete = null;
+    this.withLoader(async () => {
+      await this.$apollo.mutate<DeleteGcodeFileMutation>({
+        mutation: deleteGcodeFile,
+        variables: <DeleteGcodeFileMutationVariables>{
+          gcodeFilename
+        }
+      });
+    });
+  }
+  startPrintJob(gcodeFilename: string) {
+    this.withLoader(async () => {
+      await this.$apollo.mutate<StartPrintJobMutation>({
+        mutation: startPrintJob,
+        variables: <StartPrintJobMutationVariables>{
+          gcodeFilename
+        }
+      });
+      this.$router.push("/"); // redirect to main page
+    });
+  }
+}
+</script>
+
+<!--<script>
 import GcodeUploadZone from "@/components/GcodeUploadZone";
 import connectionMixin from "@/connectionMixin";
 import { DateTime, Duration } from "luxon";
@@ -112,31 +192,12 @@ export default {
       this.$router.push("/"); // redirect to main page
     }
   },
-  filters: {
-    formatDate(value) {
-      let dt = DateTime.fromISO(value);
-      return dt.toISODate() + " " + dt.toLocaleString(DateTime.TIME_24_SIMPLE);
-    },
-    formatDuration(value) {
-      let dur = Duration.fromObject({
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: value
-      });
-      let durObj = dur.normalize().toObject();
-
-      return Object.keys(durObj)
-        .filter(k => durObj[k] !== 0 && k !== "seconds")
-        .map(k => durObj[k].toFixed(0) + " " + k)
-        .join(", ");
-    }
-  },
+ ,
   created() {
     this.connection.sendMessage("getGcodeFileMetas");
   }
 };
-</script>
+</script>-->
 
 <style>
 </style>

@@ -1,8 +1,10 @@
-import Component, { createDecorator } from "vue-class-component";
 import Vue from "vue";
-import gql from "graphql-tag";
-import { TrackedValue, GetTrackedValueByNameQuery, GetTrackedValueByNameWithMetaQuery, GetTrackedValueByNameWithMetaQueryVariables } from "./graphql-models-gen";
+import Component, { createDecorator } from "vue-class-component";
 import getTrackedValueByNameWithMeta from "../../queries/getTrackedValueByNameWithMeta.graphql";
+import {
+  GetTrackedValueByNameWithMetaQuery,
+  GetTrackedValueByNameWithMetaQueryVariables
+} from "./graphql-models-gen";
 
 export default function TrackedValueMeta(tvName: string) {
   return createDecorator((options, key) => {
@@ -14,12 +16,14 @@ export default function TrackedValueMeta(tvName: string) {
           withLoader = (this as any).withLoader;
         }
         await withLoader(async () => {
-          let tv = await this.$apollo.query<GetTrackedValueByNameWithMetaQuery>({
-            variables: <GetTrackedValueByNameWithMetaQueryVariables> {
-              name: tvName
-            },
-            query: getTrackedValueByNameWithMeta
-          });
+          let tv = await this.$apollo.query<GetTrackedValueByNameWithMetaQuery>(
+            {
+              variables: <GetTrackedValueByNameWithMetaQueryVariables>{
+                name: tvName
+              },
+              query: getTrackedValueByNameWithMeta
+            }
+          );
           this[key] = tv.data.trackedValue;
         });
       }

@@ -1,0 +1,3 @@
+mutation deleteGcodeFile($gcodeFilename: String!) {
+  deleteGcodeFile(gcodeFilename: $gcodeFilename)
+}

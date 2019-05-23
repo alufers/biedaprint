@@ -1,0 +1,14 @@
+query getGcodeFileMetas {
+  gcodeFileMetas {
+    originalName
+    gcodeFileName
+    uploadDate
+    totalLines
+    printTime
+    filamentUsedMm
+    layerIndexes {
+      lineNumber
+      layerNumber
+    }
+  }
+}
