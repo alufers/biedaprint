@@ -1,8 +1,8 @@
 dist: xenial
 language: go
 before_script:
-  # - go get -u github.com/99designs/gqlgen
-  - go get -u github.com/gobuffalo/packr/v2/packr2
+  - GO111MODULE=off go get -u github.com/99designs/gqlgen
+  - GO111MODULE=off go get -u github.com/gobuffalo/packr/v2/packr2
   - cd frontend && npm i && cd ..
 go:
   - 1.12.x
