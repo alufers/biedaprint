@@ -106,45 +106,6 @@ export default class HeaterControl extends mixins(LoadableMixin) {
 }
 </script>
 
-<!--<script>
-import TrackedValueModel from "@/components/TrackedValueModel";
-import connectionMixin from "@/connectionMixin";
-
-export default {
-  mixins: [connectionMixin],
-  props: {
-    name: String,
-    temperatureTrackedValueName: String,
-    targetTrackedValueName: String,
-    temperatureGcode: String
-  },
-  methods: {
-    heaterOff() {
-      this.connection.sendMessage("sendGCODE", { data: `${this.temperatureGcode} S0` });
-    },
-    setTarget() {
-      this.connection.sendMessage("sendGCODE", {
-        data: `${this.temperatureGcode} S${this.targetEdit}`
-      });
-    }
-  },
-  watch: {
-    target(newTarget, oldTarget) {
-      if (this.targetEdit === oldTarget) {
-        this.targetEdit = newTarget;
-      }
-    }
-  },
-  data() {
-    return {
-      target: 0,
-      targetEdit: 0,
-      temperature: 0
-    };
-  },
-  components: { TrackedValueModel }
-};
-</script>-->
 
 <style scoped>
 .temperature-input {
