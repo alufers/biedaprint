@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- <TrackedValueModel @change="temperature = $event" :valueName="temperatureTrackedValueName"/>
-    <TrackedValueModel @change="target = $event" :valueName="targetTrackedValueName"/>-->
     <div class="field">
       <label class="label">{{name}}</label>
 

@@ -1,9 +1,8 @@
 <template>
   <div>
-    <Navbar :socketStatus="socketStatus"/>
+    <Navbar/>
     <section class="section">
       <div class="container">
-        <Alerts/>
         <!-- <keep-alive> -->
         <router-view></router-view>
         <!-- </keep-alive> -->
@@ -12,42 +11,17 @@
   </div>
 </template>
 
-<script>
-import Connection from "./Connection";
-import Alerts from "./components/Alerts";
-import Navbar from "./components/Navbar";
+<script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
+import Navbar from "./components/Navbar.vue";
 import "bulma/css/bulma.css";
 import "@fortawesome/fontawesome-free/css/all.css";
 
-export default {
+@Component({
   components: {
-    Alerts,
     Navbar
-  },
-  data() {
-    return {
-      connection: new Connection(),
-      socketStatus: "disconnected",
-      navbarActive: false
-    };
-  },
-  provide() {
-    return {
-      connection: this.connection
-    };
-  },
-  methods: {
-    sendJSON(type, data) {
-      this.socket.send(
-        JSON.stringify({
-          type,
-          data
-        })
-      );
-    }
-  },
-  created() {
-    this.connection.on("statusChanged", sta => (this.socketStatus = sta));
   }
-};
+})
+export default class BlankWrapper extends Vue {}
 </script>

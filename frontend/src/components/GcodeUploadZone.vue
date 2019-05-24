@@ -121,24 +121,6 @@ export default class GcodeUploadZone extends mixins(LoadableMixin) {
 </script>
 
 
-<!--<script>
-import connectionMixin from "@/connectionMixin";
-/* eslint-disable */
-export default {
-  mixins: [connectionMixin],
-  data() {
-    return {
-      uploadModalOpen: false,
-      isFinished: false,
-      uploadProgress: 0
-    };
-  },
-  methods: {
-   
-  }
-};
-</script>-->
-
 <style scoped>
 .box {
   padding: 50px;

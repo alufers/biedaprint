@@ -80,32 +80,7 @@ export default class CurrentPrintWidget extends mixins(LoadableMixin) {
   }
 }
 </script>
-<!--<script>
-import TrackedValueModel from "@/components/TrackedValueModel";
-import connectionMixin from "@/connectionMixin";
 
-
-export default {
-  mixins= [connectionMixin],
-  data() {
-    return {
-      isPrinting= false,
-      printProgress= 0,
-      printOriginalName= "",
-      printStartTime= null,
-      printCurrentLayer= 0,
-      printTotalLayers= 0
-    };
-  },
-  components= { TrackedValueModel },
-  methods= {
-    abortJob() {
-      this.connection.sendMessage("abortPrintJob");
-    }
-  },
- 
-};
-</script>-->
 
 <style scoped>
 .msg-noprint {

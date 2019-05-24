@@ -155,48 +155,5 @@ export default class GcodeFiles extends mixins(LoadableMixin) {
 }
 </script>
 
-<!--<script>
-import GcodeUploadZone from "@/components/GcodeUploadZone";
-import connectionMixin from "@/connectionMixin";
-import { DateTime, Duration } from "luxon";
-
-export default {
-  mixins: [connectionMixin],
-  data() {
-    return {
-      gcodeFiles: null,
-      gcodeFileToDelete: null
-    };
-  },
-  components: {
-    GcodeUploadZone
-  },
-  connectionSubscriptions: {
-    "message.getGcodeFileMetas"(metas) {
-      this.gcodeFiles = metas;
-    }
-  },
-  methods: {
-    deleteGcodeFile(gcodeFileName) {
-      this.gcodeFileToDelete = null;
-      this.connection.sendMessage("deleteGcodeFile", {
-        gcodeFileName
-      });
-      this.connection.sendMessage("getGcodeFileMetas");
-    },
-    startPrintJob(gcodeFileName) {
-      this.connection.sendMessage("startPrintJob", {
-        gcodeFileName
-      });
-      this.$router.push("/"); // redirect to main page
-    }
-  },
- ,
-  created() {
-    this.connection.sendMessage("getGcodeFileMetas");
-  }
-};
-</script>-->
-
 <style>
 </style>
