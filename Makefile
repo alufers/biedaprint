@@ -2,7 +2,7 @@
 MAKEFLAGS += -j2
 
 build backend: build-frontend backend-graphql-codegen
-	packr build -tags frontend_packr -o build/biedaprint server/server.go
+	packr build -tags frontend_packr -ldflags="-s -w" -o build/biedaprint server/server.go
 
 backend-graphql-codegen:
 	go run github.com/99designs/gqlgen
