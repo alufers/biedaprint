@@ -2,6 +2,8 @@ language: generic
 before_script:
   - go get -u github.com/99designs/gqlgen
   - cd frontend && npm i && cd ..
+go:
+  - "1.12"
 script: make build-multiplatform
 deploy:
   provider: releases
