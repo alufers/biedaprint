@@ -3,7 +3,7 @@
     <div class="columns">
       <div class="column is-one-third">
         <PrinterConnectionWidget class="box"/>
-        <!-- <CurrentPrintWidget class="box"/> -->
+        <CurrentPrintWidget class="box"/>
       </div>
       <div class="column">
         <div class="box">

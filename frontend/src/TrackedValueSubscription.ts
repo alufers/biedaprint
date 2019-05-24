@@ -17,39 +17,50 @@ export default function TrackedValueSubscription(tvName: string) {
     @Component
     class TrackedValueSubscriptionDecoratorMixin extends Vue {
       async created() {
-        let tv = await this.$apollo.query<GetTrackedValueByNameOnlyValueQuery>({
-          variables: {
-            name: tvName
-          },
-          query: gql`
-            query getTrackedValueByNameOnlyValue($name: String!) {
-              trackedValue(name: $name) {
-                value
+        let withLoader = (cbFn: () => Promise<any>) => cbFn();
+        if ((this as any).withLoader) {
+          withLoader = (this as any).withLoader;
+        }
+        await withLoader(async () => {
+          let tv = await this.$apollo.query<
+            GetTrackedValueByNameOnlyValueQuery
+          >({
+            variables: {
+              name: tvName
+            },
+            fetchPolicy: "network-only",
+            query: gql`
+              query getTrackedValueByNameOnlyValue($name: String!) {
+                trackedValue(name: $name) {
+                  value
+                }
               }
-            }
-          `
-        });
-        this[key] = tv.data.trackedValue.value;
+            `
+          });
+          this[key] = tv.data.trackedValue.value;
 
-        // create the real subscription
-        let observable = this.$apollo.subscribe<
-          QueryResult<SubscribeToTrackedValueUpdatedByNameSubscription>
-        >({
-          variables: <
-            SubscribeToTrackedValueUpdatedByNameSubscriptionVariables
-          >{
-            name: tvName
-          },
+          // create the real subscription
+          let observable = this.$apollo.subscribe<
+            QueryResult<SubscribeToTrackedValueUpdatedByNameSubscription>
+          >({
+            variables: <
+              SubscribeToTrackedValueUpdatedByNameSubscriptionVariables
+            >{
+              name: tvName
+            },
 
-          query: gql`
-            subscription subscribeToTrackedValueUpdatedByName($name: String!) {
-              trackedValueUpdated(name: $name)
-            }
-          `
-        });
+            query: gql`
+              subscription subscribeToTrackedValueUpdatedByName(
+                $name: String!
+              ) {
+                trackedValueUpdated(name: $name)
+              }
+            `
+          });
 
-        observable.subscribe(val => {
-          this[key] = val.data.trackedValueUpdated;
+          observable.subscribe(val => {
+            this[key] = val.data.trackedValueUpdated;
+          });
         });
       }
     }
