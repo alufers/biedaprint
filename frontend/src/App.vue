@@ -23,5 +23,5 @@ import "@fortawesome/fontawesome-free/css/all.css";
     Navbar
   }
 })
-export default class BlankWrapper extends Vue {}
+export default class App extends Vue {}
 </script>
