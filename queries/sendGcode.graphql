@@ -1,0 +1,3 @@
+mutation sendGcode($cmd: String!) {
+  sendGcode(cmd: $cmd)
+}

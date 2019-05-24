@@ -8,7 +8,7 @@
       <div class="column">
         <div class="box">
           <TemperatureDisplay/>
-          <!--<HeaterControl
+          <HeaterControl
             name="Hotend"
             temperatureTrackedValueName="hotendTemperature"
             targetTrackedValueName="targetHotendTemperature"
@@ -19,7 +19,7 @@
             temperatureTrackedValueName="hotbedTemperature"
             targetTrackedValueName="targetHotbedTemperature"
             temperatureGcode="M140"
-          />-->
+          />
         </div>
       </div>
     </div>
