@@ -9,13 +9,33 @@ Vue.use(VueApollo);
 const httpEndpoint =
   process.env.VUE_APP_GRAPHQL_HTTP || "http://localhost:4444/query";
 
+let wsEndpoint = process.env.VUE_APP_GRAPHQL_WS;
+
+if (!wsEndpoint) {
+  wsEndpoint = "ws://localhost:4444/query";
+}
+
+function websocketRelativeUrl() {
+  var l = window.location;
+  return (
+    (l.protocol === "https:" ? "wss://" : "ws://") +
+    l.hostname +
+    (l.port != "80" && l.port != "443" ? ":" + l.port : "") +
+    "/query"
+  );
+}
+
+if (process.env.VUE_APP_GRAPHQL_WS_AUTO_RELATIVE) {
+  wsEndpoint = websocketRelativeUrl();
+}
+
 // Config
 const defaultOptions = {
   // You can use `https` for secure connection (recommended in production)
   httpEndpoint,
   // You can use `wss` for secure connection (recommended in production)
   // Use `null` to disable subscriptions
-  wsEndpoint: process.env.VUE_APP_GRAPHQL_WS || "ws://localhost:4444/query",
+  wsEndpoint,
   // Enable Automatic Query persisting with Apollo Engine
   persisting: false,
   // Use websockets for everything (no HTTP)
