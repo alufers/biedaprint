@@ -14,7 +14,7 @@ require (
 	github.com/go-vgo/robotgo v0.0.0-20190416172308-997e60a165b1
 	github.com/gobuffalo/flect v0.1.3 // indirect
 	github.com/gobuffalo/packr v1.25.0
-	github.com/gobuffalo/packr/v2 v2.2.0 // indirect
+	github.com/gobuffalo/packr/v2 v2.2.0
 	github.com/gorilla/websocket v1.4.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pty v1.1.4 // indirect

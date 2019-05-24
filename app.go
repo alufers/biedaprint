@@ -1,6 +1,10 @@
 package biedaprint
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/gin-gonic/gin"
+)
 
 type App struct {
 	settings              *Settings
@@ -8,6 +12,7 @@ type App struct {
 	PrinterManager        *PrinterManager
 	RecentCommandsManager *RecentCommandsManager
 	TrackedValuesManager  *TrackedValuesManager
+	router                *gin.Engine
 }
 
 func NewApp() *App {

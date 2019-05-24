@@ -11,12 +11,12 @@ import (
 
 func (app *App) RunHTTPServer() {
 	// Setting up Gin
-	r := gin.Default()
-	r.Use(cors.Default())
-	r.Any("/query", app.graphqlQueryHandler())
-	r.GET("/playground", app.graphqlPlaygroundHandler())
-	r.NoRoute(app.frontendHandler())
-	r.Run(":4444")
+	app.router = gin.Default()
+	app.router.Use(cors.Default())
+	app.router.Any("/query", app.graphqlQueryHandler())
+	app.router.GET("/playground", app.graphqlPlaygroundHandler())
+	app.router.NoRoute(app.frontendHandler())
+	app.router.Run(":4444")
 }
 
 func (app *App) graphqlQueryHandler() gin.HandlerFunc {
@@ -29,6 +29,7 @@ func (app *App) graphqlQueryHandler() gin.HandlerFunc {
 	}))
 
 	return func(c *gin.Context) {
+
 		h.ServeHTTP(c.Writer, c.Request)
 	}
 }

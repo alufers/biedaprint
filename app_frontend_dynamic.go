@@ -1,3 +1,5 @@
+//+build !frontend_packr
+
 package biedaprint
 
 import (
