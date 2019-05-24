@@ -63,12 +63,14 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
-import gcodeDocsData from "../assets/gcode-docs.json";
+import _gcodeDocsData from "../assets/gcode-docs.json";
+
+const gcodeDocsData: any = _gcodeDocsData;
 
 @Component({})
 export default class GcodeDocs extends Vue {
   @Prop({ type: String })
-  currentCommand: string;
+  currentCommand!: string;
   searchQuery = "";
   dataKeys = Object.keys(gcodeDocsData);
   forceLocalSearch = false;
@@ -86,8 +88,11 @@ export default class GcodeDocs extends Vue {
     let keys = this.dataKeys.filter(k => k.indexOf(query) !== -1);
     if (keys.length < 10 && searchBriefs) {
       this.dataKeys
-        .filter(k => gcodeDocsData[k].brief.toUpperCase().indexOf(query) !== -1)
-        .forEach(k => keys.push(k));
+        .filter(
+          (k: string) =>
+            gcodeDocsData[k].brief.toUpperCase().indexOf(query) !== -1
+        )
+        .forEach((k: string) => keys.push(k));
     }
     return keys.slice(0, 10);
   }

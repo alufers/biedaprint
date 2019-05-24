@@ -24,9 +24,12 @@ export default function TrackedValueMeta(tvName: string) {
               query: getTrackedValueByNameWithMeta
             }
           );
-          this[key] = tv.data.trackedValue;
+          (this as any)[key] = tv.data.trackedValue;
         });
       }
+    }
+    if (!options.mixins) { // create an array if it doesn't exixt so that typescript won't be angry when spreading the array
+      options.mixins = []; 
     }
     options.mixins = [...options.mixins, TrackedValueMetaDecoratorMixin];
   });

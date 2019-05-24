@@ -54,19 +54,19 @@ import {
 @Component({})
 export default class HeaterControl extends mixins(LoadableMixin) {
   @Prop({ type: String })
-  name: string;
+  name!: string;
   @Prop({ type: String })
-  temperatureTrackedValueName: string;
+  temperatureTrackedValueName!: string;
   @Prop({ type: String })
-  targetTrackedValueName: string;
+  targetTrackedValueName!: string;
   @Prop({ type: String })
-  temperatureGcode: string;
+  temperatureGcode!: string;
 
-  @TrackedValueSubscription(function() {
+  @TrackedValueSubscription(function(this: HeaterControl) {
     return this.targetTrackedValueName;
   })
   target = 0;
-  @TrackedValueSubscription(function() {
+  @TrackedValueSubscription(function(this: HeaterControl) {
     return this.temperatureTrackedValueName;
   })
   temperature = 0;
@@ -96,7 +96,7 @@ export default class HeaterControl extends mixins(LoadableMixin) {
     });
   }
   @Watch("target")
-  targetWatch(newTarget, oldTarget) {
+  targetWatch(newTarget: number, oldTarget: number) {
     if (this.targetEdit === oldTarget) {
       this.targetEdit = newTarget;
     }

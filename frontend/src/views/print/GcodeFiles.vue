@@ -80,7 +80,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
-import { DateTime, Duration } from "luxon";
+import { DateTime, Duration, DurationObject, DurationObjectUnits } from "luxon";
 import GcodeUploadZone from "../../components/GcodeUploadZone.vue";
 import { startPrintJob } from "../../../../queries/startPrintJob.graphql";
 import { deleteGcodeFile } from "../../../../queries/deleteGcodeFile.graphql";
@@ -116,8 +116,13 @@ import { Watch } from "vue-property-decorator";
       let durObj = dur.normalize().toObject();
 
       return Object.keys(durObj)
-        .filter(k => durObj[k] !== 0 && k !== "seconds")
-        .map(k => durObj[k].toFixed(0) + " " + k)
+        .filter(<any>(
+          ((k: keyof DurationObjectUnits) =>
+            durObj[k] !== 0 && k !== "seconds" && typeof durObj[k] === "number")
+        ))
+        .map(<any>(
+          ((k: keyof DurationObjectUnits) => durObj[k]!.toFixed(0) + " " + k)
+        ))
         .join(", ");
     }
   }
@@ -126,9 +131,8 @@ export default class GcodeFiles extends mixins(LoadableMixin) {
   @ApolloQuery({
     query: getGcodeFileMetas
   })
-  gcodeFileMetas: GcodeFileMeta[] = null;
-  gcodeFileToDelete: GcodeFileMeta = null; // used to show the confirm modal
-
+  gcodeFileMetas: GcodeFileMeta[] | null = null;
+  gcodeFileToDelete: GcodeFileMeta | null = null; // used to show the confirm modal
 
   deleteGcodeFile(gcodeFilename: string) {
     this.gcodeFileToDelete = null;

@@ -67,16 +67,21 @@ export default class GcodeUploadZone extends mixins(LoadableMixin) {
   uploadModalOpen = false;
   isFinished = false;
 
-  handleDrop(ev) {
+  handleDrop(ev: DragEvent) {
+    if (!ev) {
+      return;
+    }
     // Prevent default behavior (Prevent file from being opened)
     ev.preventDefault();
-
     if (ev.dataTransfer.items) {
       // Use DataTransferItemList interface to access the file(s)
       for (var i = 0; i < ev.dataTransfer.items.length; i++) {
         // If dropped items aren't files, reject them
         if (ev.dataTransfer.items[i].kind === "file") {
           var file = ev.dataTransfer.items[i].getAsFile();
+          if (!file) {
+            continue;
+          }
           this.uploadFile(file);
           return;
         }
@@ -89,10 +94,10 @@ export default class GcodeUploadZone extends mixins(LoadableMixin) {
       }
     }
   }
-  handleDragover(ev) {
+  handleDragover(ev: DragEvent) {
     ev.preventDefault();
   }
-  uploadFile(f) {
+  uploadFile(f: File) {
     this.isFinished = false;
     let formData = new FormData();
     formData.append("file", f);
@@ -103,11 +108,11 @@ export default class GcodeUploadZone extends mixins(LoadableMixin) {
         variables: <UploadGcodeMutationVariables>{
           file: f
         },
-        update(store, { data: { uploadGcode } }) {
+        update(store, q) {
           const data = store.readQuery<GetGcodeFileMetasQuery>({
             query: getGcodeFileMetas
           });
-          data.gcodeFileMetas.unshift(uploadGcode);
+          data.gcodeFileMetas.unshift(q.data.uploadGcode);
           store.writeQuery<GetGcodeFileMetasQuery>({
             query: getGcodeFileMetas,
             data

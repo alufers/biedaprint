@@ -42,7 +42,7 @@ export default function TrackedValueSubscription(
               }
             `
           });
-          this[key] = tv.data.trackedValue.value;
+          (this as any)[key] = tv.data.trackedValue.value;
 
           // create the real subscription
           let observable = this.$apollo.subscribe<
@@ -64,10 +64,13 @@ export default function TrackedValueSubscription(
           });
 
           observable.subscribe(val => {
-            this[key] = val.data.trackedValueUpdated;
+            (this as any)[key] = val.data.trackedValueUpdated;
           });
         });
       }
+    }
+    if (!options.mixins) {
+      options.mixins = [];
     }
     options.mixins = [
       ...options.mixins,

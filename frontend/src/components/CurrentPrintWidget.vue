@@ -50,7 +50,7 @@ import { abortPrintJob } from "../../../queries/abortPrintJob.graphql";
 
 @Component({
   filters: {
-    formatDate(value) {
+    formatDate(value: string) {
       if (!value) return "";
       let dt = DateTime.fromISO(value);
       return dt.toISODate() + " " + dt.toLocaleString(DateTime.TIME_24_SIMPLE);
@@ -65,7 +65,7 @@ export default class CurrentPrintWidget extends mixins(LoadableMixin) {
   @TrackedValueSubscription("printOriginalName")
   printOriginalName = "";
   @TrackedValueSubscription("printStartTime")
-  printStartTime: string = null;
+  printStartTime: string | null = null;
   @TrackedValueSubscription("printCurrentLayer")
   printCurrentLayer = 0;
   @TrackedValueSubscription("printTotalLayers")

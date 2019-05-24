@@ -27,7 +27,7 @@ import gql from "graphql-tag";
   components: { LoaderGuard }
 })
 export default class TemperatureDisplay extends mixins(LoadableMixin) {
-  chart: Chart = null;
+  chart: Chart | null = null;
   readonly valuesToShow = [
     "hotendTemperature",
     "targetHotendTemperature",
@@ -74,7 +74,7 @@ export default class TemperatureDisplay extends mixins(LoadableMixin) {
             return; //wait for history
           }
           dataset.data.push(value);
-          if (dataset.data.length > this.chart.data.labels.length) {
+          if (dataset.data.length > this!.chart.data.labels.length) {
             dataset.data = dataset.data.slice(1);
           }
           this.chart.update();
@@ -82,14 +82,17 @@ export default class TemperatureDisplay extends mixins(LoadableMixin) {
       }
     });
     this.$nextTick(() => {
+      if (!this.$refs.chartCanvas) {
+        throw new Error("Chart canvas not ready!");
+      }
       this.chart = new Chart(
-        (this.$refs.chartCanvas as HTMLCanvasElement).getContext("2d"),
+        (this.$refs.chartCanvas as HTMLCanvasElement).getContext("2d")!,
         {
           type: "line",
           data: {
             labels: Array(300)
               .fill(0)
-              .map((_, i) => i),
+              .map((_, i) => i.toString()),
             datasets: Object.keys(tvMetas).map(k => ({
               _ddd: k,
               borderColor: tvMetas[k].plotColor,

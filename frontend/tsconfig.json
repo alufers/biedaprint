@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "noImplicitAny": false,
+    "allowJs": false,
+    "noImplicitAny": true,
     "target": "es5",
     "module": "esnext",
     "strict": false,
@@ -15,6 +15,7 @@
     "baseUrl": ".",
     "types": ["webpack-env"],
     "paths": {
+      "*": ["types/*"],
       "@/*": ["src/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
@@ -26,7 +27,8 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx",
-    "../queries/*.graphql"
+    "../queries/*.graphql",
+    "types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

@@ -58,7 +58,7 @@ import { QueryResult } from "vue-apollo/types/vue-apollo";
 export default class SerialConsole extends mixins(LoadableMixin) {
   scrollback = "...\n";
   currentCommand = "";
-  recentCommands = [];
+  recentCommands: string[] = [];
   currentRecentCommand = 0;
   created() {
     this.withLoader(async () => {
@@ -98,7 +98,7 @@ export default class SerialConsole extends mixins(LoadableMixin) {
       });
     });
   }
-  useGcodeFromDocs(gcode) {
+  useGcodeFromDocs(gcode: string) {
     this.currentCommand = gcode + " ";
     (this.$refs.commandInput as HTMLInputElement).focus();
   }
@@ -123,7 +123,7 @@ export default class SerialConsole extends mixins(LoadableMixin) {
       ];
     }
   }
-  resetCurrentRecentCommand(ev) {
+  resetCurrentRecentCommand(ev: KeyboardEvent) {
     if (ev.keyCode === 38 || ev.keyCode === 40) return;
     this.currentRecentCommand = 0;
   }

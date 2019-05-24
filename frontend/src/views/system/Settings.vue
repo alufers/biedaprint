@@ -89,8 +89,8 @@ export default class SettingsPage extends mixins(LoadableMixin) {
     115200,
     2500000
   ];
-  serialPorts = [];
-  settings: SettingsModel = null;
+  serialPorts: string[] = [];
+  settings: SettingsModel | null = null;
   created() {
     this.withLoader(async () => {
       let { data } = await this.$apollo.query<GetSettingsAndSerialPortsQuery>({

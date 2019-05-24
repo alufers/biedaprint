@@ -41,10 +41,6 @@ export default class SystemInfo extends mixins(LoadableMixin) {
   created() {
     this.loadData();
   }
-  @Watch("loading")
-  onLoadingCHanged(ddd) {
-    console.log(ddd)
-  }
   loadData() {
     this.withLoader(async () => {
       let { data } = await this.$apollo.query<GetSystemInformationQuery>({
