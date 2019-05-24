@@ -1,7 +1,7 @@
 
 MAKEFLAGS += -j2
 
-build_with_out = packr2 build -tags frontend_packr -ldflags="-s -w" -o build/$(1) server/server.go
+build_with_out = GO111MODULE=on packr2 build -tags frontend_packr -ldflags="-s -w" -o build/$(1) server/server.go
 
 build-backend: build-frontend backend-graphql-codegen
 	packr build -tags frontend_packr -ldflags="-s -w" -o build/biedaprint server/server.go
