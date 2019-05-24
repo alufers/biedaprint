@@ -13,7 +13,8 @@ build-multiplatform: build-frontend backend-graphql-codegen
 	GOOS=darwin GOARCH=amd64 $(call build_with_out,biedaprint-macos-amd64)
 
 backend-graphql-codegen:
-	go run github.com/99designs/gqlgen
+	# go run github.com/99designs/gqlgen
+	echo ddd
 build-frontend: frontend-graphql-codegen
 	cd frontend; \
 	VUE_APP_GRAPHQL_HTTP=/query VUE_APP_GRAPHQL_WS_AUTO_RELATIVE=true node_modules/.bin/vue-cli-service build --dest ../static 
