@@ -41,7 +41,7 @@ import CurrentPrintWidget from "@/components/CurrentPrintWidget.vue";
     CurrentPrintWidget
   }
 })
-export default class BlankWrapper extends Vue {}
+export default class Home extends Vue {}
 </script>
 
 <style scoped>
