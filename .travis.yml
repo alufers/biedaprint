@@ -1,6 +1,6 @@
 language: generic
 before_script:
-  - cd frontend && npm i
+  - cd frontend && npm i && cd ..
 script: make build-multiplatform
 deploy:
   provider: releases
