@@ -1,5 +1,5 @@
 dist: xenial
-language: generic
+language: go
 before_script:
   # - go get -u github.com/99designs/gqlgen
   - go get -u github.com/gobuffalo/packr/v2/packr2
