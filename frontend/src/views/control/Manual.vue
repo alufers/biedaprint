@@ -45,18 +45,30 @@
     </div>
   </div>
 </template>
+<script lang="ts">
+import Vue from "vue";
+import Component, { mixins } from "vue-class-component";
+import LoadableMixin from "../../LoadableMixin";
+import { sendGcode } from "../../../../queries/sendGcode.graphql";
+import {
+  SendGcodeMutation,
+  SendGcodeMutationVariables
+} from "../../graphql-models-gen";
 
-<script>
-export default {
-  inject: ["connection"],
-  methods: {
-    sendGCODE(gcode) {
-      this.connection.sendMessage("sendGCODE", { data: gcode });
-    }
+@Component({})
+export default class Manual extends mixins(LoadableMixin) {
+  sendGCODE(gcode: string) {
+    this.withLoader(async () => {
+      await this.$apollo.mutate<SendGcodeMutation>({
+        mutation: sendGcode,
+        variables: <SendGcodeMutationVariables>{
+          cmd: gcode
+        }
+      });
+    });
   }
-};
+}
 </script>
-
 <style scoped>
 td {
   text-align: center;
