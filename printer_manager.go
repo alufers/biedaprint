@@ -52,10 +52,15 @@ func (pm *PrinterManager) Init() {
 func (pm *PrinterManager) ConnectToSerial() error {
 	pm.serialConnectMutex.Lock()
 	defer pm.serialConnectMutex.Unlock()
+	parity := serial.EvenParity
+	if pm.app.GetSettings().Parity == SerialParityNone {
+		parity = serial.NoParity
+	}
+
 	ser, err := serial.Open(pm.app.GetSettings().SerialPort, &serial.Mode{
 		BaudRate: pm.app.GetSettings().BaudRate,
-		Parity:   serial.EvenParity,
-		DataBits: 7,
+		Parity:   parity,
+		DataBits: pm.app.GetSettings().DataBits,
 		StopBits: serial.OneStopBit,
 	})
 	if err != nil {
