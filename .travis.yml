@@ -13,7 +13,7 @@ deploy:
     secure: HELegNrIvmrJl2y5Dc7djizgSiKTl9QUpt5gSI+SMYmOvrjx1JDi8th7TF8Ni72wJ3g7+OKds+rMQ4yW1Gk5Bato84NLoTGA8ILBQEawZkNfpYT/Xdb+W5YX78L+YSFJKnQTlZ2dztSIW6LKyhwgnIGiYzOo+8nXoixfy9oFsIhytOO4cOFz2wcIwr5tbPu0vWkCBVuF3tg2NaeqZO/LuSMseP7EQRlfnK24ZrbmHMbbs3KAHZGPnzFPPq0mk+cqK8tahXH37Gd+44H2cucGft73xqHRJ+CVH7Bk7PsWU+z+qj5jvldv3sgR66X0w25up5E0U/FF/AhZQK60J8ASJgpxGPX4YXT3SdfwkCHc0WAAMyZIfwzNAZ8GCZgXs/yWQpvDD9axKJkBVOIksZrDFkFRWumkWulBPeiV/73AZmxu0Ip1WobTAiWS5JMcCIRF1xggut7wJnF7cw7FdViiXdg9GA/YrJojuSTP8FwEd0uHnqrWK9Lv/W+A2yc2eu5S9mP0E6fQKDESpvZdsvgdtKR2bUMiqpP8reDkfK/zlnzVhIEbsv4SxXrlVBNttIpeNokzPrnAz/57boJAhsCemUGT6ehThbok+/a+Us1hd4yLG3ePTJJF1KHUguKGJTzQgszH5NSb7gqT9DRxQ5kimmvDiDI0ISCxoOGb/R5y/+I=
   file_glob: true
   file: 
-    - build/**
+    - /home/travis/gopath/src/github.com/alufers/biedaprint/build/**
   skip_cleanup: true
   on:
     tags: true
