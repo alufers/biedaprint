@@ -39,7 +39,7 @@
             <button class="delete" @click="isFinished = false"></button>
             Upload finished
           </div>
-          <progress class="progress" :value="uploadProgress" max="100">15%</progress>
+          <progress class="progress" max="100" v-if="!isFinished">15%</progress>
         </section>
         <footer class="modal-card-foot">
           <!-- <button class="button">Cancel</button> -->
@@ -50,83 +50,81 @@
   </div>
 </template>
 
-<script>
-import connectionMixin from "@/connectionMixin";
-/* eslint-disable */
-export default {
-  mixins: [connectionMixin],
-  data() {
-    return {
-      uploadModalOpen: false,
-      isFinished: false,
-      uploadProgress: 0
-    };
-  },
-  methods: {
-    handleDrop(ev) {
-      // Prevent default behavior (Prevent file from being opened)
-      ev.preventDefault();
+<script lang="ts">
+import Vue from "vue";
+import Component, { mixins } from "vue-class-component";
+import LoadableMixin from "../LoadableMixin";
+import { uploadGcode } from "../../../queries/uploadGcode.graphql";
+import {
+  UploadGcodeMutationVariables,
+  UploadGcodeMutation,
+  GetGcodeFileMetasQuery
+} from "../graphql-models-gen";
+import { getGcodeFileMetas } from "../../../queries/getGcodeFileMetas.graphql";
 
-      if (ev.dataTransfer.items) {
-        // Use DataTransferItemList interface to access the file(s)
-        for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-          // If dropped items aren't files, reject them
-          if (ev.dataTransfer.items[i].kind === "file") {
-            var file = ev.dataTransfer.items[i].getAsFile();
-            this.uploadFile(file);
-            return;
+@Component({})
+export default class GcodeUploadZone extends mixins(LoadableMixin) {
+  uploadModalOpen = false;
+  isFinished = false;
+
+  handleDrop(ev: DragEvent) {
+    if (!ev) {
+      return;
+    }
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+    if (ev.dataTransfer.items) {
+      // Use DataTransferItemList interface to access the file(s)
+      for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+        // If dropped items aren't files, reject them
+        if (ev.dataTransfer.items[i].kind === "file") {
+          var file = ev.dataTransfer.items[i].getAsFile();
+          if (!file) {
+            continue;
           }
-        }
-      } else {
-        // Use DataTransfer interface to access the file(s)
-        for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-          this.uploadFile(ev.dataTransfer.files[i]);
+          this.uploadFile(file);
           return;
         }
       }
-    },
-    handleDragover(ev) {
-      ev.preventDefault();
-    },
-    uploadFile(f) {
-      this.isFinished = false;
-      let formData = new FormData();
-      formData.append("file", f);
-
-      let req = new XMLHttpRequest();
-      req.addEventListener("error", ev => {
-        this.connection.emit("message.alert", {
-          type: "danger",
-          content: "Upload failed!"
-        });
-        this.uploadModalOpen = false;
-      });
-      req.open(
-        "POST",
-        window.location.port === "8080"
-          ? "http://localhost:4444/gcode-file-upload"
-          : "/gcode-file-upload",
-        true
-      );
-      req.send(formData);
-      req.addEventListener("readystatechange", ev => {
-        if (req.readyState === 4) {
-          this.isFinished = true;
-        }
-        this.connection.sendMessage("getGcodeFileMetas");
-      });
-
-      req.addEventListener("progress", ev => {
-        if (ev.lengthComputable) {
-          this.uploadProgress = (ev.loaded / ev.total) * 100;
-        }
-      });
-
-      this.uploadModalOpen = true;
+    } else {
+      // Use DataTransfer interface to access the file(s)
+      for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+        this.uploadFile(ev.dataTransfer.files[i]);
+        return;
+      }
     }
   }
-};
+  handleDragover(ev: DragEvent) {
+    ev.preventDefault();
+  }
+  uploadFile(f: File) {
+    this.isFinished = false;
+    let formData = new FormData();
+    formData.append("file", f);
+    this.withLoader(async () => {
+      this.uploadModalOpen = true;
+      await this.$apollo.mutate<UploadGcodeMutation>({
+        mutation: uploadGcode,
+        variables: <UploadGcodeMutationVariables>{
+          file: f
+        },
+        update(store, q) {
+          const data = store.readQuery<GetGcodeFileMetasQuery>({
+            query: getGcodeFileMetas
+          });
+          data.gcodeFileMetas.unshift(q.data.uploadGcode);
+          store.writeQuery<GetGcodeFileMetasQuery>({
+            query: getGcodeFileMetas,
+            data
+          });
+        }
+      });
+    });
+    this.isFinished = true;
+  }
+}
 </script>
+
 
 <style scoped>
 .box {

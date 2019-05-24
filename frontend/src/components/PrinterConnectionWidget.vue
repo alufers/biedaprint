@@ -1,92 +1,58 @@
 <template>
   <div>
-    <TrackedValueModel @change="serialStatus = $event" valueName="serialStatus"/>
     <h2 class="subtitle">Connect to printer</h2>
-    <div v-if="settings && (serialStatus === 'disconnected' || serialStatus == 'error')">
-      <!-- <div class="field">
-        <label class="label">Serial</label>
-        <div class="select">
-          <select v-model="settings.serialPort">
-            <option v-for="serial in serialPorts" :key="serial">{{serial}}</option>
-          </select>
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Baud rate</label>
-        <div class="select">
-          <select v-model.number="settings.baudRate">
-            <option v-for="rate in rates" :key="rate">{{rate}}</option>
-          </select>
-        </div>
-      </div> -->
+    <div v-if="serialStatus === 'disconnected' || serialStatus == 'error'">
       <button
         class="button is-success"
+        :class="isLoadingClass"
         @click="connectToSerial"
         v-if="serialStatus === 'disconnected' || serialStatus == 'error'"
       >Connect to printer</button>
     </div>
     <button
       class="button is-danger is-outlined"
+      :class="isLoadingClass"
       @click="disconnectFromSerial"
       v-if="serialStatus === 'connected'"
     >Disconnect from printer</button>
   </div>
 </template>
-<script>
-import connectionMixin from "@/connectionMixin";
-import TrackedValueModel from "@/components/TrackedValueModel";
+<script lang="ts">
+import Vue from "vue";
+import Component, { mixins } from "vue-class-component";
+import gql from "graphql-tag";
+import TrackedValueSubscription from "../TrackedValueSubscription";
+import { TrackedValue } from "../graphql-models-gen";
+import LoadableMixin from "../LoadableMixin";
 
-export default {
-  mixins: [connectionMixin],
-  data() {
-    return {
-      rates: [
-        300,
-        600,
-        1200,
-        2400,
-        4800,
-        9600,
-        14400,
-        19200,
-        28800,
-        38400,
-        57600,
-        115200,
-        2500000
-      ],
-      serialPorts: [],
-      settings: null,
-      serialStatus: null
-    };
-  },
-  components: {
-    TrackedValueModel
-  },
-  methods: {
-    connectToSerial() {
-      this.connection.sendMessage("connectToSerial");
-    },
-    disconnectFromSerial() {
-      this.connection.sendMessage("disconnectFromSerial");
-    },
-    save() {
-      this.connection.sendMessage("saveSettings", this.settings);
-    }
-  },
-  created() {
-    this.connection.sendMessage("serialList");
-    this.connection.sendMessage("getSettings");
-  },
-  connectionSubscriptions: {
-    "message.serialList"({ ports }) {
-      this.serialPorts = ports;
-    },
-    "message.getSettings"(set) {
-      this.settings = set;
-    }
+@Component({})
+export default class PrinterConnectionWidget extends mixins(LoadableMixin) {
+  @TrackedValueSubscription("serialStatus")
+  serialStatus: string = "disconnected";
+
+  connectToSerial() {
+    this.withLoader(async () => {
+      await this.$apollo.mutate({
+        mutation: gql`
+          mutation {
+            connectToSerial(void: null)
+          }
+        `
+      });
+    });
   }
-};
+  async disconnectFromSerial() {
+    this.withLoader(async () => {
+      await this.$apollo.mutate({
+        mutation: gql`
+          mutation {
+            disconnectFromSerial(void: null)
+          }
+        `
+      });
+    });
+  }
+}
 </script>
 
 <style scoped>

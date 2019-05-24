@@ -2,7 +2,7 @@
   <div>
     <h2 class="title">Gcode files</h2>
     <GcodeUploadZone/>
-    <table class="table is-fullwidth is-hoverable" v-if="!!gcodeFiles">
+    <table class="table is-fullwidth is-hoverable" v-if="!!gcodeFileMetas">
       <thead>
         <tr>
           <th>Name</th>
@@ -15,7 +15,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="f in gcodeFiles" :key="f.gcodeFileName">
+        <tr v-for="f in gcodeFileMetas" :key="f.gcodeFileName">
           <td>{{f.originalName}}</td>
           <td>{{f.totalLines}}</td>
           <td>{{f.printTime | formatDuration}}</td>
@@ -76,48 +76,37 @@
   </div>
 </template>
 
-<script>
-import GcodeUploadZone from "@/components/GcodeUploadZone";
-import connectionMixin from "@/connectionMixin";
-import { DateTime, Duration } from "luxon";
 
-export default {
-  mixins: [connectionMixin],
-  data() {
-    return {
-      gcodeFiles: null,
-      gcodeFileToDelete: null
-    };
-  },
+<script lang="ts">
+import Vue from "vue";
+import Component, { mixins } from "vue-class-component";
+import { DateTime, Duration, DurationObject, DurationObjectUnits } from "luxon";
+import GcodeUploadZone from "../../components/GcodeUploadZone.vue";
+import { startPrintJob } from "../../../../queries/startPrintJob.graphql";
+import { deleteGcodeFile } from "../../../../queries/deleteGcodeFile.graphql";
+import LoadableMixin from "../../LoadableMixin";
+import {
+  StartPrintJobMutation,
+  StartPrintJobMutationVariables,
+  DeleteGcodeFileMutation,
+  DeleteGcodeFileMutationVariables,
+  GetGcodeFileMetasQuery,
+  GcodeFileMeta
+} from "../../graphql-models-gen";
+import { getGcodeFileMetas } from "../../../../queries/getGcodeFileMetas.graphql";
+import ApolloQuery from "../../ApolloQuery";
+import { Watch } from "vue-property-decorator";
+
+@Component({
   components: {
     GcodeUploadZone
   },
-  connectionSubscriptions: {
-    "message.getGcodeFileMetas"(metas) {
-      this.gcodeFiles = metas;
-    }
-  },
-  methods: {
-    deleteGcodeFile(gcodeFileName) {
-      this.gcodeFileToDelete = null;
-      this.connection.sendMessage("deleteGcodeFile", {
-        gcodeFileName
-      });
-      this.connection.sendMessage("getGcodeFileMetas");
-    },
-    startPrintJob(gcodeFileName) {
-      this.connection.sendMessage("startPrintJob", {
-        gcodeFileName
-      });
-      this.$router.push("/"); // redirect to main page
-    }
-  },
   filters: {
-    formatDate(value) {
+    formatDate(value: string) {
       let dt = DateTime.fromISO(value);
       return dt.toISODate() + " " + dt.toLocaleString(DateTime.TIME_24_SIMPLE);
     },
-    formatDuration(value) {
+    formatDuration(value: number) {
       let dur = Duration.fromObject({
         days: 0,
         hours: 0,
@@ -127,15 +116,47 @@ export default {
       let durObj = dur.normalize().toObject();
 
       return Object.keys(durObj)
-        .filter(k => durObj[k] !== 0 && k !== "seconds")
-        .map(k => durObj[k].toFixed(0) + " " + k)
+        .filter(<any>(
+          ((k: keyof DurationObjectUnits) =>
+            durObj[k] !== 0 && k !== "seconds" && typeof durObj[k] === "number")
+        ))
+        .map(<any>(
+          ((k: keyof DurationObjectUnits) => durObj[k]!.toFixed(0) + " " + k)
+        ))
         .join(", ");
     }
-  },
-  created() {
-    this.connection.sendMessage("getGcodeFileMetas");
   }
-};
+})
+export default class GcodeFiles extends mixins(LoadableMixin) {
+  @ApolloQuery({
+    query: getGcodeFileMetas
+  })
+  gcodeFileMetas: GcodeFileMeta[] | null = null;
+  gcodeFileToDelete: GcodeFileMeta | null = null; // used to show the confirm modal
+
+  deleteGcodeFile(gcodeFilename: string) {
+    this.gcodeFileToDelete = null;
+    this.withLoader(async () => {
+      await this.$apollo.mutate<DeleteGcodeFileMutation>({
+        mutation: deleteGcodeFile,
+        variables: <DeleteGcodeFileMutationVariables>{
+          gcodeFilename
+        }
+      });
+    });
+  }
+  startPrintJob(gcodeFilename: string) {
+    this.withLoader(async () => {
+      await this.$apollo.mutate<StartPrintJobMutation>({
+        mutation: startPrintJob,
+        variables: <StartPrintJobMutationVariables>{
+          gcodeFilename
+        }
+      });
+      this.$router.push("/"); // redirect to main page
+    });
+  }
+}
 </script>
 
 <style>

@@ -19,3 +19,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# generated file
+src/graphql-models-gen.ts 
+src/graphql-queries-gen.d.ts

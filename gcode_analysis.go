@@ -1,4 +1,4 @@
-package main
+package biedaprint
 
 import (
 	"math"
@@ -76,7 +76,7 @@ type gcodeSimulator struct {
 	currentStatus gcodePrinterStatus
 	filamentUsed  float64 // milimeters
 	time          float64 // seconds
-	layerIndexes  []gcodeLayerIndex
+	layerIndexes  []GcodeLayerIndex
 	layer         int
 }
 
@@ -95,7 +95,7 @@ func (gs *gcodeSimulator) parseLine(line string, number int) error {
 			return err
 		}
 		if gs.currentStatus.Z < next.Z { // next layer
-			gs.layerIndexes = append(gs.layerIndexes, gcodeLayerIndex{
+			gs.layerIndexes = append(gs.layerIndexes, GcodeLayerIndex{
 				LineNumber:  number,
 				LayerNumber: gs.layer,
 			})

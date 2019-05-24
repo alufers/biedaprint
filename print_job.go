@@ -1,4 +1,4 @@
-package main
+package biedaprint
 
 import (
 	"bufio"
@@ -11,9 +11,9 @@ import (
 	"time"
 )
 
-type printJob struct {
-	gcodeMeta             *gcodeFileMeta
-	startedTime           time.Time
+type PrintJobInternal struct {
+	*PrintJob
+	app                   *App
 	lineResendBuffer      map[int]string
 	lineResendBufferMutex *sync.RWMutex
 	currentLine           int
@@ -24,7 +24,7 @@ type printJob struct {
 	abortSem              chan bool
 }
 
-func (pj *printJob) computeLineChecksum(line string) int {
+func (pj *PrintJobInternal) computeLineChecksum(line string) int {
 	var cs int
 	for i := 0; i < len(line) && line[i] != '*'; i++ {
 		cs = cs ^ int(line[i])
@@ -34,12 +34,12 @@ func (pj *printJob) computeLineChecksum(line string) int {
 }
 
 //jobLines returns a channel which sends lines together with newline chars and checksums
-func (pj *printJob) jobLines() (chan string, error) {
+func (pj *PrintJobInternal) jobLines() (chan string, error) {
 	pj.lineResendBufferMutex = &sync.RWMutex{}
 	pj.abortSem = make(chan bool)
 	pj.lineResendBuffer = make(map[int]string)
 	var err error
-	pj.gcodeFile, err = os.Open(filepath.Join(globalSettings.DataPath, "gcode_files/", pj.gcodeMeta.GcodeFileName))
+	pj.gcodeFile, err = os.Open(filepath.Join(pj.app.GetSettings().DataPath, "gcode_files/", pj.GcodeMeta.GcodeFileName))
 	if err != nil {
 		return nil, err
 	}
@@ -50,12 +50,12 @@ func (pj *printJob) jobLines() (chan string, error) {
 		defer close(c)
 		defer pj.gcodeFile.Close()
 		log.Printf("Starting jobLines goroutine...")
-		trackedValues["printOriginalName"].updateValue(pj.gcodeMeta.OriginalName)
-		trackedValues["isPrinting"].updateValue(true)
-		trackedValues["printStartTime"].updateValue(pj.startedTime.Format(time.RFC3339))
-		trackedValues["printCurrentLayer"].updateValue(0)
-		trackedValues["printTotalLayers"].updateValue(len(pj.gcodeMeta.LayerIndexes))
-		defer trackedValues["isPrinting"].updateValue(false)
+		pj.app.TrackedValuesManager.TrackedValues["printOriginalName"].UpdateValue(pj.GcodeMeta.OriginalName)
+		pj.app.TrackedValuesManager.TrackedValues["isPrinting"].UpdateValue(true)
+		pj.app.TrackedValuesManager.TrackedValues["printStartTime"].UpdateValue(pj.StartedTime.Format(time.RFC3339))
+		pj.app.TrackedValuesManager.TrackedValues["printCurrentLayer"].UpdateValue(0)
+		pj.app.TrackedValuesManager.TrackedValues["printTotalLayers"].UpdateValue(len(pj.GcodeMeta.LayerIndexes))
+		defer pj.app.TrackedValuesManager.TrackedValues["isPrinting"].UpdateValue(false)
 		c <- "M110 N0\r\n"
 		for pj.scanner.Scan() {
 			rawLine := strings.Split(pj.scanner.Text(), ";")[0]
@@ -63,7 +63,7 @@ func (pj *printJob) jobLines() (chan string, error) {
 			lineWithNumber := fmt.Sprintf("N%d %v", pj.currentNonBlankLine+1, rawLine)
 			lineWithChecksum := fmt.Sprintf("%v*%v\r\n", lineWithNumber, pj.computeLineChecksum(lineWithNumber))
 			if strings.TrimSpace(rawLine) != "" {
-				log.Printf("Sending gcode line %v of %v", pj.currentLine+1, pj.gcodeMeta.TotalLines)
+				log.Printf("Sending gcode line %v of %v", pj.currentLine+1, pj.GcodeMeta.TotalLines)
 				select {
 				case c <- lineWithChecksum:
 				case <-pj.abortSem:
@@ -75,14 +75,14 @@ func (pj *printJob) jobLines() (chan string, error) {
 				pj.currentNonBlankLine++
 				delete(pj.lineResendBuffer, pj.currentNonBlankLine-10)
 				pj.lineResendBufferMutex.Unlock()
-				trackedValues["printProgress"].updateValue((float64(pj.currentLine) / float64(pj.gcodeMeta.TotalLines)) * 100)
+				pj.app.TrackedValuesManager.TrackedValues["printProgress"].UpdateValue((float64(pj.currentLine) / float64(pj.GcodeMeta.TotalLines)) * 100)
 			}
 			pj.currentLine++
 
-			if pj.currentLayerIndex < len(pj.gcodeMeta.LayerIndexes) {
-				if pj.currentLine >= pj.gcodeMeta.LayerIndexes[pj.currentLayerIndex].LineNumber {
+			if pj.currentLayerIndex < len(pj.GcodeMeta.LayerIndexes) {
+				if pj.currentLine >= pj.GcodeMeta.LayerIndexes[pj.currentLayerIndex].LineNumber {
 					pj.currentLayerIndex++
-					trackedValues["printCurrentLayer"].updateValue(pj.gcodeMeta.LayerIndexes[pj.currentLayerIndex].LayerNumber)
+					pj.app.TrackedValuesManager.TrackedValues["printCurrentLayer"].UpdateValue(pj.GcodeMeta.LayerIndexes[pj.currentLayerIndex].LayerNumber)
 				}
 			}
 
@@ -92,12 +92,12 @@ func (pj *printJob) jobLines() (chan string, error) {
 	return c, nil
 }
 
-func (pj *printJob) getLineForResend(number int) string {
+func (pj *PrintJobInternal) getLineForResend(number int) string {
 	pj.lineResendBufferMutex.RLock()
 	defer pj.lineResendBufferMutex.RUnlock()
 	return pj.lineResendBuffer[number]
 }
 
-func (pj *printJob) abort() {
+func (pj *PrintJobInternal) abort() {
 	pj.abortSem <- true
 }

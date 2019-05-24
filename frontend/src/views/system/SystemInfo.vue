@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <LoaderGuard>
     <h2 class="title">System information</h2>
     <button class="button is-primary" @click="loadData">
       <i class="fas fa-sync"></i>
@@ -20,33 +20,37 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </LoaderGuard>
 </template>
 
-<script>
-import connectionMixin from "@/connectionMixin";
+<script lang="ts">
+import Vue from "vue";
+import Component, { mixins } from "vue-class-component";
+import LoadableMixin from "../../LoadableMixin";
+import gql from "graphql-tag";
+import getSystemInformation from "../../../../queries/getSystemInformation.graphql";
+import { GetSystemInformationQuery } from "../../graphql-models-gen";
+import LoaderGuard from "../../components/LoaderGuard.vue";
+import { Watch } from "vue-property-decorator";
 
-export default {
-  mixins: [connectionMixin],
-  data() {
-    return {
-      systemInfo: null
-    };
-  },
+@Component({
+  components: { LoaderGuard }
+})
+export default class SystemInfo extends mixins(LoadableMixin) {
+  systemInfo: any = null;
   created() {
     this.loadData();
-  },
-  methods: {
-    loadData() {
-      this.connection.sendMessage("getSysteminfo");
-    }
-  },
-  connectionSubscriptions: {
-    "message.getSysteminfo"(info) {
-      this.systemInfo = info;
-    }
   }
-};
+  loadData() {
+    this.withLoader(async () => {
+      let { data } = await this.$apollo.query<GetSystemInformationQuery>({
+        query: getSystemInformation,
+        fetchPolicy: "network-only"
+      });
+      this.systemInfo = data.systemInformation;
+    });
+  }
+}
 </script>
 
 <style>

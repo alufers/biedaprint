@@ -1,4 +1,4 @@
-package main
+package biedaprint
 
 import (
 	"bufio"
@@ -8,50 +8,16 @@ import (
 	"path/filepath"
 	"runtime"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
-type gcodeLineIndex struct {
-	LineNumber int   `json:"lineNumber"`
-	Offset     int64 `json:"offset"`
-}
-
-type gcodeFileMeta struct {
-	OriginalName  string    `json:"originalName"`
-	GcodeFileName string    `json:"gcodeFileName"`
-	UploadDate    time.Time `json:"uploadDate"`
-
-	TotalLines     int               `json:"totalLines"`
-	PrintTime      float64           `json:"printTime"`
-	FilamentUsedMM float64           `json:"filamentUsedMm"`
-	LayerIndexes   []gcodeLayerIndex `json:"layerIndexes"`
-}
-
-type gcodeLayerIndex struct {
-	LineNumber  int `json:"lineNumber"`
-	LayerNumber int `json:"layerNumber"`
-}
-
 func init() {
-	gob.Register(gcodeLineIndex{})
-	gob.Register(gcodeFileMeta{})
-	gob.Register(gcodeLayerIndex{})
+	gob.Register(GcodeFileMeta{})
+	gob.Register(GcodeLayerIndex{})
 }
 
-func (gfm *gcodeFileMeta) Save() error {
-	f, err := os.OpenFile(filepath.Join(globalSettings.DataPath, "gcode_files/", gfm.GcodeFileName+".meta"), os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	enc := gob.NewEncoder(f)
-	err = enc.Encode(gfm)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func loadGcodeFileMeta(path string) (*gcodeFileMeta, error) {
+func loadGcodeFileMeta(path string) (*GcodeFileMeta, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -59,7 +25,7 @@ func loadGcodeFileMeta(path string) (*gcodeFileMeta, error) {
 	defer f.Close()
 
 	deco := gob.NewDecoder(f)
-	var out *gcodeFileMeta
+	var out *GcodeFileMeta
 	err = deco.Decode(&out)
 	if err != nil {
 		return nil, err
@@ -67,8 +33,22 @@ func loadGcodeFileMeta(path string) (*gcodeFileMeta, error) {
 	return out, nil
 }
 
-func (gfm *gcodeFileMeta) AnalyzeGcodeFile() error {
-	f, err := os.Open(filepath.Join(globalSettings.DataPath, "gcode_files/", gfm.GcodeFileName))
+func (gfm *GcodeFileMeta) Save(dataPath string) error {
+	f, err := os.OpenFile(filepath.Join(dataPath, "gcode_files/", gfm.GcodeFileName+".meta"), os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return errors.Wrap(err, "failed to open gcode meta file for writing")
+	}
+	defer f.Close()
+	enc := gob.NewEncoder(f)
+	err = enc.Encode(gfm)
+	if err != nil {
+		return errors.Wrap(err, "failed to encode gcode meta file")
+	}
+	return nil
+}
+
+func (gfm *GcodeFileMeta) AnalyzeGcodeFile(dataPath string) error {
+	f, err := os.Open(filepath.Join(dataPath, "gcode_files/", gfm.GcodeFileName))
 	if err != nil {
 		return err
 	}
@@ -76,7 +56,7 @@ func (gfm *gcodeFileMeta) AnalyzeGcodeFile() error {
 	s := bufio.NewScanner(f)
 	gfm.TotalLines = 0
 	sim := &gcodeSimulator{
-		layerIndexes: []gcodeLayerIndex{},
+		layerIndexes: []GcodeLayerIndex{},
 	}
 	lineNumber := 0
 	for s.Scan() {
@@ -86,8 +66,11 @@ func (gfm *gcodeFileMeta) AnalyzeGcodeFile() error {
 		sim.parseLine(line, lineNumber)
 	}
 	gfm.PrintTime = sim.time
-	gfm.FilamentUsedMM = sim.filamentUsed
-	gfm.LayerIndexes = sim.layerIndexes
+	gfm.FilamentUsedMm = sim.filamentUsed
+	gfm.LayerIndexes = []*GcodeLayerIndex{}
+	for _, li := range sim.layerIndexes {
+		gfm.LayerIndexes = append(gfm.LayerIndexes, &li)
+	}
 	log.Printf("Finished gcode analysis in %v seconds", time.Now().Sub(startTime).Seconds())
 	runtime.GC()
 	return nil

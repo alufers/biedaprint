@@ -1,0 +1,3 @@
+mutation startPrintJob($gcodeFilename: String!) {
+  startPrintJob(gcodeFilename: $gcodeFilename)
+}

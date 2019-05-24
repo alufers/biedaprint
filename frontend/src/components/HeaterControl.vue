@@ -1,7 +1,5 @@
 <template>
   <div>
-    <TrackedValueModel @change="temperature = $event" :valueName="temperatureTrackedValueName"/>
-    <TrackedValueModel @change="target = $event" :valueName="targetTrackedValueName"/>
     <div class="field">
       <label class="label">{{name}}</label>
 
@@ -13,7 +11,7 @@
 
         <div class="controls tags has-addons are-medium">
           <span class="tag">Target</span>
-          <span class="tag is-primary">
+          <span class="tag" :class="{'is-danger': target > 0,}">
             <input
               class="temperature-input"
               type="number"
@@ -27,65 +25,98 @@
 
         <div class="field has-addons">
           <p class="control">
-            <a class="button is-primary" @click="setTarget">SET</a>
+            <a
+              class="button"
+              @click="setTarget"
+              :class="{'is-primary': targetEdit !== target, ...isLoadingClass}"
+            >SET</a>
           </p>
           <p class="control">
-            <a class="button" @click="heaterOff">OFF</a>
+            <a class="button" @click="heaterOff" :class="isLoadingClass">OFF</a>
           </p>
         </div>
       </div>
     </div>
   </div>
 </template>
+<script lang="ts">
+import Vue from "vue";
+import Component, { mixins } from "vue-class-component";
+import { Prop, Watch } from "vue-property-decorator";
+import TrackedValueSubscription from "../TrackedValueSubscription";
+import LoadableMixin from "../LoadableMixin";
+import { sendGcode } from "../../../queries/sendGcode.graphql";
+import {
+  SendGcodeMutation,
+  SendGcodeMutationVariables
+} from "../graphql-models-gen";
 
-<script>
-import TrackedValueModel from "@/components/TrackedValueModel";
-import connectionMixin from "@/connectionMixin";
+@Component({})
+export default class HeaterControl extends mixins(LoadableMixin) {
+  @Prop({ type: String })
+  name!: string;
+  @Prop({ type: String })
+  temperatureTrackedValueName!: string;
+  @Prop({ type: String })
+  targetTrackedValueName!: string;
+  @Prop({ type: String })
+  temperatureGcode!: string;
 
-export default {
-  mixins: [connectionMixin],
-  props: {
-    name: String,
-    temperatureTrackedValueName: String,
-    targetTrackedValueName: String,
-    temperatureGcode: String
-  },
-  methods: {
-    heaterOff() {
-      this.connection.sendMessage("sendGCODE", { data: `${this.temperatureGcode} S0` });
-    },
-    setTarget() {
-      this.connection.sendMessage("sendGCODE", {
-        data: `${this.temperatureGcode} S${this.targetEdit}`
+  @TrackedValueSubscription(function(this: HeaterControl) {
+    return this.targetTrackedValueName;
+  })
+  target = 0;
+  @TrackedValueSubscription(function(this: HeaterControl) {
+    return this.temperatureTrackedValueName;
+  })
+  temperature = 0;
+
+  targetEdit = 0;
+
+  heaterOff() {
+    //this.connection.sendMessage("sendGCODE", { data: `${this.temperatureGcode} S0` });
+    this.withLoader(async () => {
+      this.targetEdit = 0;
+      await this.$apollo.mutate<SendGcodeMutation>({
+        mutation: sendGcode,
+        variables: <SendGcodeMutationVariables>{
+          cmd: `${this.temperatureGcode} S0`
+        }
       });
+    });
+  }
+  setTarget() {
+    this.withLoader(async () => {
+      await this.$apollo.mutate<SendGcodeMutation>({
+        mutation: sendGcode,
+        variables: <SendGcodeMutationVariables>{
+          cmd: `${this.temperatureGcode} S${this.targetEdit}`
+        }
+      });
+    });
+  }
+  @Watch("target")
+  targetWatch(newTarget: number, oldTarget: number) {
+    if (this.targetEdit === oldTarget) {
+      this.targetEdit = newTarget;
     }
-  },
-  watch: {
-    target(newTarget, oldTarget) {
-      if (this.targetEdit === oldTarget) {
-        this.targetEdit = newTarget;
-      }
-    }
-  },
-  data() {
-    return {
-      target: 0,
-      targetEdit: 0,
-      temperature: 0
-    };
-  },
-  components: { TrackedValueModel }
-};
+  }
+}
 </script>
+
 
 <style scoped>
 .temperature-input {
   font-size: 1rem;
-  color: white;
+  color: #555;
   border: none transparent;
   background: transparent;
   outline: none;
   width: auto;
+}
+
+.is-primary .temperatur-input {
+  color: white;
 }
 
 .print-stat {

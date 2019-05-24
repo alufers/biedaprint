@@ -1,6 +1,7 @@
 <template>
-  <div>
+  <LoaderGuard>
     <h2 class="subtitle">Settings</h2>
+    <progress class="progress is-large is-primary" max="100" v-if="loading">15%</progress>
     <div v-if="settings">
       <div class="field">
         <label class="label">Serial</label>
@@ -19,6 +20,22 @@
         </div>
       </div>
       <div class="field">
+        <label class="label">Serial parity</label>
+        <div class="select">
+          <select v-model.number="settings.parity">
+            <option v-for="parity in parities" :key="parity">{{parity}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Serial data bits</label>
+        <div class="select">
+          <select v-model.number="settings.dataBits">
+            <option v-for="dataBit in dataBits" :key="dataBit">{{dataBit}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
         <label class="label">Scrollback buffer size</label>
         <input class="input" type="number" v-model.number="settings.scrollbackBufferSize">
       </div>
@@ -32,50 +49,67 @@
       </div>
       <button class="button is-primary" @click="save">Save</button>
     </div>
-  </div>
+  </LoaderGuard>
 </template>
-<script>
-import connectionMixin from "@/connectionMixin";
+<script lang="ts">
+import Vue from "vue";
+import Component, { mixins } from "vue-class-component";
+import LoadableMixin from "../../LoadableMixin";
+import gql from "graphql-tag";
+import getSettingsAndSerialPorts from "../../../../queries/getSettingsAndSerialPorts.graphql";
+import updateSettings from "../../../../queries/updateSettings.graphql";
+import {
+  GetSettingsAndSerialPortsQuery,
+  UpdateSettingsMutation,
+  UpdateSettingsMutationVariables,
+  Settings as SettingsModel
+} from "../../graphql-models-gen";
+import LoaderGuard from "../../components/LoaderGuard.vue";
 
-export default {
-  mixins: [connectionMixin],
-  data() {
-    return {
-      rates: [
-        300,
-        600,
-        1200,
-        2400,
-        4800,
-        9600,
-        14400,
-        19200,
-        28800,
-        38400,
-        57600,
-        115200,
-        2500000
-      ],
-      serialPorts: [],
-      settings: null
-    };
-  },
-  methods: {
-    save() {
-      this.connection.sendMessage("saveSettings", this.settings);
-    }
-  },
-  created() {
-    this.connection.sendMessage("serialList");
-    this.connection.sendMessage("getSettings");
-  },
-  connectionSubscriptions: {
-    "message.serialList"({ ports }) {
-      this.serialPorts = ports;
-    },
-    "message.getSettings"(set) {
-      this.settings = set;
-    }
+@Component({
+  components: {
+    LoaderGuard
   }
-};
+})
+export default class SettingsPage extends mixins(LoadableMixin) {
+  readonly parities = ["NONE", "EVEN"];
+  readonly dataBits = [5, 7, 8];
+  readonly rates = [
+    300,
+    600,
+    1200,
+    2400,
+    4800,
+    9600,
+    14400,
+    19200,
+    28800,
+    38400,
+    57600,
+    115200,
+    2500000
+  ];
+  serialPorts: string[] = [];
+  settings: SettingsModel | null = null;
+  created() {
+    this.withLoader(async () => {
+      let { data } = await this.$apollo.query<GetSettingsAndSerialPortsQuery>({
+        query: getSettingsAndSerialPorts
+      });
+      delete data.settings.__typename;
+      this.settings = data.settings;
+      this.serialPorts = data.serialPorts;
+    });
+  }
+  save() {
+    this.withLoader(async () => {
+      await this.$apollo.mutate<UpdateSettingsMutation>({
+        mutation: updateSettings,
+        variables: <UpdateSettingsMutationVariables>{
+          newSettings: this.settings
+        }
+      });
+    });
+  }
+}
 </script>

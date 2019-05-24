@@ -1,0 +1,16 @@
+query getTrackedValueByNameWithMeta(
+  $name: String!
+) {
+  trackedValue(name: $name) {
+    name
+    unit
+    displayType
+    plotColor
+    value
+    lastUpdate
+    lastSent
+    minUpdateInterval
+    history
+    maxHistoryLength
+  }
+}

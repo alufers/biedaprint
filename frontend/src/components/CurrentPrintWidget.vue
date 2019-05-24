@@ -1,15 +1,9 @@
 <template>
   <div>
-    <TrackedValueModel @change="isPrinting = $event" valueName="isPrinting"/>
-    <TrackedValueModel @change="printProgress = $event" valueName="printProgress"/>
-    <TrackedValueModel @change="printOriginalName = $event" valueName="printOriginalName"/>
-    <TrackedValueModel @change="printStartTime = $event" valueName="printStartTime"/>
-    <TrackedValueModel @change="printCurrentLayer = $event" valueName="printCurrentLayer"/>
-    <TrackedValueModel @change="printTotalLayers = $event" valueName="printTotalLayers"/>
     <div v-if="isPrinting">
       <div class="print-stat">
         <h2 class="subtitle">Print status</h2>
-        <button class="button is-danger" @click="abortJob">
+        <button class="button is-danger" @click="abortJob" :class="isLoadingClass">
           <span class="icon">
             <i class="fas fa-stop"></i>
           </span>
@@ -36,7 +30,7 @@
         </div>
       </div>
     </div>
-    <div class="" v-else>
+    <div class v-else>
       <div class="msg-noprint">
         <p>Nothing is being printed at the moment. You can select or upload a file to be printed.</p>
         <br>
@@ -46,39 +40,47 @@
     </div>
   </div>
 </template>
-
-<script>
-import TrackedValueModel from "@/components/TrackedValueModel";
-import connectionMixin from "@/connectionMixin";
+<script lang="ts">
+import Vue from "vue";
+import Component, { mixins } from "vue-class-component";
 import { DateTime } from "luxon";
+import TrackedValueSubscription from "../TrackedValueSubscription";
+import LoadableMixin from "../LoadableMixin";
+import { abortPrintJob } from "../../../queries/abortPrintJob.graphql";
 
-export default {
-  mixins: [connectionMixin],
-  data() {
-    return {
-      isPrinting: false,
-      printProgress: 0,
-      printOriginalName: "",
-      printStartTime: null,
-      printCurrentLayer: 0,
-      printTotalLayers: 0
-    };
-  },
-  components: { TrackedValueModel },
-  methods: {
-    abortJob() {
-      this.connection.sendMessage("abortPrintJob");
-    }
-  },
+@Component({
   filters: {
-    formatDate(value) {
+    formatDate(value: string) {
       if (!value) return "";
       let dt = DateTime.fromISO(value);
       return dt.toISODate() + " " + dt.toLocaleString(DateTime.TIME_24_SIMPLE);
     }
   }
-};
+})
+export default class CurrentPrintWidget extends mixins(LoadableMixin) {
+  @TrackedValueSubscription("isPrinting")
+  isPrinting = false;
+  @TrackedValueSubscription("printProgress")
+  printProgress = 0;
+  @TrackedValueSubscription("printOriginalName")
+  printOriginalName = "";
+  @TrackedValueSubscription("printStartTime")
+  printStartTime: string | null = null;
+  @TrackedValueSubscription("printCurrentLayer")
+  printCurrentLayer = 0;
+  @TrackedValueSubscription("printTotalLayers")
+  printTotalLayers = 0;
+
+  abortJob() {
+    this.withLoader(async () => {
+      await this.$apollo.mutate({
+        mutation: abortPrintJob
+      });
+    });
+  }
+}
 </script>
+
 
 <style scoped>
 .msg-noprint {

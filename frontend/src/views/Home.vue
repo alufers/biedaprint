@@ -7,7 +7,7 @@
       </div>
       <div class="column">
         <div class="box">
-          <TemperatureDisplay class/>
+          <TemperatureDisplay/>
           <HeaterControl
             name="Hotend"
             temperatureTrackedValueName="hotendTemperature"
@@ -25,30 +25,23 @@
     </div>
   </div>
 </template>
+<script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
+import TemperatureDisplay from "@/components/TemperatureDisplay.vue";
+import HeaterControl from "@/components/HeaterControl.vue";
+import PrinterConnectionWidget from "@/components/PrinterConnectionWidget.vue";
+import CurrentPrintWidget from "@/components/CurrentPrintWidget.vue";
 
-<script>
-import TemperatureDisplay from "@/components/TemperatureDisplay";
-import HeaterControl from "@/components/HeaterControl";
-import PrinterConnectionWidget from "@/components/PrinterConnectionWidget";
-
-import connectionMixin from "@/connectionMixin";
-// import TrackedValueTextDisplay from "@/components/TrackedValueTextDisplay";
-import CurrentPrintWidget from "@/components/CurrentPrintWidget";
-
-export default {
-  name: "home",
-  mixins: [connectionMixin],
+@Component({
   components: {
     TemperatureDisplay,
     HeaterControl,
     PrinterConnectionWidget,
-    // TrackedValueTextDisplay,
     CurrentPrintWidget
-  },
-  data() {
-    return {};
   }
-};
+})
+export default class Home extends Vue {}
 </script>
 
 <style scoped>
