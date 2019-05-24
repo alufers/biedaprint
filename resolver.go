@@ -160,6 +160,9 @@ func (r *queryResolver) TrackedValue(ctx context.Context, name string) (*Tracked
 func (r *queryResolver) ScrollbackBuffer(ctx context.Context) (string, error) {
 	r.App.PrinterManager.scrollbackBufferMutex.Lock()
 	defer r.App.PrinterManager.scrollbackBufferMutex.Unlock()
+	if r.App.PrinterManager.scrollbackBuffer == nil {
+		return "", errors.New("No scrollback buffer")
+	}
 	return r.App.PrinterManager.scrollbackBuffer.String(), nil
 }
 func (r *queryResolver) RecentCommands(ctx context.Context) ([]string, error) {
