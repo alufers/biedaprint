@@ -11,7 +11,7 @@ export const routerConfig: RouterOptions = {
   mode: "history",
   base: process.env.BASE_URL,
   linkActiveClass: "is-active",
-  routes: <(RouteConfig & { menuName: string })[]>[
+  routes: <(RouteConfig & { menuName: string; menuIcon: string })[]>[
     {
       path: "/",
       name: "home",
@@ -22,12 +22,14 @@ export const routerConfig: RouterOptions = {
       path: "/print",
       name: "print",
       menuName: "Print",
+      menuIcon: "fa-print",
       component: BlankWrapper,
       children: [
         {
           path: "gcode-files",
           name: "gcode-files",
           menuName: "Gcode files",
+          menuIcon: "fa-file",
           component: () =>
             import(
               /* webpackChunkName: "gcodeFiles" */ "./views/print/GcodeFiles.vue"
@@ -39,12 +41,14 @@ export const routerConfig: RouterOptions = {
       path: "/control",
       name: "control",
       menuName: "Control",
+      menuIcon: "fa-gamepad",
       component: BlankWrapper,
       children: [
         {
           path: "manual",
           name: "manual",
           menuName: "Manual",
+          menuIcon: "fa-gamepad",
           component: () =>
             import(
               /* webpackChunkName: "manual" */ "./views/control/Manual.vue"
@@ -54,6 +58,7 @@ export const routerConfig: RouterOptions = {
           path: "serial-console",
           name: "serial-console",
           menuName: "Serial console",
+          menuIcon: "fa-terminal",
           component: () =>
             import(
               /* webpackChunkName: "serialconsole" */ "./views/control/SerialConsole.vue"
@@ -66,11 +71,13 @@ export const routerConfig: RouterOptions = {
       name: "system",
       menuName: "System",
       component: BlankWrapper,
+      menuIcon: "fa-cogs",
       children: [
         {
           path: "settings",
           name: "settings",
           menuName: "Settings",
+          menuIcon: "fa-wrench",
           component: () =>
             import(
               /* webpackChunkName: "settings" */ "./views/system/Settings.vue"
@@ -80,6 +87,7 @@ export const routerConfig: RouterOptions = {
           path: "system-info",
           name: "system-info",
           menuName: "System information",
+          menuIcon: "fa-info",
           component: () =>
             import(
               /* webpackChunkName: "systeminfo" */ "./views/system/SystemInfo.vue"

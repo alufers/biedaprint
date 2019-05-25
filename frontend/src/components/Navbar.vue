@@ -27,14 +27,24 @@
             exact
             :key="route.path"
           >
-            <router-link class="navbar-link" :to="route.path">{{route.menuName || route.name}}</router-link>
+            <router-link class="navbar-link" :to="route.path">
+              <span class="icon" v-if="route.menuIcon">
+                <i class="fas" :class="route.menuIcon"></i> &nbsp; &nbsp; &nbsp;  &nbsp;
+              </span>
+              <span>{{route.menuName || route.name}}</span>
+            </router-link>
             <div class="navbar-dropdown" v-if="route.children && route.children.length > 0">
               <router-link
                 class="navbar-item"
                 :to="urlJoin(route.path, child.path)"
                 v-for="child in route.children"
                 :key="child.path"
-              >{{child.menuName || child.name}}</router-link>
+              >
+                <span class="icon" v-if="child.menuIcon">
+                  <i class="fas" :class="child.menuIcon"></i>
+                </span>
+                <span>{{child.menuName || child.name}}</span>
+              </router-link>
             </div>
           </div>
           <router-link
