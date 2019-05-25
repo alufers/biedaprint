@@ -12,6 +12,7 @@ type App struct {
 	PrinterManager        *PrinterManager
 	RecentCommandsManager *RecentCommandsManager
 	TrackedValuesManager  *TrackedValuesManager
+	DiscoveryManager      *DiscoveryManager
 	router                *gin.Engine
 }
 
@@ -31,6 +32,7 @@ func NewApp() *App {
 	app.PrinterManager = NewPrinterManager(app)
 	app.RecentCommandsManager = NewRecentCommandsManager(app)
 	app.TrackedValuesManager = NewTrackedValuesManager(app)
+	app.DiscoveryManager = NewDiscoveryManager(app)
 	return app
 }
 
@@ -41,6 +43,7 @@ func (app *App) Init() {
 
 	app.RecentCommandsManager.LoadRecentCommands()
 
+	app.DiscoveryManager.Init()
 	app.PrinterManager.Init()
 }
 
