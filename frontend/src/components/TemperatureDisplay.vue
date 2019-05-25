@@ -9,7 +9,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
-import Chart from "chart.js";
+import Chart, { ChartDataSets } from "chart.js";
 import LoadableMixin from "../LoadableMixin";
 import LoaderGuard from "./LoaderGuard.vue";
 import {
@@ -93,15 +93,40 @@ export default class TemperatureDisplay extends mixins(LoadableMixin) {
             labels: Array(300)
               .fill(0)
               .map((_, i) => i.toString()),
-            datasets: Object.keys(tvMetas).map(k => ({
-              _ddd: k,
-              borderColor: tvMetas[k].plotColor,
-              label: tvMetas[k].name,
-              data: tvMetas[k].history
-            }))
+            datasets: Object.keys(tvMetas).map(
+              k =>
+                <ChartDataSets>{
+                  _ddd: k,
+                  borderColor: tvMetas[k].plotColor,
+                  borderDash: tvMetas[k].plotDash,
+                  label: tvMetas[k].name,
+                  data: tvMetas[k].history,
+                  pointRadius: 0
+                }
+            )
           },
           options: {
-            responsive: false
+            responsive: false,
+            tooltips: {
+              enabled: false
+            },
+            scales: {
+              yAxes: [
+                {
+                  ticks: {
+                    callback(val: number) {
+                      return (
+                        val.toString() +
+                        " " +
+                        tvMetas[Object.keys(tvMetas)[0]].unit
+                      );
+                    },
+                    beginAtZero: true,
+                    suggestedMax: 300
+                  }
+                }
+              ]
+            }
           }
         }
       );

@@ -35,6 +35,7 @@ type TrackedValue {
   unit: String!
   displayType: TrackedValueDisplayType!
   plotColor: String!
+  plotDash: [Float!]!
   value: Any!
   lastUpdate: Time
   lastSent: Time

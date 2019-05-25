@@ -114,6 +114,7 @@ type ComplexityRoot struct {
 		MinUpdateInterval func(childComplexity int) int
 		Name              func(childComplexity int) int
 		PlotColor         func(childComplexity int) int
+		PlotDash          func(childComplexity int) int
 		Unit              func(childComplexity int) int
 		Value             func(childComplexity int) int
 	}
@@ -546,6 +547,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TrackedValue.PlotColor(childComplexity), true
 
+	case "TrackedValue.plotDash":
+		if e.complexity.TrackedValue.PlotDash == nil {
+			break
+		}
+
+		return e.complexity.TrackedValue.PlotDash(childComplexity), true
+
 	case "TrackedValue.unit":
 		if e.complexity.TrackedValue.Unit == nil {
 			break
@@ -703,6 +711,7 @@ type TrackedValue {
   unit: String!
   displayType: TrackedValueDisplayType!
   plotColor: String!
+  plotDash: [Float!]!
   value: Any!
   lastUpdate: Time
   lastSent: Time
@@ -2244,6 +2253,33 @@ func (ec *executionContext) _TrackedValue_plotColor(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _TrackedValue_plotDash(ctx context.Context, field graphql.CollectedField, obj *TrackedValue) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "TrackedValue",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlotDash, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]float64)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNFloat2ᚕfloat64(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _TrackedValue_value(ctx context.Context, field graphql.CollectedField, obj *TrackedValue) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
@@ -3723,6 +3759,11 @@ func (ec *executionContext) _TrackedValue(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "plotDash":
+			out.Values[i] = ec._TrackedValue_plotDash(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "value":
 			out.Values[i] = ec._TrackedValue_value(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4081,6 +4122,35 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNFloat2ᚕfloat64(ctx context.Context, v interface{}) ([]float64, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]float64, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNFloat2float64(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNFloat2ᚕfloat64(ctx context.Context, sel ast.SelectionSet, v []float64) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNFloat2float64(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNGcodeFileMeta2githubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v GcodeFileMeta) graphql.Marshaler {

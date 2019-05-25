@@ -54,6 +54,7 @@ type TrackedValue struct {
 	Unit              string                  `json:"unit"`
 	DisplayType       TrackedValueDisplayType `json:"displayType"`
 	PlotColor         string                  `json:"plotColor"`
+	PlotDash          []float64               `json:"plotDash"`
 	Value             interface{}             `json:"value"`
 	LastUpdate        *time.Time              `json:"lastUpdate"`
 	LastSent          *time.Time              `json:"lastSent"`

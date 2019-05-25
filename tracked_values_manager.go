@@ -14,7 +14,8 @@ func NewTrackedValuesManager(app *App) *TrackedValuesManager {
 		app: app,
 		TrackedValues: map[string]*TrackedValueInternal{
 			"hotendTemperature": NewTrackedValueInternal(&TrackedValue{
-				PlotColor:        "red",
+				PlotColor:        "hsl(348, 100%, 61%)",
+				PlotDash:         []float64{},
 				Name:             "hotendTemperature",
 				Unit:             "°C",
 				DisplayType:      TrackedValueDisplayTypePlot,
@@ -23,7 +24,8 @@ func NewTrackedValuesManager(app *App) *TrackedValuesManager {
 				History:          []interface{}{},
 			}),
 			"targetHotendTemperature": NewTrackedValueInternal(&TrackedValue{
-				PlotColor:        "blue",
+				PlotColor:        "hsl(348, 100%, 61%)",
+				PlotDash:         []float64{5, 5},
 				Name:             "targetHotendTemperature",
 				Unit:             "°C",
 				DisplayType:      TrackedValueDisplayTypePlot,
@@ -32,7 +34,8 @@ func NewTrackedValuesManager(app *App) *TrackedValuesManager {
 				History:          []interface{}{},
 			}),
 			"hotbedTemperature": NewTrackedValueInternal(&TrackedValue{
-				PlotColor:        "orange",
+				PlotColor:        "hsl(271, 100%, 71%)",
+				PlotDash:         []float64{},
 				Name:             "hotbedTemperature",
 				Unit:             "°C",
 				DisplayType:      TrackedValueDisplayTypePlot,
@@ -41,7 +44,8 @@ func NewTrackedValuesManager(app *App) *TrackedValuesManager {
 				History:          []interface{}{},
 			}),
 			"targetHotbedTemperature": NewTrackedValueInternal(&TrackedValue{
-				PlotColor:        "green",
+				PlotColor:        "hsl(271, 100%, 71%)",
+				PlotDash:         []float64{5, 5},
 				Name:             "targetHotbedTemperature",
 				Unit:             "°C",
 				DisplayType:      TrackedValueDisplayTypePlot,

@@ -6,6 +6,7 @@ query getTrackedValueByNameWithMeta(
     unit
     displayType
     plotColor
+    plotDash
     value
     lastUpdate
     lastSent
