@@ -6,9 +6,9 @@
 schema:
 - schema.graphql
 exec:
-  filename: generated.go
+  filename: core/generated.go
 model:
-  filename: models_gen.go
+  filename: core/models_gen.go
 resolver:
-  filename: resolver.go
+  filename: core/resolver.go
   type: Resolver

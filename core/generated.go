@@ -891,7 +891,7 @@ func (ec *executionContext) field_Mutation_updateSettings_args(ctx context.Conte
 	args := map[string]interface{}{}
 	var arg0 NewSettings
 	if tmp, ok := rawArgs["settings"]; ok {
-		arg0, err = ec.unmarshalNNewSettings2githubᚗcomᚋalufersᚋbiedaprintᚐNewSettings(ctx, tmp)
+		arg0, err = ec.unmarshalNNewSettings2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐNewSettings(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1174,7 +1174,7 @@ func (ec *executionContext) _GcodeFileMeta_layerIndexes(ctx context.Context, fie
 	res := resTmp.([]*GcodeLayerIndex)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNGcodeLayerIndex2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeLayerIndex(ctx, field.Selections, res)
+	return ec.marshalNGcodeLayerIndex2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeLayerIndex(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GcodeLayerIndex_lineNumber(ctx context.Context, field graphql.CollectedField, obj *GcodeLayerIndex) graphql.Marshaler {
@@ -1262,7 +1262,7 @@ func (ec *executionContext) _Mutation_updateSettings(ctx context.Context, field 
 	res := resTmp.(*Settings)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNSettings2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐSettings(ctx, field.Selections, res)
+	return ec.marshalNSettings2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettings(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_connectToSerial(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1417,7 +1417,7 @@ func (ec *executionContext) _Mutation_uploadGcode(ctx context.Context, field gra
 	res := resTmp.(*GcodeFileMeta)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx, field.Selections, res)
+	return ec.marshalOGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeFileMeta(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteGcodeFile(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1537,7 +1537,7 @@ func (ec *executionContext) _PrintJob_gcodeMeta(ctx context.Context, field graph
 	res := resTmp.(*GcodeFileMeta)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx, field.Selections, res)
+	return ec.marshalNGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeFileMeta(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PrintJob_startedTime(ctx context.Context, field graphql.CollectedField, obj *PrintJob) graphql.Marshaler {
@@ -1618,7 +1618,7 @@ func (ec *executionContext) _Query_settings(ctx context.Context, field graphql.C
 	res := resTmp.(*Settings)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNSettings2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐSettings(ctx, field.Selections, res)
+	return ec.marshalNSettings2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettings(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_trackedValues(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1645,7 +1645,7 @@ func (ec *executionContext) _Query_trackedValues(ctx context.Context, field grap
 	res := resTmp.([]*TrackedValue)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTrackedValue2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚐTrackedValue(ctx, field.Selections, res)
+	return ec.marshalNTrackedValue2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTrackedValue(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_trackedValue(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1679,7 +1679,7 @@ func (ec *executionContext) _Query_trackedValue(ctx context.Context, field graph
 	res := resTmp.(*TrackedValue)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTrackedValue2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐTrackedValue(ctx, field.Selections, res)
+	return ec.marshalNTrackedValue2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTrackedValue(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_scrollbackBuffer(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1760,7 +1760,7 @@ func (ec *executionContext) _Query_gcodeFileMetas(ctx context.Context, field gra
 	res := resTmp.([]*GcodeFileMeta)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNGcodeFileMeta2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx, field.Selections, res)
+	return ec.marshalNGcodeFileMeta2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeFileMeta(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_currentPrintJob(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1784,7 +1784,7 @@ func (ec *executionContext) _Query_currentPrintJob(ctx context.Context, field gr
 	res := resTmp.(*PrintJob)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOPrintJob2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐPrintJob(ctx, field.Selections, res)
+	return ec.marshalOPrintJob2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐPrintJob(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_systemInformation(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1998,7 +1998,7 @@ func (ec *executionContext) _Settings_parity(ctx context.Context, field graphql.
 	res := resTmp.(SerialParity)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚐSerialParity(ctx, field.Selections, res)
+	return ec.marshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSerialParity(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Settings_dataBits(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
@@ -2111,7 +2111,7 @@ func (ec *executionContext) _Subscription_currentPrintJobUpdated(ctx context.Con
 			w.Write([]byte{'{'})
 			graphql.MarshalString(field.Alias).MarshalGQL(w)
 			w.Write([]byte{':'})
-			ec.marshalOPrintJob2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐPrintJob(ctx, field.Selections, res).MarshalGQL(w)
+			ec.marshalOPrintJob2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐPrintJob(ctx, field.Selections, res).MarshalGQL(w)
 			w.Write([]byte{'}'})
 		})
 	}
@@ -2223,7 +2223,7 @@ func (ec *executionContext) _TrackedValue_displayType(ctx context.Context, field
 	res := resTmp.(TrackedValueDisplayType)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTrackedValueDisplayType2githubᚗcomᚋalufersᚋbiedaprintᚐTrackedValueDisplayType(ctx, field.Selections, res)
+	return ec.marshalNTrackedValueDisplayType2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTrackedValueDisplayType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _TrackedValue_plotColor(ctx context.Context, field graphql.CollectedField, obj *TrackedValue) graphql.Marshaler {
@@ -3287,7 +3287,7 @@ func (ec *executionContext) unmarshalInputNewSettings(ctx context.Context, v int
 			}
 		case "parity":
 			var err error
-			it.Parity, err = ec.unmarshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚐSerialParity(ctx, v)
+			it.Parity, err = ec.unmarshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSerialParity(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4153,11 +4153,11 @@ func (ec *executionContext) marshalNFloat2ᚕfloat64(ctx context.Context, sel as
 	return ret
 }
 
-func (ec *executionContext) marshalNGcodeFileMeta2githubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v GcodeFileMeta) graphql.Marshaler {
+func (ec *executionContext) marshalNGcodeFileMeta2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v GcodeFileMeta) graphql.Marshaler {
 	return ec._GcodeFileMeta(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNGcodeFileMeta2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v []*GcodeFileMeta) graphql.Marshaler {
+func (ec *executionContext) marshalNGcodeFileMeta2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v []*GcodeFileMeta) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4181,7 +4181,7 @@ func (ec *executionContext) marshalNGcodeFileMeta2ᚕᚖgithubᚗcomᚋalufers�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx, sel, v[i])
+			ret[i] = ec.marshalNGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeFileMeta(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4194,7 +4194,7 @@ func (ec *executionContext) marshalNGcodeFileMeta2ᚕᚖgithubᚗcomᚋalufers�
 	return ret
 }
 
-func (ec *executionContext) marshalNGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v *GcodeFileMeta) graphql.Marshaler {
+func (ec *executionContext) marshalNGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v *GcodeFileMeta) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -4204,11 +4204,11 @@ func (ec *executionContext) marshalNGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbi
 	return ec._GcodeFileMeta(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNGcodeLayerIndex2githubᚗcomᚋalufersᚋbiedaprintᚐGcodeLayerIndex(ctx context.Context, sel ast.SelectionSet, v GcodeLayerIndex) graphql.Marshaler {
+func (ec *executionContext) marshalNGcodeLayerIndex2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeLayerIndex(ctx context.Context, sel ast.SelectionSet, v GcodeLayerIndex) graphql.Marshaler {
 	return ec._GcodeLayerIndex(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNGcodeLayerIndex2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeLayerIndex(ctx context.Context, sel ast.SelectionSet, v []*GcodeLayerIndex) graphql.Marshaler {
+func (ec *executionContext) marshalNGcodeLayerIndex2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeLayerIndex(ctx context.Context, sel ast.SelectionSet, v []*GcodeLayerIndex) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4232,7 +4232,7 @@ func (ec *executionContext) marshalNGcodeLayerIndex2ᚕᚖgithubᚗcomᚋalufers
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNGcodeLayerIndex2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeLayerIndex(ctx, sel, v[i])
+			ret[i] = ec.marshalNGcodeLayerIndex2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeLayerIndex(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4245,7 +4245,7 @@ func (ec *executionContext) marshalNGcodeLayerIndex2ᚕᚖgithubᚗcomᚋalufers
 	return ret
 }
 
-func (ec *executionContext) marshalNGcodeLayerIndex2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeLayerIndex(ctx context.Context, sel ast.SelectionSet, v *GcodeLayerIndex) graphql.Marshaler {
+func (ec *executionContext) marshalNGcodeLayerIndex2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeLayerIndex(ctx context.Context, sel ast.SelectionSet, v *GcodeLayerIndex) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -4269,24 +4269,24 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNNewSettings2githubᚗcomᚋalufersᚋbiedaprintᚐNewSettings(ctx context.Context, v interface{}) (NewSettings, error) {
+func (ec *executionContext) unmarshalNNewSettings2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐNewSettings(ctx context.Context, v interface{}) (NewSettings, error) {
 	return ec.unmarshalInputNewSettings(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚐSerialParity(ctx context.Context, v interface{}) (SerialParity, error) {
+func (ec *executionContext) unmarshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSerialParity(ctx context.Context, v interface{}) (SerialParity, error) {
 	var res SerialParity
 	return res, res.UnmarshalGQL(v)
 }
 
-func (ec *executionContext) marshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚐSerialParity(ctx context.Context, sel ast.SelectionSet, v SerialParity) graphql.Marshaler {
+func (ec *executionContext) marshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSerialParity(ctx context.Context, sel ast.SelectionSet, v SerialParity) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNSettings2githubᚗcomᚋalufersᚋbiedaprintᚐSettings(ctx context.Context, sel ast.SelectionSet, v Settings) graphql.Marshaler {
+func (ec *executionContext) marshalNSettings2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettings(ctx context.Context, sel ast.SelectionSet, v Settings) graphql.Marshaler {
 	return ec._Settings(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐSettings(ctx context.Context, sel ast.SelectionSet, v *Settings) graphql.Marshaler {
+func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettings(ctx context.Context, sel ast.SelectionSet, v *Settings) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -4353,11 +4353,11 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalNTrackedValue2githubᚗcomᚋalufersᚋbiedaprintᚐTrackedValue(ctx context.Context, sel ast.SelectionSet, v TrackedValue) graphql.Marshaler {
+func (ec *executionContext) marshalNTrackedValue2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTrackedValue(ctx context.Context, sel ast.SelectionSet, v TrackedValue) graphql.Marshaler {
 	return ec._TrackedValue(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTrackedValue2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚐTrackedValue(ctx context.Context, sel ast.SelectionSet, v []*TrackedValue) graphql.Marshaler {
+func (ec *executionContext) marshalNTrackedValue2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTrackedValue(ctx context.Context, sel ast.SelectionSet, v []*TrackedValue) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4381,7 +4381,7 @@ func (ec *executionContext) marshalNTrackedValue2ᚕᚖgithubᚗcomᚋalufersᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTrackedValue2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐTrackedValue(ctx, sel, v[i])
+			ret[i] = ec.marshalNTrackedValue2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTrackedValue(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4394,7 +4394,7 @@ func (ec *executionContext) marshalNTrackedValue2ᚕᚖgithubᚗcomᚋalufersᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNTrackedValue2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐTrackedValue(ctx context.Context, sel ast.SelectionSet, v *TrackedValue) graphql.Marshaler {
+func (ec *executionContext) marshalNTrackedValue2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTrackedValue(ctx context.Context, sel ast.SelectionSet, v *TrackedValue) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -4404,12 +4404,12 @@ func (ec *executionContext) marshalNTrackedValue2ᚖgithubᚗcomᚋalufersᚋbie
 	return ec._TrackedValue(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTrackedValueDisplayType2githubᚗcomᚋalufersᚋbiedaprintᚐTrackedValueDisplayType(ctx context.Context, v interface{}) (TrackedValueDisplayType, error) {
+func (ec *executionContext) unmarshalNTrackedValueDisplayType2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTrackedValueDisplayType(ctx context.Context, v interface{}) (TrackedValueDisplayType, error) {
 	var res TrackedValueDisplayType
 	return res, res.UnmarshalGQL(v)
 }
 
-func (ec *executionContext) marshalNTrackedValueDisplayType2githubᚗcomᚋalufersᚋbiedaprintᚐTrackedValueDisplayType(ctx context.Context, sel ast.SelectionSet, v TrackedValueDisplayType) graphql.Marshaler {
+func (ec *executionContext) marshalNTrackedValueDisplayType2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTrackedValueDisplayType(ctx context.Context, sel ast.SelectionSet, v TrackedValueDisplayType) graphql.Marshaler {
 	return v
 }
 
@@ -4676,11 +4676,11 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
 }
 
-func (ec *executionContext) marshalOGcodeFileMeta2githubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v GcodeFileMeta) graphql.Marshaler {
+func (ec *executionContext) marshalOGcodeFileMeta2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v GcodeFileMeta) graphql.Marshaler {
 	return ec._GcodeFileMeta(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalOGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v *GcodeFileMeta) graphql.Marshaler {
+func (ec *executionContext) marshalOGcodeFileMeta2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeFileMeta(ctx context.Context, sel ast.SelectionSet, v *GcodeFileMeta) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -4716,11 +4716,11 @@ func (ec *executionContext) marshalOMap2ᚖmap(ctx context.Context, sel ast.Sele
 	return ec.marshalOMap2map(ctx, sel, *v)
 }
 
-func (ec *executionContext) marshalOPrintJob2githubᚗcomᚋalufersᚋbiedaprintᚐPrintJob(ctx context.Context, sel ast.SelectionSet, v PrintJob) graphql.Marshaler {
+func (ec *executionContext) marshalOPrintJob2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐPrintJob(ctx context.Context, sel ast.SelectionSet, v PrintJob) graphql.Marshaler {
 	return ec._PrintJob(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalOPrintJob2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚐPrintJob(ctx context.Context, sel ast.SelectionSet, v *PrintJob) graphql.Marshaler {
+func (ec *executionContext) marshalOPrintJob2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐPrintJob(ctx context.Context, sel ast.SelectionSet, v *PrintJob) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
