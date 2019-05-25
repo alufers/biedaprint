@@ -17,6 +17,12 @@ type Settings {
   startupCommand: String!
 }
 
+type TemperaturePreset {
+  name: String!
+  hotendTemperature: Float!
+  hotbedTemperature: Float!
+}
+
 enum TrackedValueDisplayType {
   PLOT
   TIME
