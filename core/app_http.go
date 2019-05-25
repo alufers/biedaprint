@@ -12,9 +12,11 @@ import (
 func (app *App) RunHTTPServer() {
 	// Setting up Gin
 	app.router = gin.Default()
+	app.router.RedirectTrailingSlash = false
 	app.router.Use(cors.Default())
 	app.router.Any("/query", app.graphqlQueryHandler())
 	app.router.GET("/playground", app.graphqlPlaygroundHandler())
+	app.router.GET("/", app.frontendHandler())
 	app.router.NoRoute(app.frontendHandler())
 	app.router.Run(":4444")
 }
