@@ -1,6 +1,6 @@
 // +build frontend_packr
 
-package biedaprint
+package core
 
 import (
 	"fmt"

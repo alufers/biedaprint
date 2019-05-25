@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/alufers/biedaprint"
+	"github.com/alufers/biedaprint/core"
 )
 
 func main() {
-	app := biedaprint.NewApp()
+	app := core.NewApp()
 	app.Init()
 	app.RunHTTPServer()
 }

@@ -1,4 +1,4 @@
-package biedaprint
+package core
 
 import (
 	"sync"
