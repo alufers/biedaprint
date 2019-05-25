@@ -43,7 +43,7 @@ func interceptHandler(next http.Handler, errH ErrorHandler) http.Handler {
 }
 
 func (app *App) frontendHandler() gin.HandlerFunc {
-	box := packr.New("../static")
+	box := packr.New("../static", "Static frontend box")
 	fs := interceptHandler(http.FileServer(box), func(w http.ResponseWriter, status int) {
 		data, _ := box.FindString("index.html")
 		w.Header().Set("Content-type", "text/html")
