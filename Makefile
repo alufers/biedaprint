@@ -1,7 +1,9 @@
 
 MAKEFLAGS += -j2
 
-build_with_out = GO111MODULE=on packr2 build -tags frontend_packr -ldflags="-s -w" -o build/$(1) server/server.go && ls
+
+ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+build_with_out = GO111MODULE=on packr2 build -tags frontend_packr -ldflags="-s -w" -o $(ROOT_DIR)/build/$(1) server/server.go && ls - lah
 
 build-backend: build-frontend backend-graphql-codegen
 	packr build -tags frontend_packr -ldflags="-s -w" -o build/biedaprint server/server.go
