@@ -18,7 +18,7 @@ type interceptResponseWriter struct {
 }
 
 func (w *interceptResponseWriter) WriteHeader(status int) {
-	if status >= http.StatusBadRequest {
+	if status >= http.StatusBadRequest || status == 301 {
 		w.errH(w.ResponseWriter, status)
 		w.errH = nil
 	} else {
@@ -43,7 +43,7 @@ func interceptHandler(next http.Handler, errH ErrorHandler) http.Handler {
 }
 
 func (app *App) frontendHandler() gin.HandlerFunc {
-	box := packr.New("../static", "Static frontend box")
+	box := packr.New("Static frontend box", "../static")
 	fs := interceptHandler(http.FileServer(box), func(w http.ResponseWriter, status int) {
 		data, _ := box.FindString("index.html")
 		w.Header().Set("Content-type", "text/html")
