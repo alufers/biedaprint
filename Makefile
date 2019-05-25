@@ -6,7 +6,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 build_with_out = GO111MODULE=on packr2 build -tags frontend_packr -ldflags="-s -w" -o $(ROOT_DIR)/build/$(1) server/server.go && ls -lah
 
 build-backend: build-frontend backend-graphql-codegen
-	packr build -tags frontend_packr -ldflags="-s -w" -o build/biedaprint server/server.go
+	packr2 build -tags frontend_packr -ldflags="-s -w" -o build/biedaprint server/server.go
 
 build-multiplatform: build-frontend backend-graphql-codegen
 	GOOS=linux GOARCH=arm GOARM=7 $(call build_with_out,biedaprint-linux-armv7)
