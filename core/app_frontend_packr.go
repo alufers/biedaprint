@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gobuffalo/packr"
+	"github.com/gobuffalo/packr/v2"
 )
 
 // http interceptor for interceping 404 and serving index.html so that the SPA works
