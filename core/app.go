@@ -27,6 +27,18 @@ func NewApp() *App {
 			DataBits:             7,
 			DataPath:             "./biedaprint_data",
 			StartupCommand:       "",
+			TemperaturePresets: []*TemperaturePreset{
+				&TemperaturePreset{
+					Name:              "PLA",
+					HotendTemperature: 200,
+					HotbedTemperature: 60,
+				},
+				&TemperaturePreset{
+					Name:              "ABS",
+					HotendTemperature: 230,
+					HotbedTemperature: 95,
+				},
+			},
 		},
 	}
 	app.PrinterManager = NewPrinterManager(app)

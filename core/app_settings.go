@@ -14,7 +14,9 @@ func (app *App) loadSettings() {
 	file, err := ioutil.ReadFile(SettingsPath)
 	if err != nil {
 		log.Printf("Failed to load settings: %v, trying to save...", err)
+		app.settingsMutex.Unlock() // unlock the mutex so that the settings can be saved
 		err = app.saveSettings()
+		app.settingsMutex.Lock()
 		if err != nil {
 			log.Fatalf("Failed to save  default settings: %v", err)
 			return

@@ -47,6 +47,49 @@
         <label class="label">Startup command</label>
         <input class="input" type="text" v-model="settings.startupCommand">
       </div>
+      <div class="field">
+        <label class="label">Temperature presets</label>
+        <table class="table">
+          <thead>
+            <th>Name</th>
+            <th>Hotend temperature (°C)</th>
+            <th>Hotbed temperature (°C)</th>
+            <th></th>
+          </thead>
+          <tbody>
+            <tr v-for="(tp, i) in settings.temperaturePresets" :key="i">
+              <td>
+                <input class="input" type="text" v-model="tp.name">
+              </td>
+              <td>
+                <input class="input" type="number" v-model.number="tp.hotendTemperature">
+              </td>
+              <td>
+                <input class="input" type="number" v-model.number="tp.hotbedTemperature">
+              </td>
+              <td>
+                <button class="button is-danger" @click="deleteTemperaturePreset(i)">
+                  <span class="icon is-small">
+                    <i class="fas fa-trash"></i>
+                  </span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4">
+                <button class="button is-primary" @click="addTemperaturePreset()">
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>Add temperature preset</span>
+                </button>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
       <button class="button is-primary" @click="save">Save</button>
     </div>
   </LoaderGuard>
@@ -97,6 +140,7 @@ export default class SettingsPage extends mixins(LoadableMixin) {
         query: getSettingsAndSerialPorts
       });
       delete data.settings.__typename;
+      data.settings.temperaturePresets.forEach(tp => delete tp.__typename);
       this.settings = data.settings;
       this.serialPorts = data.serialPorts;
     });
@@ -109,6 +153,18 @@ export default class SettingsPage extends mixins(LoadableMixin) {
           newSettings: this.settings
         }
       });
+    });
+  }
+  deleteTemperaturePreset(i: number) {
+    this.settings.temperaturePresets = this.settings.temperaturePresets.filter(
+      (_, ix) => ix !== i
+    );
+  }
+  addTemperaturePreset() {
+    this.settings.temperaturePresets.push({
+      name: "New",
+      hotendTemperature: 0,
+      hotbedTemperature: 0
     });
   }
 }

@@ -33,7 +33,10 @@ type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) UpdateSettings(ctx context.Context, settings NewSettings) (*Settings, error) {
 	r.App.settingsMutex.Lock()
-	defer r.App.settingsMutex.Unlock()
+	defer func() {
+		r.App.settingsMutex.Unlock()
+		r.App.saveSettings()
+	}()
 	r.App.settings.SerialPort = settings.SerialPort
 	r.App.settings.BaudRate = settings.BaudRate
 	r.App.settings.ScrollbackBufferSize = settings.ScrollbackBufferSize
@@ -41,6 +44,14 @@ func (r *mutationResolver) UpdateSettings(ctx context.Context, settings NewSetti
 	r.App.settings.Parity = settings.Parity
 	r.App.settings.DataBits = settings.DataBits
 	r.App.settings.StartupCommand = settings.StartupCommand
+	r.App.settings.TemperaturePresets = []*TemperaturePreset{}
+	for _, tp := range settings.TemperaturePresets {
+		r.App.settings.TemperaturePresets = append(r.App.settings.TemperaturePresets, &TemperaturePreset{
+			Name:              tp.Name,
+			HotendTemperature: tp.HotendTemperature,
+			HotbedTemperature: tp.HotbedTemperature,
+		})
+	}
 	return r.App.settings, nil
 }
 func (r *mutationResolver) ConnectToSerial(ctx context.Context, void *bool) (*bool, error) {

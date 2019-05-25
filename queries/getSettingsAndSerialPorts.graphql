@@ -7,6 +7,11 @@ query getSettingsAndSerialPorts {
     dataPath
     startupCommand
     scrollbackBufferSize
+    temperaturePresets {
+      name
+      hotendTemperature
+      hotbedTemperature
+    }
   }
   serialPorts
 }

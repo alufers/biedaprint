@@ -97,12 +97,19 @@ type ComplexityRoot struct {
 		ScrollbackBufferSize func(childComplexity int) int
 		SerialPort           func(childComplexity int) int
 		StartupCommand       func(childComplexity int) int
+		TemperaturePresets   func(childComplexity int) int
 	}
 
 	Subscription struct {
 		CurrentPrintJobUpdated func(childComplexity int) int
 		SerialConsoleData      func(childComplexity int) int
 		TrackedValueUpdated    func(childComplexity int, name string) int
+	}
+
+	TemperaturePreset struct {
+		HotbedTemperature func(childComplexity int) int
+		HotendTemperature func(childComplexity int) int
+		Name              func(childComplexity int) int
 	}
 
 	TrackedValue struct {
@@ -465,6 +472,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Settings.StartupCommand(childComplexity), true
 
+	case "Settings.temperaturePresets":
+		if e.complexity.Settings.TemperaturePresets == nil {
+			break
+		}
+
+		return e.complexity.Settings.TemperaturePresets(childComplexity), true
+
 	case "Subscription.currentPrintJobUpdated":
 		if e.complexity.Subscription.CurrentPrintJobUpdated == nil {
 			break
@@ -490,6 +504,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Subscription.TrackedValueUpdated(childComplexity, args["name"].(string)), true
+
+	case "TemperaturePreset.hotbedTemperature":
+		if e.complexity.TemperaturePreset.HotbedTemperature == nil {
+			break
+		}
+
+		return e.complexity.TemperaturePreset.HotbedTemperature(childComplexity), true
+
+	case "TemperaturePreset.hotendTemperature":
+		if e.complexity.TemperaturePreset.HotendTemperature == nil {
+			break
+		}
+
+		return e.complexity.TemperaturePreset.HotendTemperature(childComplexity), true
+
+	case "TemperaturePreset.name":
+		if e.complexity.TemperaturePreset.Name == nil {
+			break
+		}
+
+		return e.complexity.TemperaturePreset.Name(childComplexity), true
 
 	case "TrackedValue.displayType":
 		if e.complexity.TrackedValue.DisplayType == nil {
@@ -691,6 +726,13 @@ type Settings {
   parity: SerialParity!
   dataBits: Int!
   startupCommand: String!
+  temperaturePresets: [TemperaturePreset!]!
+}
+
+type TemperaturePreset {
+  name: String!
+  hotendTemperature: Float!
+  hotbedTemperature: Float!
 }
 
 enum TrackedValueDisplayType {
@@ -742,6 +784,12 @@ type PrintJob {
   startedTime: Time!
 }
 
+input TemperaturePresetInput {
+  name: String!
+  hotendTemperature: Float!
+  hotbedTemperature: Float!
+}
+
 input NewSettings {
   serialPort: String!
   baudRate: Int!
@@ -750,6 +798,7 @@ input NewSettings {
   scrollbackBufferSize: Int!
   dataPath: String!
   startupCommand: String!
+  temperaturePresets: [TemperaturePresetInput!]!
 }
 
 type Query {
@@ -769,7 +818,7 @@ type Mutation {
   connectToSerial(void: Boolean): Boolean
   disconnectFromSerial(void: Boolean): Boolean
   sendGcode(cmd: String!): Boolean # send gcode to the printer without saving it in recent commands, used by all the manual control buttons
-  sendConsoleCommand(cmd: String!): Boolean # sebd command from the serial console input
+  sendConsoleCommand(cmd: String!): Boolean # send command from the serial console input
   uploadGcode(file: Upload!): GcodeFileMeta
   deleteGcodeFile(gcodeFilename: String!): Boolean
   startPrintJob(gcodeFilename: String!): Boolean
@@ -2055,6 +2104,33 @@ func (ec *executionContext) _Settings_startupCommand(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Settings_temperaturePresets(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Settings",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TemperaturePresets, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*TemperaturePreset)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNTemperaturePreset2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePreset(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Subscription_trackedValueUpdated(ctx context.Context, field graphql.CollectedField) func() graphql.Marshaler {
 	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
 		Field: field,
@@ -2143,6 +2219,87 @@ func (ec *executionContext) _Subscription_serialConsoleData(ctx context.Context,
 			w.Write([]byte{'}'})
 		})
 	}
+}
+
+func (ec *executionContext) _TemperaturePreset_name(ctx context.Context, field graphql.CollectedField, obj *TemperaturePreset) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "TemperaturePreset",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TemperaturePreset_hotendTemperature(ctx context.Context, field graphql.CollectedField, obj *TemperaturePreset) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "TemperaturePreset",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HotendTemperature, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TemperaturePreset_hotbedTemperature(ctx context.Context, field graphql.CollectedField, obj *TemperaturePreset) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "TemperaturePreset",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HotbedTemperature, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _TrackedValue_name(ctx context.Context, field graphql.CollectedField, obj *TrackedValue) graphql.Marshaler {
@@ -3315,6 +3472,42 @@ func (ec *executionContext) unmarshalInputNewSettings(ctx context.Context, v int
 			if err != nil {
 				return it, err
 			}
+		case "temperaturePresets":
+			var err error
+			it.TemperaturePresets, err = ec.unmarshalNTemperaturePresetInput2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTemperaturePresetInput(ctx context.Context, v interface{}) (TemperaturePresetInput, error) {
+	var it TemperaturePresetInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "hotendTemperature":
+			var err error
+			it.HotendTemperature, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "hotbedTemperature":
+			var err error
+			it.HotbedTemperature, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -3693,6 +3886,11 @@ func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "temperaturePresets":
+			out.Values[i] = ec._Settings_temperaturePresets(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3726,6 +3924,43 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
+}
+
+var temperaturePresetImplementors = []string{"TemperaturePreset"}
+
+func (ec *executionContext) _TemperaturePreset(ctx context.Context, sel ast.SelectionSet, obj *TemperaturePreset) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, temperaturePresetImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TemperaturePreset")
+		case "name":
+			out.Values[i] = ec._TemperaturePreset_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "hotendTemperature":
+			out.Values[i] = ec._TemperaturePreset_hotendTemperature(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "hotbedTemperature":
+			out.Values[i] = ec._TemperaturePreset_hotbedTemperature(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
 }
 
 var trackedValueImplementors = []string{"TrackedValue"}
@@ -4337,6 +4572,89 @@ func (ec *executionContext) marshalNString2ᚕstring(ctx context.Context, sel as
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNTemperaturePreset2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePreset(ctx context.Context, sel ast.SelectionSet, v TemperaturePreset) graphql.Marshaler {
+	return ec._TemperaturePreset(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTemperaturePreset2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePreset(ctx context.Context, sel ast.SelectionSet, v []*TemperaturePreset) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTemperaturePreset2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePreset(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNTemperaturePreset2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePreset(ctx context.Context, sel ast.SelectionSet, v *TemperaturePreset) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._TemperaturePreset(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTemperaturePresetInput2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx context.Context, v interface{}) (TemperaturePresetInput, error) {
+	return ec.unmarshalInputTemperaturePresetInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalNTemperaturePresetInput2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx context.Context, v interface{}) ([]*TemperaturePresetInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*TemperaturePresetInput, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNTemperaturePresetInput2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNTemperaturePresetInput2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx context.Context, v interface{}) (*TemperaturePresetInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalNTemperaturePresetInput2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {

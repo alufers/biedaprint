@@ -25,13 +25,14 @@ type GcodeLayerIndex struct {
 }
 
 type NewSettings struct {
-	SerialPort           string       `json:"serialPort"`
-	BaudRate             int          `json:"baudRate"`
-	Parity               SerialParity `json:"parity"`
-	DataBits             int          `json:"dataBits"`
-	ScrollbackBufferSize int          `json:"scrollbackBufferSize"`
-	DataPath             string       `json:"dataPath"`
-	StartupCommand       string       `json:"startupCommand"`
+	SerialPort           string                    `json:"serialPort"`
+	BaudRate             int                       `json:"baudRate"`
+	Parity               SerialParity              `json:"parity"`
+	DataBits             int                       `json:"dataBits"`
+	ScrollbackBufferSize int                       `json:"scrollbackBufferSize"`
+	DataPath             string                    `json:"dataPath"`
+	StartupCommand       string                    `json:"startupCommand"`
+	TemperaturePresets   []*TemperaturePresetInput `json:"temperaturePresets"`
 }
 
 type PrintJob struct {
@@ -40,13 +41,26 @@ type PrintJob struct {
 }
 
 type Settings struct {
-	SerialPort           string       `json:"serialPort"`
-	BaudRate             int          `json:"baudRate"`
-	ScrollbackBufferSize int          `json:"scrollbackBufferSize"`
-	DataPath             string       `json:"dataPath"`
-	Parity               SerialParity `json:"parity"`
-	DataBits             int          `json:"dataBits"`
-	StartupCommand       string       `json:"startupCommand"`
+	SerialPort           string               `json:"serialPort"`
+	BaudRate             int                  `json:"baudRate"`
+	ScrollbackBufferSize int                  `json:"scrollbackBufferSize"`
+	DataPath             string               `json:"dataPath"`
+	Parity               SerialParity         `json:"parity"`
+	DataBits             int                  `json:"dataBits"`
+	StartupCommand       string               `json:"startupCommand"`
+	TemperaturePresets   []*TemperaturePreset `json:"temperaturePresets"`
+}
+
+type TemperaturePreset struct {
+	Name              string  `json:"name"`
+	HotendTemperature float64 `json:"hotendTemperature"`
+	HotbedTemperature float64 `json:"hotbedTemperature"`
+}
+
+type TemperaturePresetInput struct {
+	Name              string  `json:"name"`
+	HotendTemperature float64 `json:"hotendTemperature"`
+	HotbedTemperature float64 `json:"hotbedTemperature"`
 }
 
 type TrackedValue struct {
