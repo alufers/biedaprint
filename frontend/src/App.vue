@@ -3,9 +3,8 @@
     <Navbar/>
     <section class="section">
       <div class="container">
-        <!-- <keep-alive> -->
+        <Alerts/>
         <router-view></router-view>
-        <!-- </keep-alive> -->
       </div>
     </section>
   </div>
@@ -15,12 +14,14 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import Navbar from "./components/Navbar.vue";
+import Alerts from "./components/Alerts.vue";
 import "bulma/css/bulma.css";
 import "@fortawesome/fontawesome-free/css/all.css";
 
 @Component({
   components: {
-    Navbar
+    Navbar,
+    Alerts
   }
 })
 export default class App extends Vue {}

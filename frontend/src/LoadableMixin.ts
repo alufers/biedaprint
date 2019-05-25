@@ -1,12 +1,13 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Provide } from "vue-property-decorator";
+import { Alert, AlertType } from "./modules/AlertsModule";
 
 @Component({})
 export default class LoadableMixin extends Vue {
   loading = false;
-  
-  async withLoader<T = any>(cbFn: () => Promise<T>): Promise<T> {
+
+  async withLoader<T = any>(cbFn: () => Promise<T>): Promise<void> {
     this.loading = true;
     let shouldWarn = false;
     setTimeout(
@@ -17,9 +18,14 @@ export default class LoadableMixin extends Vue {
         )
     );
     try {
-      let val = await cbFn();
+      await cbFn();
       shouldWarn = true;
-      return val;
+    } catch (e) {
+      this.$store.dispatch("AlertsModule/addAlert", <Alert>{
+        content: e.message,
+        title: "Error",
+        type: AlertType.error
+      });
     } finally {
       this.loading = false;
     }
