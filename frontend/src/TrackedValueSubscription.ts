@@ -24,14 +24,17 @@ export default function TrackedValueSubscription(
           withLoader = (this as any).withLoader;
         }
         await withLoader(async () => {
+          let resultingTvName: string;
           if (typeof tvName === "function") {
-            tvName = tvName.bind(this)();
+            resultingTvName = tvName.bind(this)();
+          } else {
+            resultingTvName = tvName;
           }
           let tv = await this.$apollo.query<
             GetTrackedValueByNameOnlyValueQuery
           >({
             variables: {
-              name: tvName
+              name: resultingTvName
             },
             fetchPolicy: "network-only",
             query: gql`
@@ -51,7 +54,7 @@ export default function TrackedValueSubscription(
             variables: <
               SubscribeToTrackedValueUpdatedByNameSubscriptionVariables
             >{
-              name: tvName
+              name: resultingTvName
             },
 
             query: gql`
