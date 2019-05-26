@@ -5,12 +5,12 @@
 
       <div class="print-stat">
         <div class="controls tags has-addons are-medium">
-          <span class="tag">Actual</span>
-          <span class="tag">{{temperature.toFixed(2)}}</span>
+          <span class="tag tag-label">Actual</span>
+          <span class="tag temp-value">{{temperature.toFixed(2)}}</span>
         </div>
 
         <div class="controls tags has-addons are-medium">
-          <span class="tag">Target</span>
+          <span class="tag tag-label">Target</span>
           <span class="tag" :class="{'is-danger': target > 0,}">
             <input
               class="temperature-input"
@@ -134,5 +134,17 @@ export default class HeaterControl extends mixins(LoadableMixin) {
   padding-top: 2px;
   margin-right: 8px;
   height: 30px;
+}
+
+.temp-value {
+  width: 100px;
+}
+
+.tag-label {
+  color: #838383;
+}
+
+.label {
+  margin-top: 10px;
 }
 </style>
