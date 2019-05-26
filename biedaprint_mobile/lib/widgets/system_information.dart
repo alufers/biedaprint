@@ -25,20 +25,21 @@ class SystemInformationWidget extends StatelessWidget {
           }
 
           final sysData = result.data['systemInformation'];
-
+          List<Widget> systemInfoWidgets = [];
+          sysData.forEach((k, v) => {
+                systemInfoWidgets.add(Container(
+                  alignment: Alignment.centerLeft,
+                  margin: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[Text(k, style: TextStyle(color: Theme.of(context).primaryColor),), Text(v.toString())],
+                  ),
+                ))
+              });
           return Column(
             children: <Widget>[
               RaisedButton(child: Text('Refresh'), onPressed: refetch),
-              Text(sysData['AppAlloc']),
-              Text(sysData['AppName']),
-              Text(sysData['AppNumGC'].toString()),
-              Text(sysData['AppSysMemory']),
-              Text(sysData['GCCPUFractionPercent']),
-              Text(sysData['SystemFreeMemory']),
-              Text(sysData['SystemTime']),
-              Text(sysData['SystemTotalMemory']),
-              Text(sysData['SystemUsedMemory']),
-              Text(sysData['SystemUsedMemoryPercent']),
+              ...systemInfoWidgets
             ],
           );
         },
