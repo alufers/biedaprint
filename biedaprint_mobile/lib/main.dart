@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-
 import 'widgets/widgets.dart';
 import 'dart:io' show Platform;
 
 void main() async {
   final httpLink = HttpLink(
-    uri: 'http://192.168.254.112:4444/query',
+    uri: 'http://192.168.1.10:4444/query',
   ) as Link;
   final websocketLink = WebSocketLink(
-    url: 'ws://192.168.254.112:4444/query',
+    url: 'ws://192.168.1.10:4444/query',
     config: SocketClientConfig(
         autoReconnect: true, inactivityTimeout: Duration(seconds: 600)),
   );
@@ -54,6 +53,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   final List<Widget> _children = [
+    DiscoveryWidget(),
     ConnectionWidget(),
     SystemInformationWidget(),
     GcodeFilesWidget(),
@@ -64,12 +64,19 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(0.0), // only to hide the status bar
+          child: AppBar()),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         onTap: onTabTapped,
         currentIndex: _currentIndex,
         items: [
+          BottomNavigationBarItem(
+            icon: new Icon(Icons.search),
+            title: new Text('Discovery'),
+          ),
           BottomNavigationBarItem(
             icon: new Icon(Icons.settings_input_hdmi),
             title: new Text('Connection'),
