@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="CuraEngine.js"></script>
+  </head>
+  <body>
+    <script>
+      //-o "output/test.gcode" -e1 -s infill_line_distance=0 -e0 -l "/model_1.stl"
+
+      async function addFile(src, dest) {
+        let def = await fetch(src);
+        let defBuf = new Uint8Array(await def.arrayBuffer());
+
+        var defStream = FS.open(dest, "w+");
+        FS.write(defStream, defBuf, 0, defBuf.length, 0);
+        FS.close(defStream);
+      }
+      async function doSlice() {
+        FS.mkdir("/cura");
+        FS.mkdir("/cura/definitions");
+        FS.mkdir("/cura/output");
+        await addFile(
+          "fdmprinter.def.json",
+          "/cura/definitions/fdmprinter.def.json"
+        );
+        await addFile(
+          "fdmextruder.def.json",
+          "/cura/definitions/fdmextruder.def.json"
+        );
+        await addFile(
+          "prusa_i3.def.json",
+          "/cura/definitions/prusa_i3.def.json"
+        );
+        await addFile(
+          "prusa_i3_extruder_0.def.json",
+          "/cura/definitions/prusa_i3_extruder_0.def.json"
+        );
+        await addFile("model.stl", "/cura/model.stl");
+        await addFile("model.stl", "/cura/model.stl");
+        Module.callMain([
+          "slice",
+          "-v",
+          "-j",
+          "/cura/definitions/fdmprinter.def.json",
+          "-o",
+          "/cura/output/output.gcode",
+          "-e1",
+          "-s",
+          "infill_line_distance=0",
+          "-s",
+          "machine_extruder_cooling_fan_number=0",
+          "-e0",
+          "-l",
+          "/cura/model.stl"
+        ]);
+        setTimeout(() => {
+          FS.readFile("/cura/output/output.gcode", {
+            encoding: "utf8"
+          })
+            .split("\n")
+            .forEach(d => document.write(`<div>${d}</div>`));
+        }, 1000);
+      }
+      setTimeout(doSlice, 1000);
+    </script>
+  </body>
+</html>
