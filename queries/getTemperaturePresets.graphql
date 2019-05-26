@@ -1,0 +1,9 @@
+query getTemperaturePresets {
+  settings {
+    temperaturePresets {
+      name
+      hotendTemperature
+      hotbedTemperature
+    }
+  }
+}

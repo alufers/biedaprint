@@ -11,12 +11,14 @@
           <HeaterControl
             name="Hotend"
             temperatureTrackedValueName="hotendTemperature"
+            temperaturePresetKey="hotendTemperature"
             targetTrackedValueName="targetHotendTemperature"
             temperatureGcode="M104"
           />
           <HeaterControl
             name="Hotbed"
             temperatureTrackedValueName="hotbedTemperature"
+            temperaturePresetKey="hotbedTemperature"
             targetTrackedValueName="targetHotbedTemperature"
             temperatureGcode="M140"
           />

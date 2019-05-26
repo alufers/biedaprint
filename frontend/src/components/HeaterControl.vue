@@ -12,17 +12,37 @@
         <div class="controls tags has-addons are-medium">
           <span class="tag tag-label">Target</span>
           <span class="tag" :class="{'is-danger': target > 0,}">
-            <input
-              class="temperature-input"
-              type="number"
-              min="0"
-              max="300"
-              v-model.number="targetEdit"
-              @keyup.enter="setTarget"
-            >
+            <div class="dropdown" :class="{'is-active': showPresetsDropdown}">
+              <div class="dropdown-trigger">
+                <input
+                  ref="temperatureInput"
+                  class="temperature-input"
+                  type="number"
+                  min="0"
+                  max="300"
+                  v-model.number="targetEdit"
+                  @keyup.enter="setTarget"
+                  @focus="showPresetsDropdown = true"
+                  @blur="hidePresetsDropdown"
+                >
+                <span class="icon is-small" @click="$refs.temperatureInput.focus()">
+                  <i class="fas fa-angle-down" aria-hidden="true"></i>
+                </span>
+              </div>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                  <a
+                    href="#"
+                    class="dropdown-item"
+                    v-for="(tp, i) in temperaturePresets"
+                    :key="i"
+                    @click.prevent="selectPreset(i)"
+                  >{{tp.name}} ({{tp.value}} °C)</a>
+                </div>
+              </div>
+            </div>
           </span>
         </div>
-
         <div class="field has-addons">
           <p class="control">
             <a
@@ -48,8 +68,14 @@ import LoadableMixin from "../LoadableMixin";
 import { sendGcode } from "../../../queries/sendGcode.graphql";
 import {
   SendGcodeMutation,
-  SendGcodeMutationVariables
+  SendGcodeMutationVariables,
+  GetTemperaturePresetsQuery,
+  TemperaturePreset,
+  Settings
 } from "../graphql-models-gen";
+import ApolloQuery from "../ApolloQuery";
+import { getTemperaturePresets } from "../../../queries/getTemperaturePresets.graphql";
+import { setTimeout } from "timers";
 
 @Component({})
 export default class HeaterControl extends mixins(LoadableMixin) {
@@ -61,6 +87,12 @@ export default class HeaterControl extends mixins(LoadableMixin) {
   targetTrackedValueName!: string;
   @Prop({ type: String })
   temperatureGcode!: string;
+  @Prop({ type: String })
+  temperaturePresetKey: keyof TemperaturePreset;
+
+  temperaturePresetsRaw: TemperaturePreset[] = null;
+
+  showPresetsDropdown = false;
 
   @TrackedValueSubscription(function(this: HeaterControl) {
     return this.targetTrackedValueName;
@@ -72,6 +104,15 @@ export default class HeaterControl extends mixins(LoadableMixin) {
   temperature = 0;
 
   targetEdit = 0;
+
+  created() {
+    this.withLoader(async () => {
+      let { data } = await this.$apollo.query<GetTemperaturePresetsQuery>({
+        query: getTemperaturePresets
+      });
+      this.temperaturePresetsRaw = data.settings.temperaturePresets;
+    });
+  }
 
   heaterOff() {
     //this.connection.sendMessage("sendGCODE", { data: `${this.temperatureGcode} S0` });
@@ -85,6 +126,7 @@ export default class HeaterControl extends mixins(LoadableMixin) {
       });
     });
   }
+
   setTarget() {
     this.withLoader(async () => {
       await this.$apollo.mutate<SendGcodeMutation>({
@@ -95,11 +137,29 @@ export default class HeaterControl extends mixins(LoadableMixin) {
       });
     });
   }
+
   @Watch("target")
   targetWatch(newTarget: number, oldTarget: number) {
     if (this.targetEdit === oldTarget) {
       this.targetEdit = newTarget;
     }
+  }
+
+  get temperaturePresets() {
+    if (!this.temperaturePresetsRaw) return [];
+    return this.temperaturePresetsRaw.map(tp => ({
+      name: tp.name,
+      value: <number>tp[this.temperaturePresetKey]
+    }));
+  }
+
+  selectPreset(index: number) {
+    this.targetEdit = this.temperaturePresets[index].value;
+    this.showPresetsDropdown = false;
+  }
+
+  hidePresetsDropdown() {
+    setTimeout(() => (this.showPresetsDropdown = false), 200); // delay before hiding the dropdown so that the  browser has time to register the click event
   }
 }
 </script>
@@ -115,7 +175,7 @@ export default class HeaterControl extends mixins(LoadableMixin) {
   width: auto;
 }
 
-.is-primary .temperature-input {
+.is-danger+ .temperature-input {
   color: white;
 }
 
@@ -146,5 +206,8 @@ export default class HeaterControl extends mixins(LoadableMixin) {
 
 .label {
   margin-top: 10px;
+}
+.preset-field {
+  margin-right: 8px;
 }
 </style>
