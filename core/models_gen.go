@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+type AvailableUpdate struct {
+	TagName       string `json:"tagName"`
+	CreatedAt     string `json:"createdAt"`
+	Title         string `json:"title"`
+	Body          string `json:"body"`
+	ExecutableURL string `json:"ExecutableUrl"`
+	Size          string `json:"size"`
+}
+
 type GcodeFileMeta struct {
 	OriginalName   string             `json:"originalName"`
 	GcodeFileName  string             `json:"gcodeFileName"`

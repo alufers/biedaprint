@@ -45,6 +45,15 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AvailableUpdate struct {
+		Body          func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		ExecutableURL func(childComplexity int) int
+		Size          func(childComplexity int) int
+		TagName       func(childComplexity int) int
+		Title         func(childComplexity int) int
+	}
+
 	GcodeFileMeta struct {
 		FilamentUsedMm func(childComplexity int) int
 		GcodeFileName  func(childComplexity int) int
@@ -65,6 +74,8 @@ type ComplexityRoot struct {
 		ConnectToSerial      func(childComplexity int, void *bool) int
 		DeleteGcodeFile      func(childComplexity int, gcodeFilename string) int
 		DisconnectFromSerial func(childComplexity int, void *bool) int
+		DownloadUpdate       func(childComplexity int, tagName string) int
+		PerformUpdate        func(childComplexity int, tagName string) int
 		SendConsoleCommand   func(childComplexity int, cmd string) int
 		SendGcode            func(childComplexity int, cmd string) int
 		StartPrintJob        func(childComplexity int, gcodeFilename string) int
@@ -78,6 +89,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		AvailableUpdates  func(childComplexity int) int
 		CurrentPrintJob   func(childComplexity int) int
 		GcodeFileMetas    func(childComplexity int) int
 		RecentCommands    func(childComplexity int) int
@@ -137,6 +149,8 @@ type MutationResolver interface {
 	DeleteGcodeFile(ctx context.Context, gcodeFilename string) (*bool, error)
 	StartPrintJob(ctx context.Context, gcodeFilename string) (*bool, error)
 	AbortPrintJob(ctx context.Context, void *bool) (*bool, error)
+	DownloadUpdate(ctx context.Context, tagName string) (*bool, error)
+	PerformUpdate(ctx context.Context, tagName string) (*bool, error)
 }
 type QueryResolver interface {
 	SerialPorts(ctx context.Context) ([]string, error)
@@ -148,6 +162,7 @@ type QueryResolver interface {
 	GcodeFileMetas(ctx context.Context) ([]*GcodeFileMeta, error)
 	CurrentPrintJob(ctx context.Context) (*PrintJob, error)
 	SystemInformation(ctx context.Context) (*map[string]interface{}, error)
+	AvailableUpdates(ctx context.Context) ([]*AvailableUpdate, error)
 }
 type SubscriptionResolver interface {
 	TrackedValueUpdated(ctx context.Context, name string) (<-chan interface{}, error)
@@ -169,6 +184,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AvailableUpdate.body":
+		if e.complexity.AvailableUpdate.Body == nil {
+			break
+		}
+
+		return e.complexity.AvailableUpdate.Body(childComplexity), true
+
+	case "AvailableUpdate.createdAt":
+		if e.complexity.AvailableUpdate.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AvailableUpdate.CreatedAt(childComplexity), true
+
+	case "AvailableUpdate.ExecutableUrl":
+		if e.complexity.AvailableUpdate.ExecutableURL == nil {
+			break
+		}
+
+		return e.complexity.AvailableUpdate.ExecutableURL(childComplexity), true
+
+	case "AvailableUpdate.size":
+		if e.complexity.AvailableUpdate.Size == nil {
+			break
+		}
+
+		return e.complexity.AvailableUpdate.Size(childComplexity), true
+
+	case "AvailableUpdate.tagName":
+		if e.complexity.AvailableUpdate.TagName == nil {
+			break
+		}
+
+		return e.complexity.AvailableUpdate.TagName(childComplexity), true
+
+	case "AvailableUpdate.title":
+		if e.complexity.AvailableUpdate.Title == nil {
+			break
+		}
+
+		return e.complexity.AvailableUpdate.Title(childComplexity), true
 
 	case "GcodeFileMeta.filamentUsedMm":
 		if e.complexity.GcodeFileMeta.FilamentUsedMm == nil {
@@ -281,6 +338,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DisconnectFromSerial(childComplexity, args["void"].(*bool)), true
 
+	case "Mutation.downloadUpdate":
+		if e.complexity.Mutation.DownloadUpdate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_downloadUpdate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DownloadUpdate(childComplexity, args["tagName"].(string)), true
+
+	case "Mutation.performUpdate":
+		if e.complexity.Mutation.PerformUpdate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_performUpdate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.PerformUpdate(childComplexity, args["tagName"].(string)), true
+
 	case "Mutation.sendConsoleCommand":
 		if e.complexity.Mutation.SendConsoleCommand == nil {
 			break
@@ -354,6 +435,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PrintJob.StartedTime(childComplexity), true
+
+	case "Query.availableUpdates":
+		if e.complexity.Query.AvailableUpdates == nil {
+			break
+		}
+
+		return e.complexity.Query.AvailableUpdates(childComplexity), true
 
 	case "Query.currentPrintJob":
 		if e.complexity.Query.CurrentPrintJob == nil {
@@ -801,6 +889,15 @@ input NewSettings {
   temperaturePresets: [TemperaturePresetInput!]!
 }
 
+type AvailableUpdate {
+  tagName: String!
+  createdAt: String!
+  title: String!
+  body: String!
+  ExecutableUrl: String!
+  size: String!
+}
+
 type Query {
   serialPorts: [String!]!
   settings: Settings!
@@ -811,6 +908,7 @@ type Query {
   gcodeFileMetas: [GcodeFileMeta!]!
   currentPrintJob: PrintJob
   systemInformation: Map
+  availableUpdates: [AvailableUpdate!]!
 }
 
 type Mutation {
@@ -823,6 +921,8 @@ type Mutation {
   deleteGcodeFile(gcodeFilename: String!): Boolean
   startPrintJob(gcodeFilename: String!): Boolean
   abortPrintJob(void: Boolean): Boolean
+  downloadUpdate(tagName: String!): Boolean
+  performUpdate(tagName: String!): Boolean
 }
 
 type Subscription {
@@ -890,6 +990,34 @@ func (ec *executionContext) field_Mutation_disconnectFromSerial_args(ctx context
 		}
 	}
 	args["void"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_downloadUpdate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["tagName"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["tagName"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_performUpdate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["tagName"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["tagName"] = arg0
 	return args, nil
 }
 
@@ -1036,6 +1164,168 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ***************************** args.gotpl *****************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AvailableUpdate_tagName(ctx context.Context, field graphql.CollectedField, obj *AvailableUpdate) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "AvailableUpdate",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TagName, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AvailableUpdate_createdAt(ctx context.Context, field graphql.CollectedField, obj *AvailableUpdate) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "AvailableUpdate",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AvailableUpdate_title(ctx context.Context, field graphql.CollectedField, obj *AvailableUpdate) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "AvailableUpdate",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AvailableUpdate_body(ctx context.Context, field graphql.CollectedField, obj *AvailableUpdate) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "AvailableUpdate",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Body, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AvailableUpdate_ExecutableUrl(ctx context.Context, field graphql.CollectedField, obj *AvailableUpdate) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "AvailableUpdate",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExecutableURL, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AvailableUpdate_size(ctx context.Context, field graphql.CollectedField, obj *AvailableUpdate) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "AvailableUpdate",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Size, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _GcodeFileMeta_originalName(ctx context.Context, field graphql.CollectedField, obj *GcodeFileMeta) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
@@ -1562,6 +1852,68 @@ func (ec *executionContext) _Mutation_abortPrintJob(ctx context.Context, field g
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_downloadUpdate(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_downloadUpdate_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DownloadUpdate(rctx, args["tagName"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_performUpdate(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_performUpdate_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().PerformUpdate(rctx, args["tagName"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _PrintJob_gcodeMeta(ctx context.Context, field graphql.CollectedField, obj *PrintJob) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
@@ -1858,6 +2210,33 @@ func (ec *executionContext) _Query_systemInformation(ctx context.Context, field 
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalOMap2ᚖmap(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_availableUpdates(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AvailableUpdates(rctx)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*AvailableUpdate)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNAvailableUpdate2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐAvailableUpdate(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -3522,6 +3901,58 @@ func (ec *executionContext) unmarshalInputTemperaturePresetInput(ctx context.Con
 
 // region    **************************** object.gotpl ****************************
 
+var availableUpdateImplementors = []string{"AvailableUpdate"}
+
+func (ec *executionContext) _AvailableUpdate(ctx context.Context, sel ast.SelectionSet, obj *AvailableUpdate) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, availableUpdateImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AvailableUpdate")
+		case "tagName":
+			out.Values[i] = ec._AvailableUpdate_tagName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._AvailableUpdate_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+			out.Values[i] = ec._AvailableUpdate_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "body":
+			out.Values[i] = ec._AvailableUpdate_body(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "ExecutableUrl":
+			out.Values[i] = ec._AvailableUpdate_ExecutableUrl(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "size":
+			out.Values[i] = ec._AvailableUpdate_size(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var gcodeFileMetaImplementors = []string{"GcodeFileMeta"}
 
 func (ec *executionContext) _GcodeFileMeta(ctx context.Context, sel ast.SelectionSet, obj *GcodeFileMeta) graphql.Marshaler {
@@ -3647,6 +4078,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec._Mutation_startPrintJob(ctx, field)
 		case "abortPrintJob":
 			out.Values[i] = ec._Mutation_abortPrintJob(ctx, field)
+		case "downloadUpdate":
+			out.Values[i] = ec._Mutation_downloadUpdate(ctx, field)
+		case "performUpdate":
+			out.Values[i] = ec._Mutation_performUpdate(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3823,6 +4258,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_systemInformation(ctx, field)
+				return res
+			})
+		case "availableUpdates":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_availableUpdates(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			})
 		case "__type":
@@ -4329,6 +4778,57 @@ func (ec *executionContext) marshalNAny2ᚕinterface(ctx context.Context, sel as
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNAvailableUpdate2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐAvailableUpdate(ctx context.Context, sel ast.SelectionSet, v AvailableUpdate) graphql.Marshaler {
+	return ec._AvailableUpdate(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAvailableUpdate2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐAvailableUpdate(ctx context.Context, sel ast.SelectionSet, v []*AvailableUpdate) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAvailableUpdate2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐAvailableUpdate(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNAvailableUpdate2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐAvailableUpdate(ctx context.Context, sel ast.SelectionSet, v *AvailableUpdate) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._AvailableUpdate(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

@@ -90,6 +90,15 @@ input NewSettings {
   temperaturePresets: [TemperaturePresetInput!]!
 }
 
+type AvailableUpdate {
+  tagName: String!
+  createdAt: String!
+  title: String!
+  body: String!
+  ExecutableUrl: String!
+  size: String!
+}
+
 type Query {
   serialPorts: [String!]!
   settings: Settings!
@@ -100,6 +109,7 @@ type Query {
   gcodeFileMetas: [GcodeFileMeta!]!
   currentPrintJob: PrintJob
   systemInformation: Map
+  availableUpdates: [AvailableUpdate!]!
 }
 
 type Mutation {
@@ -112,6 +122,8 @@ type Mutation {
   deleteGcodeFile(gcodeFilename: String!): Boolean
   startPrintJob(gcodeFilename: String!): Boolean
   abortPrintJob(void: Boolean): Boolean
+  downloadUpdate(tagName: String!): Boolean
+  performUpdate(tagName: String!): Boolean
 }
 
 type Subscription {
