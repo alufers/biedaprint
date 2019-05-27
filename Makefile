@@ -6,7 +6,7 @@ TRAVIS_TAG := "development"
 endif
 
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-build_with_out = GO111MODULE=on packr2 build -tags frontend_packr -ldflags="-s -w -X github.com/alufers/biedaprint/core.AppVersion=$(TRAVIS_TAG) -X github.com/alufers/biedaprint/core.AppVersion=$(1)" -o $(ROOT_DIR)/build/$(1) server/server.go
+build_with_out = GO111MODULE=on packr2 build -tags frontend_packr -ldflags="-s -w -X github.com/alufers/biedaprint/core.AppVersion=$(TRAVIS_TAG) -X github.com/alufers/biedaprint/core.AppReleaseExecutableName=$(1)" -o $(ROOT_DIR)/build/$(1) server/server.go
 
 build-backend: build-frontend backend-graphql-codegen
 	packr2 build -tags frontend_packr -ldflags="-s -w" -o $(ROOT_DIR)/build/biedaprint server/server.go
