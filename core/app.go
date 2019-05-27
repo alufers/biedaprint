@@ -11,7 +11,7 @@ type App struct {
 	settingsMutex         *sync.RWMutex
 	PrinterService        *PrinterService
 	RecentCommandsService *RecentCommandsService
-	TrackedValuesManager  *TrackedValuesManager
+	TrackedValuesService  *TrackedValuesService
 	DiscoveryManager      *DiscoveryManager
 	router                *gin.Engine
 }
@@ -43,7 +43,7 @@ func NewApp() *App {
 	}
 	app.PrinterService = NewPrinterService(app)
 	app.RecentCommandsService = NewRecentCommandsService(app)
-	app.TrackedValuesManager = NewTrackedValuesManager(app)
+	app.TrackedValuesService = NewTrackedValuesService(app)
 	app.DiscoveryManager = NewDiscoveryManager(app)
 	return app
 }

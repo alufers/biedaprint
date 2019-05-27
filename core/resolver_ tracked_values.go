@@ -7,7 +7,7 @@ import (
 )
 
 func (r *subscriptionResolver) TrackedValueUpdated(ctx context.Context, name string) (<-chan interface{}, error) {
-	tv, ok := r.App.TrackedValuesManager.TrackedValues[name]
+	tv, ok := r.App.TrackedValuesService.TrackedValues[name]
 	tv.ValueMutex.RLock()
 	defer tv.ValueMutex.RUnlock()
 	if !ok {
@@ -33,7 +33,7 @@ func (r *subscriptionResolver) TrackedValueUpdated(ctx context.Context, name str
 
 func (r *queryResolver) TrackedValues(ctx context.Context) (resp []*TrackedValue, err error) {
 	resp = []*TrackedValue{}
-	for _, tv := range r.App.TrackedValuesManager.TrackedValues {
+	for _, tv := range r.App.TrackedValuesService.TrackedValues {
 		tv.ValueMutex.RLock()
 		val := *tv.TrackedValue
 		resp = append(resp, &val)
@@ -43,7 +43,7 @@ func (r *queryResolver) TrackedValues(ctx context.Context) (resp []*TrackedValue
 }
 
 func (r *queryResolver) TrackedValue(ctx context.Context, name string) (*TrackedValue, error) {
-	tv, ok := r.App.TrackedValuesManager.TrackedValues[name]
+	tv, ok := r.App.TrackedValuesService.TrackedValues[name]
 	tv.ValueMutex.RLock()
 	defer tv.ValueMutex.RUnlock()
 	if !ok {

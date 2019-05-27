@@ -2,15 +2,15 @@ package core
 
 import "time"
 
-type TrackedValuesManager struct {
+type TrackedValuesService struct {
 	app           *App
 	TrackedValues map[string]*TrackedValueInternal
 }
 
 var zero = 0
 
-func NewTrackedValuesManager(app *App) *TrackedValuesManager {
-	return &TrackedValuesManager{
+func NewTrackedValuesService(app *App) *TrackedValuesService {
+	return &TrackedValuesService{
 		app: app,
 		TrackedValues: map[string]*TrackedValueInternal{
 			"hotendTemperature": NewTrackedValueInternal(&TrackedValue{
