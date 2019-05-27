@@ -10,7 +10,7 @@ type App struct {
 	settings              *Settings
 	settingsMutex         *sync.RWMutex
 	PrinterService        *PrinterService
-	RecentCommandsManager *RecentCommandsManager
+	RecentCommandsService *RecentCommandsService
 	TrackedValuesManager  *TrackedValuesManager
 	DiscoveryManager      *DiscoveryManager
 	router                *gin.Engine
@@ -42,7 +42,7 @@ func NewApp() *App {
 		},
 	}
 	app.PrinterService = NewPrinterService(app)
-	app.RecentCommandsManager = NewRecentCommandsManager(app)
+	app.RecentCommandsService = NewRecentCommandsService(app)
 	app.TrackedValuesManager = NewTrackedValuesManager(app)
 	app.DiscoveryManager = NewDiscoveryManager(app)
 	return app
@@ -53,7 +53,7 @@ func (app *App) Init() {
 
 	app.runStartupCommand()
 
-	app.RecentCommandsManager.LoadRecentCommands()
+	app.RecentCommandsService.LoadRecentCommands()
 
 	app.DiscoveryManager.Init()
 	app.PrinterService.Init()

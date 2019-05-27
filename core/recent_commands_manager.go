@@ -7,21 +7,21 @@ import (
 	"sync"
 )
 
-type RecentCommandsManager struct {
+type RecentCommandsService struct {
 	app                 *App
 	recentCommands      []string
 	recentCommandsMutex *sync.RWMutex
 }
 
-func NewRecentCommandsManager(app *App) *RecentCommandsManager {
-	return &RecentCommandsManager{
+func NewRecentCommandsService(app *App) *RecentCommandsService {
+	return &RecentCommandsService{
 		app:                 app,
 		recentCommands:      []string{},
 		recentCommandsMutex: &sync.RWMutex{},
 	}
 }
 
-func (rcm *RecentCommandsManager) AddRecentCommand(cmd string) error {
+func (rcm *RecentCommandsService) AddRecentCommand(cmd string) error {
 	rcm.recentCommandsMutex.Lock()
 	defer rcm.recentCommandsMutex.Unlock()
 	rcm.recentCommands = append(rcm.recentCommands, cmd)
@@ -38,7 +38,7 @@ func (rcm *RecentCommandsManager) AddRecentCommand(cmd string) error {
 	return nil
 }
 
-func (rcm *RecentCommandsManager) LoadRecentCommands() error {
+func (rcm *RecentCommandsService) LoadRecentCommands() error {
 	rcm.recentCommandsMutex.Lock()
 	defer rcm.recentCommandsMutex.Unlock()
 	f, err := os.Open(filepath.Join(rcm.app.GetSettings().DataPath, "recent_commands.meta"))
@@ -55,7 +55,7 @@ func (rcm *RecentCommandsManager) LoadRecentCommands() error {
 	return nil
 }
 
-func (rcm *RecentCommandsManager) GetRecentCommands() []string {
+func (rcm *RecentCommandsService) GetRecentCommands() []string {
 	rcm.recentCommandsMutex.RLock()
 	defer rcm.recentCommandsMutex.RUnlock()
 	return rcm.recentCommands

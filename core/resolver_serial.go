@@ -36,7 +36,7 @@ func (r *subscriptionResolver) SerialConsoleData(ctx context.Context) (<-chan st
 }
 
 func (r *queryResolver) RecentCommands(ctx context.Context) ([]string, error) {
-	return r.App.RecentCommandsManager.GetRecentCommands(), nil
+	return r.App.RecentCommandsService.GetRecentCommands(), nil
 }
 
 func (r *mutationResolver) SendGcode(ctx context.Context, cmd string) (*bool, error) {
@@ -46,7 +46,7 @@ func (r *mutationResolver) SendGcode(ctx context.Context, cmd string) (*bool, er
 
 func (r *mutationResolver) SendConsoleCommand(ctx context.Context, cmd string) (*bool, error) {
 	r.App.PrinterService.consoleWriteSem <- cmd + "\r\n"
-	return nil, r.App.RecentCommandsManager.AddRecentCommand(cmd)
+	return nil, r.App.RecentCommandsService.AddRecentCommand(cmd)
 }
 
 func (r *queryResolver) ScrollbackBuffer(ctx context.Context) (string, error) {
