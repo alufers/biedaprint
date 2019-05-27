@@ -213,6 +213,8 @@ func (r *queryResolver) SystemInformation(ctx context.Context) (*map[string]inte
 	resp["AppAlloc"] = byteCountBinary(int64(m.Alloc))
 	resp["AppNumGC"] = m.NumGC
 	resp["GCCPUFractionPercent"] = fmt.Sprintf("%4.2f%%", m.GCCPUFraction*100)
+	resp["AppVersion"] = AppVersion
+	resp["AppReleaseExecutableName"] = AppReleaseExecutableName
 	return &resp, nil
 }
 
