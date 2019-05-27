@@ -18,7 +18,7 @@ build-multiplatform: build-frontend backend-graphql-codegen
 	GOOS=darwin GOARCH=amd64 $(call build_with_out,biedaprint-macos-amd64)
 
 backend-graphql-codegen:
-	go run github.com/99designs/gqlgen
+	# go run github.com/99designs/gqlgen
 
 build-frontend: frontend-graphql-codegen
 	cd frontend; \
