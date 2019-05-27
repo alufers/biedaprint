@@ -6,7 +6,7 @@ before_script:
   - cd frontend && npm i && cd ..
 go:
   - 1.12.x
-script: make build-multiplatform && ls -lah ./ && echo $PWD
+script: make build-multiplatform
 deploy:
   provider: releases
   api_key:
