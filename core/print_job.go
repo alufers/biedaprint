@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+//PrintJobInternal wraps PrintJob with some fields used internally by the various methods
 type PrintJobInternal struct {
 	*PrintJob
 	app                   *App
@@ -61,7 +62,7 @@ func (pj *PrintJobInternal) jobLines() (chan string, error) {
 			rawLine := strings.Split(pj.scanner.Text(), ";")[0]
 
 			lineWithNumber := fmt.Sprintf("N%d %v", pj.currentNonBlankLine+1, rawLine)
-			lineWithChecksum := fmt.Sprintf("%v*%v\r\n", lineWithNumber, pj.computeLineChecksum(lineWithNumber))
+			lineWithChecksum := fmt.Sprintf("%v*%v\r\n", lineWithNumber, pj.computeLineChecksum(lineWithNumber)) // add the checksum and newlines after a star character
 			if strings.TrimSpace(rawLine) != "" {
 				log.Printf("Sending gcode line %v of %v", pj.currentLine+1, pj.GcodeMeta.TotalLines)
 				select {
@@ -73,7 +74,7 @@ func (pj *PrintJobInternal) jobLines() (chan string, error) {
 				pj.lineResendBufferMutex.Lock()
 				pj.lineResendBuffer[pj.currentNonBlankLine] = lineWithChecksum
 				pj.currentNonBlankLine++
-				delete(pj.lineResendBuffer, pj.currentNonBlankLine-10)
+				delete(pj.lineResendBuffer, pj.currentNonBlankLine-10) // store last 10 lines for resending
 				pj.lineResendBufferMutex.Unlock()
 				pj.app.TrackedValuesManager.TrackedValues["printProgress"].UpdateValue((float64(pj.currentLine) / float64(pj.GcodeMeta.TotalLines)) * 100)
 			}

@@ -4,6 +4,7 @@ import (
 	"sync"
 )
 
+//EventBroadcaster is used to broadcast data to many listeners on separate goroutines. Used by tracked values and serial manager.
 type EventBroadcaster struct {
 	subscribers      []chan interface{}
 	subscribersMutex *sync.RWMutex

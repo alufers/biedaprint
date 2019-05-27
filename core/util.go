@@ -18,6 +18,7 @@ func unique(intSlice []string) []string {
 	return list
 }
 
+//byteCountBinary returns a number of bytes in a human-readable format
 func byteCountBinary(b int64) string {
 	const unit = 1024
 	if b < unit {
