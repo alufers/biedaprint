@@ -79,7 +79,7 @@ func (pj *PrintJobInternal) jobLines() (chan string, error) {
 			}
 			pj.currentLine++
 
-			if pj.currentLayerIndex < len(pj.GcodeMeta.LayerIndexes) {
+			if pj.currentLayerIndex < len(pj.GcodeMeta.LayerIndexes)-1 {
 				if pj.currentLine >= pj.GcodeMeta.LayerIndexes[pj.currentLayerIndex].LineNumber {
 					pj.currentLayerIndex++
 					pj.app.TrackedValuesManager.TrackedValues["printCurrentLayer"].UpdateValue(pj.GcodeMeta.LayerIndexes[pj.currentLayerIndex].LayerNumber)
