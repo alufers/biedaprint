@@ -12,7 +12,7 @@ type App struct {
 	PrinterService        *PrinterService
 	RecentCommandsService *RecentCommandsService
 	TrackedValuesService  *TrackedValuesService
-	DiscoveryManager      *DiscoveryManager
+	DiscoveryService      *DiscoveryService
 	router                *gin.Engine
 }
 
@@ -44,7 +44,7 @@ func NewApp() *App {
 	app.PrinterService = NewPrinterService(app)
 	app.RecentCommandsService = NewRecentCommandsService(app)
 	app.TrackedValuesService = NewTrackedValuesService(app)
-	app.DiscoveryManager = NewDiscoveryManager(app)
+	app.DiscoveryService = NewDiscoveryService(app)
 	return app
 }
 
@@ -55,7 +55,7 @@ func (app *App) Init() {
 
 	app.RecentCommandsService.LoadRecentCommands()
 
-	app.DiscoveryManager.Init()
+	app.DiscoveryService.Init()
 	app.PrinterService.Init()
 }
 
