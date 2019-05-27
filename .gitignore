@@ -6,3 +6,4 @@ node_modules
 #frontend/src/assets/gcode-docs.json
 biedaprint_data
 build/
+.DS_Store
