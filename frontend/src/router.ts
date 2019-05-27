@@ -92,6 +92,16 @@ export const routerConfig: RouterOptions = {
             import(
               /* webpackChunkName: "systeminfo" */ "./views/system/SystemInfo.vue"
             )
+        },
+        {
+          path: "updates",
+          name: "updates",
+          menuName: "Updates",
+          menuIcon: "fa-download",
+          component: () =>
+            import(
+              /* webpackChunkName: "updates" */ "./views/system/Updates.vue"
+            )
         }
       ]
     }

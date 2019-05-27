@@ -1,0 +1,10 @@
+query getAvailableUpdates {
+  availableUpdates {
+    tagName
+    createdAt
+    title
+    body
+    ExecutableUrl
+    size
+  }
+}

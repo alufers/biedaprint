@@ -1,0 +1,3 @@
+mutation downloadUpdate($tagName: String!) {
+  downloadUpdate(tagName: $tagName)
+}

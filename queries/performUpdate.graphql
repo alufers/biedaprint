@@ -1,0 +1,3 @@
+mutation performUpdate($tagName: String!) {
+  performUpdate(tagName: $tagName)
+}
