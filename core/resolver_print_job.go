@@ -22,7 +22,7 @@ func (r *mutationResolver) StartPrintJob(ctx context.Context, gcodeFilename stri
 	}
 
 	select {
-	case r.App.PrinterManager.printJobSem <- job:
+	case r.App.PrinterService.printJobSem <- job:
 	default:
 		return nil, errors.New("serial writer busy with antoher job")
 	}
@@ -31,7 +31,7 @@ func (r *mutationResolver) StartPrintJob(ctx context.Context, gcodeFilename stri
 
 func (r *mutationResolver) AbortPrintJob(ctx context.Context, void *bool) (*bool, error) {
 	select {
-	case r.App.PrinterManager.abortPrintSem <- true:
+	case r.App.PrinterService.abortPrintSem <- true:
 	default:
 	}
 	return nil, nil

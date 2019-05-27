@@ -9,7 +9,7 @@ import (
 type App struct {
 	settings              *Settings
 	settingsMutex         *sync.RWMutex
-	PrinterManager        *PrinterManager
+	PrinterService        *PrinterService
 	RecentCommandsManager *RecentCommandsManager
 	TrackedValuesManager  *TrackedValuesManager
 	DiscoveryManager      *DiscoveryManager
@@ -41,7 +41,7 @@ func NewApp() *App {
 			},
 		},
 	}
-	app.PrinterManager = NewPrinterManager(app)
+	app.PrinterService = NewPrinterService(app)
 	app.RecentCommandsManager = NewRecentCommandsManager(app)
 	app.TrackedValuesManager = NewTrackedValuesManager(app)
 	app.DiscoveryManager = NewDiscoveryManager(app)
@@ -56,7 +56,7 @@ func (app *App) Init() {
 	app.RecentCommandsManager.LoadRecentCommands()
 
 	app.DiscoveryManager.Init()
-	app.PrinterManager.Init()
+	app.PrinterService.Init()
 }
 
 //GetSettings returns a copy of settigns, safe for concurrent use

@@ -11,7 +11,7 @@ import (
 	"go.bug.st/serial.v1"
 )
 
-type PrinterManager struct {
+type PrinterService struct {
 	app    *App
 	serial serial.Port
 
@@ -29,8 +29,8 @@ type PrinterManager struct {
 	consoleBroadcaster    *EventBroadcaster
 }
 
-func NewPrinterManager(app *App) *PrinterManager {
-	return &PrinterManager{
+func NewPrinterService(app *App) *PrinterService {
+	return &PrinterService{
 		app:                   app,
 		serialConnectMutex:    &sync.Mutex{},
 		serialReadyCond:       sync.NewCond(&sync.Mutex{}),
@@ -44,12 +44,12 @@ func NewPrinterManager(app *App) *PrinterManager {
 	}
 }
 
-func (pm *PrinterManager) Init() {
+func (pm *PrinterService) Init() {
 	go pm.serialWriterGoroutine()
 	go pm.serialReaderGoroutine()
 }
 
-func (pm *PrinterManager) ConnectToSerial() error {
+func (pm *PrinterService) ConnectToSerial() error {
 	pm.serialConnectMutex.Lock()
 	defer pm.serialConnectMutex.Unlock()
 	parity := serial.EvenParity
@@ -81,7 +81,7 @@ func (pm *PrinterManager) ConnectToSerial() error {
 	return nil
 }
 
-func (pm *PrinterManager) DisconnectFromSerial() error {
+func (pm *PrinterService) DisconnectFromSerial() error {
 	pm.serialConnectMutex.Lock()
 	defer pm.serialConnectMutex.Unlock()
 	if !pm.serialReady {
@@ -92,7 +92,7 @@ func (pm *PrinterManager) DisconnectFromSerial() error {
 	return pm.serial.Close()
 }
 
-func (pm *PrinterManager) waitForSerialReady() {
+func (pm *PrinterService) waitForSerialReady() {
 	pm.serialReadyCond.L.Lock()
 	defer pm.serialReadyCond.L.Unlock()
 	for !pm.serialReady {
@@ -100,7 +100,7 @@ func (pm *PrinterManager) waitForSerialReady() {
 	}
 }
 
-func (pm *PrinterManager) serialWriterGoroutine() {
+func (pm *PrinterService) serialWriterGoroutine() {
 	for {
 		pm.waitForSerialReady()
 		log.Print("Serial writer: serial ready")
@@ -151,7 +151,7 @@ func (pm *PrinterManager) serialWriterGoroutine() {
 	}
 }
 
-func (pm *PrinterManager) parseLine(line string) {
+func (pm *PrinterService) parseLine(line string) {
 	line = strings.TrimSpace(line)
 	//log.Println("GOT LINE: ", line)
 	if strings.HasPrefix(line, "T:") {
@@ -186,7 +186,7 @@ func (pm *PrinterManager) parseLine(line string) {
 }
 
 //serialReader runs on a separate goroutine and handles broadcasting the serial messages to websockets and saving the data in a backbuffer
-func (pm *PrinterManager) serialReaderGoroutine() {
+func (pm *PrinterService) serialReaderGoroutine() {
 	for {
 		pm.waitForSerialReady()
 		lineBuf := []byte{}
