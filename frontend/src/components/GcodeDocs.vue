@@ -10,52 +10,60 @@
           </span>
         </p>
       </div>
-      <div class="panel-block" v-for="doc in filteredDocs" :key="doc.codes.toString()">
-        <div>
+      <HighlightableTextZone :highlights="searchHighlighs">
+        <div class="panel-block" v-for="doc in filteredDocs" :key="doc.code">
           <div>
-            <code
-              class="tag code-margin"
-              :class="{'has-background-grey-lighter':code.startsWith('M')}"
-              v-for="code in doc.codes"
-              :key="code"
-            >{{code}}</code>
-            <span>{{doc.title}}</span>
-          </div>
-          <p class="has-text-grey">{{doc.brief}}</p>
-          <div v-if="filteredDocs.length <= 2" class="params-list">
-            <div class="menu">
-              <p class="menu-label">Parameters</p>
-              <ul class="menu-list">
-                <li v-for="(param, i) in doc.parameters" :key="i">
-                  <span class="tag code-margin optional-mark" v-if="param.optional">Optional</span>
-                  <div class="tags has-addons">
-                    <code class="tag is-primary">{{param.tag === true ? 'Y' : param.tag}}</code>
-                    <code
-                      class="tag"
-                      v-for="(v, k) in param.values.filter(pv => pv.type !=='bool')"
-                      :key="k"
-                    >&lt;{{v.tag || v.type}}&gt;</code>
-                  </div>
-                  <div class="clearfix"></div>
-                  <p class="has-text-grey is-size-7 param-desc">{{param.description}}</p>
-                </li>
-              </ul>
+            <div>
+              <code
+                class="tag code-margin"
+                :class="{'has-background-grey-lighter':code.startsWith('M')}"
+                v-for="code in doc.codes"
+                :key="code"
+              >{{code}}</code>
+              <HighlightableText>{{doc.title}}</HighlightableText>
+            </div>
+            <p class="has-text-grey">
+              <HighlightableText>{{doc.brief}}</HighlightableText>
+            </p>
+            <div v-if="filteredDocs.length <= 2" class="params-list">
+              <div class="menu">
+                <p class="menu-label">Parameters</p>
+                <ul class="menu-list">
+                  <li v-for="(param, i) in doc.parameters" :key="i">
+                    <span class="tag code-margin optional-mark" v-if="param.optional">Optional</span>
+                    <div class="tags has-addons">
+                      <code class="tag is-primary">{{param.tag === true ? 'Y' : param.tag}}</code>
+                      <template v-if="param.values">
+                        <code
+                          class="tag"
+                          v-for="(v, k) in param.values.filter(pv => pv.type !=='bool')"
+                          :key="k"
+                        >&lt;{{v.tag || v.type}}&gt;</code>
+                      </template>
+                    </div>
+                    <div class="clearfix"></div>
+                    <p class="has-text-grey is-size-7 param-desc">
+                      <HighlightableText>{{param.description}}</HighlightableText>
+                    </p>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="buttons buttons-marg">
+              <button
+                class="button is-primary is-outlined is-small"
+                @click="$emit('useGcode', doc.codes[0])"
+              >Use</button>
+              <a
+                class="button is-text is-small"
+                :href="'http://marlinfw.org/docs/gcode/' + doc.base + '.html'"
+                target="_blank"
+              >More...</a>
             </div>
           </div>
-
-          <div class="buttons buttons-marg">
-            <button
-              class="button is-primary is-outlined is-small"
-              @click="$emit('useGcode', doc.codes[0])"
-            >Use</button>
-            <a
-              class="button is-text is-small"
-              :href="'http://marlinfw.org/docs/gcode/' + doc.base + '.html'"
-              target="_blank"
-            >More...</a>
-          </div>
         </div>
-      </div>
+      </HighlightableTextZone>
     </nav>
   </div>
 </template>
@@ -64,40 +72,77 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
 import _gcodeDocsData from "../assets/gcode-docs.json";
+import HighlightableTextZone from "./HighlightableTextZone.vue";
+import HighlightableText from "./HighlightableText";
+import Fuse from "fuse.js";
 
 const gcodeDocsData: any = _gcodeDocsData;
 
-@Component({})
+interface FuseData {
+  key: string;
+  code: string;
+  title: string;
+  brief: string;
+}
+
+@Component({
+  components: {
+    HighlightableTextZone,
+    HighlightableText
+  }
+})
 export default class GcodeDocs extends Vue {
   @Prop({ type: String })
   currentCommand!: string;
   searchQuery = "";
   dataKeys = Object.keys(gcodeDocsData);
   forceLocalSearch = false;
+  fuse: Fuse<FuseData> = null;
+  created() {
+    this.fuse = new Fuse<FuseData, Fuse.FuseOptions<FuseData>>(
+      this.dataForFuse,
+      {
+        keys: ["code", "title", "brief"],
+        id: "key",
+        caseSensitive: false,
+        tokenize: true
+      }
+    );
+  }
 
+  get dataForFuse(): FuseData[] {
+    return this.dataKeys.map(k => ({
+      key: k,
+      code: k,
+      title: gcodeDocsData[k].title,
+      brief: gcodeDocsData[k].brief
+    }));
+  }
   get filteredKeys() {
-    let query = this.searchQuery.trim().toUpperCase();
-    let searchBriefs = true;
+    let query = this.searchQuery.trim();
+
     if (this.currentCommand.trim() !== "" && !this.forceLocalSearch) {
-      query = this.currentCommand
+      let commandQuery = this.currentCommand
         .trim()
         .toUpperCase()
         .split(" ")[0];
-      searchBriefs = false;
+      return this.dataKeys.filter(k => k.indexOf(commandQuery) !== -1);
     }
-    let keys = this.dataKeys.filter(k => k.indexOf(query) !== -1);
-    if (keys.length < 10 && searchBriefs) {
-      this.dataKeys
-        .filter(
-          (k: string) =>
-            gcodeDocsData[k].brief.toUpperCase().indexOf(query) !== -1
-        )
-        .forEach((k: string) => keys.push(k));
+    if (query === "") {
+      return this.dataKeys.slice(0, 10);
     }
-    return keys.slice(0, 10);
+    return this.fuse.search(query, { limit: 10 }) as any;
   }
+
   get filteredDocs() {
     return this.filteredKeys.map(k => gcodeDocsData[k]);
+  }
+
+  get searchHighlighs() {
+    return this.searchQuery
+      .split(" ")
+      .map(q => q.trim().toLowerCase())
+      .filter(q => q.length > 0);
   }
 
   @Watch("searchQuery")
