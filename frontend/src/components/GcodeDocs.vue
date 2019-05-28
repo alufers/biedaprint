@@ -131,7 +131,7 @@ export default class GcodeDocs extends Vue {
     if (query === "") {
       return this.dataKeys.slice(0, 10);
     }
-    return this.fuse.search(query, { limit: 10 }) as any;
+    return this.fuse.search(query, { limit: 10 }) as unknown as string[];
   }
 
   get filteredDocs() {
