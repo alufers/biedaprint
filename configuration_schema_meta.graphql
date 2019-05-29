@@ -1,0 +1,27 @@
+directive @configurationField(
+  label: String
+  description: String
+) on FIELD_DEFINITION
+directive @configurationObject on OBJECT
+
+enum TerminatingFieldType {
+  STRING
+  INT
+  BOOLEAN
+}
+
+union ConfigurationFieldDescriptor = TerminatingConfigurationFieldDescriptor | ObjectConfigurationFieldDescriptor
+
+type TerminatingConfigurationFieldDescriptor {
+  nameInParent: String!
+  type: TerminatingFieldType!
+  label: String!
+  description: String!
+}
+
+type ObjectConfigurationFieldDescriptor {
+  nameInParent: String!
+  label: String!
+  description: String!
+  fields: [ConfigurationFieldDescriptor!]!
+}

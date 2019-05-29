@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"strconv"
 	"sync"
@@ -42,6 +43,9 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	ConfigurationField func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string) (res interface{}, err error)
+
+	ConfigurationObject func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -83,22 +87,36 @@ type ComplexityRoot struct {
 		UploadGcode          func(childComplexity int, file graphql.Upload) int
 	}
 
+	ObjectConfigurationFieldDescriptor struct {
+		Description  func(childComplexity int) int
+		Fields       func(childComplexity int) int
+		Label        func(childComplexity int) int
+		NameInParent func(childComplexity int) int
+	}
+
 	PrintJob struct {
 		GcodeMeta   func(childComplexity int) int
 		StartedTime func(childComplexity int) int
 	}
 
 	Query struct {
-		AvailableUpdates  func(childComplexity int) int
-		CurrentPrintJob   func(childComplexity int) int
-		GcodeFileMetas    func(childComplexity int) int
-		RecentCommands    func(childComplexity int) int
-		ScrollbackBuffer  func(childComplexity int) int
-		SerialPorts       func(childComplexity int) int
-		Settings          func(childComplexity int) int
-		SystemInformation func(childComplexity int) int
-		TrackedValue      func(childComplexity int, name string) int
-		TrackedValues     func(childComplexity int) int
+		AvailableUpdates        func(childComplexity int) int
+		Configuration           func(childComplexity int) int
+		ConfigurationDescriptor func(childComplexity int) int
+		CurrentPrintJob         func(childComplexity int) int
+		GcodeFileMetas          func(childComplexity int) int
+		RecentCommands          func(childComplexity int) int
+		ScrollbackBuffer        func(childComplexity int) int
+		SerialPorts             func(childComplexity int) int
+		Settings                func(childComplexity int) int
+		SystemInformation       func(childComplexity int) int
+		TrackedValue            func(childComplexity int, name string) int
+		TrackedValues           func(childComplexity int) int
+	}
+
+	RootConfiguration struct {
+		SampleInt    func(childComplexity int) int
+		SampleString func(childComplexity int) int
 	}
 
 	Settings struct {
@@ -122,6 +140,13 @@ type ComplexityRoot struct {
 		HotbedTemperature func(childComplexity int) int
 		HotendTemperature func(childComplexity int) int
 		Name              func(childComplexity int) int
+	}
+
+	TerminatingConfigurationFieldDescriptor struct {
+		Description  func(childComplexity int) int
+		Label        func(childComplexity int) int
+		NameInParent func(childComplexity int) int
+		Type         func(childComplexity int) int
 	}
 
 	TrackedValue struct {
@@ -163,6 +188,8 @@ type QueryResolver interface {
 	CurrentPrintJob(ctx context.Context) (*PrintJob, error)
 	SystemInformation(ctx context.Context) (*map[string]interface{}, error)
 	AvailableUpdates(ctx context.Context) ([]*AvailableUpdate, error)
+	Configuration(ctx context.Context) (*RootConfiguration, error)
+	ConfigurationDescriptor(ctx context.Context) (ConfigurationFieldDescriptor, error)
 }
 type SubscriptionResolver interface {
 	TrackedValueUpdated(ctx context.Context, name string) (<-chan interface{}, error)
@@ -422,6 +449,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UploadGcode(childComplexity, args["file"].(graphql.Upload)), true
 
+	case "ObjectConfigurationFieldDescriptor.description":
+		if e.complexity.ObjectConfigurationFieldDescriptor.Description == nil {
+			break
+		}
+
+		return e.complexity.ObjectConfigurationFieldDescriptor.Description(childComplexity), true
+
+	case "ObjectConfigurationFieldDescriptor.fields":
+		if e.complexity.ObjectConfigurationFieldDescriptor.Fields == nil {
+			break
+		}
+
+		return e.complexity.ObjectConfigurationFieldDescriptor.Fields(childComplexity), true
+
+	case "ObjectConfigurationFieldDescriptor.label":
+		if e.complexity.ObjectConfigurationFieldDescriptor.Label == nil {
+			break
+		}
+
+		return e.complexity.ObjectConfigurationFieldDescriptor.Label(childComplexity), true
+
+	case "ObjectConfigurationFieldDescriptor.nameInParent":
+		if e.complexity.ObjectConfigurationFieldDescriptor.NameInParent == nil {
+			break
+		}
+
+		return e.complexity.ObjectConfigurationFieldDescriptor.NameInParent(childComplexity), true
+
 	case "PrintJob.gcodeMeta":
 		if e.complexity.PrintJob.GcodeMeta == nil {
 			break
@@ -442,6 +497,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.AvailableUpdates(childComplexity), true
+
+	case "Query.configuration":
+		if e.complexity.Query.Configuration == nil {
+			break
+		}
+
+		return e.complexity.Query.Configuration(childComplexity), true
+
+	case "Query.configurationDescriptor":
+		if e.complexity.Query.ConfigurationDescriptor == nil {
+			break
+		}
+
+		return e.complexity.Query.ConfigurationDescriptor(childComplexity), true
 
 	case "Query.currentPrintJob":
 		if e.complexity.Query.CurrentPrintJob == nil {
@@ -510,6 +579,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.TrackedValues(childComplexity), true
+
+	case "RootConfiguration.sampleInt":
+		if e.complexity.RootConfiguration.SampleInt == nil {
+			break
+		}
+
+		return e.complexity.RootConfiguration.SampleInt(childComplexity), true
+
+	case "RootConfiguration.sampleString":
+		if e.complexity.RootConfiguration.SampleString == nil {
+			break
+		}
+
+		return e.complexity.RootConfiguration.SampleString(childComplexity), true
 
 	case "Settings.baudRate":
 		if e.complexity.Settings.BaudRate == nil {
@@ -613,6 +696,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TemperaturePreset.Name(childComplexity), true
+
+	case "TerminatingConfigurationFieldDescriptor.description":
+		if e.complexity.TerminatingConfigurationFieldDescriptor.Description == nil {
+			break
+		}
+
+		return e.complexity.TerminatingConfigurationFieldDescriptor.Description(childComplexity), true
+
+	case "TerminatingConfigurationFieldDescriptor.label":
+		if e.complexity.TerminatingConfigurationFieldDescriptor.Label == nil {
+			break
+		}
+
+		return e.complexity.TerminatingConfigurationFieldDescriptor.Label(childComplexity), true
+
+	case "TerminatingConfigurationFieldDescriptor.nameInParent":
+		if e.complexity.TerminatingConfigurationFieldDescriptor.NameInParent == nil {
+			break
+		}
+
+		return e.complexity.TerminatingConfigurationFieldDescriptor.NameInParent(childComplexity), true
+
+	case "TerminatingConfigurationFieldDescriptor.type":
+		if e.complexity.TerminatingConfigurationFieldDescriptor.Type == nil {
+			break
+		}
+
+		return e.complexity.TerminatingConfigurationFieldDescriptor.Type(childComplexity), true
 
 	case "TrackedValue.displayType":
 		if e.complexity.TrackedValue.DisplayType == nil {
@@ -774,6 +885,31 @@ func (ec *executionContext) FieldMiddleware(ctx context.Context, obj interface{}
 			ret = nil
 		}
 	}()
+	rctx := graphql.GetResolverContext(ctx)
+	for _, d := range rctx.Field.Definition.Directives {
+		switch d.Name {
+		case "configurationField":
+			if ec.directives.ConfigurationField != nil {
+				rawArgs := d.ArgumentMap(ec.Variables)
+				args, err := ec.dir_configurationField_args(ctx, rawArgs)
+				if err != nil {
+					ec.Error(ctx, err)
+					return nil
+				}
+				n := next
+				next = func(ctx context.Context) (interface{}, error) {
+					return ec.directives.ConfigurationField(ctx, obj, n, args["label"].(*string), args["description"].(*string))
+				}
+			}
+		case "configurationObject":
+			if ec.directives.ConfigurationObject != nil {
+				n := next
+				next = func(ctx context.Context) (interface{}, error) {
+					return ec.directives.ConfigurationObject(ctx, obj, n)
+				}
+			}
+		}
+	}
 	res, err := ec.ResolverMiddleware(ctx, next)
 	if err != nil {
 		ec.Error(ctx, err)
@@ -797,6 +933,47 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var parsedSchema = gqlparser.MustLoadSchema(
+	&ast.Source{Name: "configuration_schema.graphql", Input: `type RootConfiguration {
+  sampleInt: Int!
+    @configurationField(
+      label: "Sample field"
+      description: "This is a simple field"
+    )
+  sampleString: String!
+    @configurationField(
+      label: "Sample field - string"
+      description: "This is a simple string field"
+    )
+}
+`},
+	&ast.Source{Name: "configuration_schema_meta.graphql", Input: `directive @configurationField(
+  label: String
+  description: String
+) on FIELD_DEFINITION
+directive @configurationObject on OBJECT
+
+enum TerminatingFieldType {
+  STRING
+  INT
+  BOOLEAN
+}
+
+union ConfigurationFieldDescriptor = TerminatingConfigurationFieldDescriptor | ObjectConfigurationFieldDescriptor
+
+type TerminatingConfigurationFieldDescriptor {
+  nameInParent: String!
+  type: TerminatingFieldType!
+  label: String!
+  description: String!
+}
+
+type ObjectConfigurationFieldDescriptor {
+  nameInParent: String!
+  label: String!
+  description: String!
+  fields: [ConfigurationFieldDescriptor!]!
+}
+`},
 	&ast.Source{Name: "schema.graphql", Input: `# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
@@ -909,6 +1086,8 @@ type Query {
   currentPrintJob: PrintJob
   systemInformation: Map
   availableUpdates: [AvailableUpdate!]!
+  configuration: RootConfiguration!
+  configurationDescriptor: ConfigurationFieldDescriptor!
 }
 
 type Mutation {
@@ -936,6 +1115,28 @@ type Subscription {
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_configurationField_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["label"]; ok {
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["label"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["description"]; ok {
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["description"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_abortPrintJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1914,6 +2115,114 @@ func (ec *executionContext) _Mutation_performUpdate(ctx context.Context, field g
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _ObjectConfigurationFieldDescriptor_nameInParent(ctx context.Context, field graphql.CollectedField, obj *ObjectConfigurationFieldDescriptor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "ObjectConfigurationFieldDescriptor",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NameInParent, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ObjectConfigurationFieldDescriptor_label(ctx context.Context, field graphql.CollectedField, obj *ObjectConfigurationFieldDescriptor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "ObjectConfigurationFieldDescriptor",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Label, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ObjectConfigurationFieldDescriptor_description(ctx context.Context, field graphql.CollectedField, obj *ObjectConfigurationFieldDescriptor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "ObjectConfigurationFieldDescriptor",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ObjectConfigurationFieldDescriptor_fields(ctx context.Context, field graphql.CollectedField, obj *ObjectConfigurationFieldDescriptor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "ObjectConfigurationFieldDescriptor",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fields, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]ConfigurationFieldDescriptor)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNConfigurationFieldDescriptor2ᚕgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐConfigurationFieldDescriptor(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _PrintJob_gcodeMeta(ctx context.Context, field graphql.CollectedField, obj *PrintJob) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
@@ -2239,6 +2548,60 @@ func (ec *executionContext) _Query_availableUpdates(ctx context.Context, field g
 	return ec.marshalNAvailableUpdate2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐAvailableUpdate(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_configuration(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Configuration(rctx)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*RootConfiguration)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNRootConfiguration2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐRootConfiguration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_configurationDescriptor(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ConfigurationDescriptor(rctx)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ConfigurationFieldDescriptor)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNConfigurationFieldDescriptor2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐConfigurationFieldDescriptor(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
@@ -2292,6 +2655,60 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RootConfiguration_sampleInt(ctx context.Context, field graphql.CollectedField, obj *RootConfiguration) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "RootConfiguration",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SampleInt, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RootConfiguration_sampleString(ctx context.Context, field graphql.CollectedField, obj *RootConfiguration) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "RootConfiguration",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SampleString, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Settings_serialPort(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
@@ -2679,6 +3096,114 @@ func (ec *executionContext) _TemperaturePreset_hotbedTemperature(ctx context.Con
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TerminatingConfigurationFieldDescriptor_nameInParent(ctx context.Context, field graphql.CollectedField, obj *TerminatingConfigurationFieldDescriptor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "TerminatingConfigurationFieldDescriptor",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NameInParent, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TerminatingConfigurationFieldDescriptor_type(ctx context.Context, field graphql.CollectedField, obj *TerminatingConfigurationFieldDescriptor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "TerminatingConfigurationFieldDescriptor",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(TerminatingFieldType)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNTerminatingFieldType2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTerminatingFieldType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TerminatingConfigurationFieldDescriptor_label(ctx context.Context, field graphql.CollectedField, obj *TerminatingConfigurationFieldDescriptor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "TerminatingConfigurationFieldDescriptor",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Label, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TerminatingConfigurationFieldDescriptor_description(ctx context.Context, field graphql.CollectedField, obj *TerminatingConfigurationFieldDescriptor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "TerminatingConfigurationFieldDescriptor",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _TrackedValue_name(ctx context.Context, field graphql.CollectedField, obj *TrackedValue) graphql.Marshaler {
@@ -3897,6 +4422,23 @@ func (ec *executionContext) unmarshalInputTemperaturePresetInput(ctx context.Con
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _ConfigurationFieldDescriptor(ctx context.Context, sel ast.SelectionSet, obj *ConfigurationFieldDescriptor) graphql.Marshaler {
+	switch obj := (*obj).(type) {
+	case nil:
+		return graphql.Null
+	case TerminatingConfigurationFieldDescriptor:
+		return ec._TerminatingConfigurationFieldDescriptor(ctx, sel, &obj)
+	case *TerminatingConfigurationFieldDescriptor:
+		return ec._TerminatingConfigurationFieldDescriptor(ctx, sel, obj)
+	case ObjectConfigurationFieldDescriptor:
+		return ec._ObjectConfigurationFieldDescriptor(ctx, sel, &obj)
+	case *ObjectConfigurationFieldDescriptor:
+		return ec._ObjectConfigurationFieldDescriptor(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
@@ -4093,6 +4635,48 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
+var objectConfigurationFieldDescriptorImplementors = []string{"ObjectConfigurationFieldDescriptor", "ConfigurationFieldDescriptor"}
+
+func (ec *executionContext) _ObjectConfigurationFieldDescriptor(ctx context.Context, sel ast.SelectionSet, obj *ObjectConfigurationFieldDescriptor) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, objectConfigurationFieldDescriptorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ObjectConfigurationFieldDescriptor")
+		case "nameInParent":
+			out.Values[i] = ec._ObjectConfigurationFieldDescriptor_nameInParent(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "label":
+			out.Values[i] = ec._ObjectConfigurationFieldDescriptor_label(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "description":
+			out.Values[i] = ec._ObjectConfigurationFieldDescriptor_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "fields":
+			out.Values[i] = ec._ObjectConfigurationFieldDescriptor_fields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var printJobImplementors = []string{"PrintJob"}
 
 func (ec *executionContext) _PrintJob(ctx context.Context, sel ast.SelectionSet, obj *PrintJob) graphql.Marshaler {
@@ -4274,10 +4858,70 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "configuration":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_configuration(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "configurationDescriptor":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_configurationDescriptor(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var rootConfigurationImplementors = []string{"RootConfiguration"}
+
+func (ec *executionContext) _RootConfiguration(ctx context.Context, sel ast.SelectionSet, obj *RootConfiguration) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, rootConfigurationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RootConfiguration")
+		case "sampleInt":
+			out.Values[i] = ec._RootConfiguration_sampleInt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "sampleString":
+			out.Values[i] = ec._RootConfiguration_sampleString(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4398,6 +5042,48 @@ func (ec *executionContext) _TemperaturePreset(ctx context.Context, sel ast.Sele
 			}
 		case "hotbedTemperature":
 			out.Values[i] = ec._TemperaturePreset_hotbedTemperature(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var terminatingConfigurationFieldDescriptorImplementors = []string{"TerminatingConfigurationFieldDescriptor", "ConfigurationFieldDescriptor"}
+
+func (ec *executionContext) _TerminatingConfigurationFieldDescriptor(ctx context.Context, sel ast.SelectionSet, obj *TerminatingConfigurationFieldDescriptor) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, terminatingConfigurationFieldDescriptorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TerminatingConfigurationFieldDescriptor")
+		case "nameInParent":
+			out.Values[i] = ec._TerminatingConfigurationFieldDescriptor_nameInParent(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "type":
+			out.Values[i] = ec._TerminatingConfigurationFieldDescriptor_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "label":
+			out.Values[i] = ec._TerminatingConfigurationFieldDescriptor_label(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "description":
+			out.Values[i] = ec._TerminatingConfigurationFieldDescriptor_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -4845,6 +5531,47 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNConfigurationFieldDescriptor2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐConfigurationFieldDescriptor(ctx context.Context, sel ast.SelectionSet, v ConfigurationFieldDescriptor) graphql.Marshaler {
+	return ec._ConfigurationFieldDescriptor(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNConfigurationFieldDescriptor2ᚕgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐConfigurationFieldDescriptor(ctx context.Context, sel ast.SelectionSet, v []ConfigurationFieldDescriptor) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNConfigurationFieldDescriptor2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐConfigurationFieldDescriptor(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
 	return graphql.UnmarshalFloat(v)
 }
@@ -5008,6 +5735,20 @@ func (ec *executionContext) unmarshalNNewSettings2githubᚗcomᚋalufersᚋbieda
 	return ec.unmarshalInputNewSettings(ctx, v)
 }
 
+func (ec *executionContext) marshalNRootConfiguration2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐRootConfiguration(ctx context.Context, sel ast.SelectionSet, v RootConfiguration) graphql.Marshaler {
+	return ec._RootConfiguration(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRootConfiguration2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐRootConfiguration(ctx context.Context, sel ast.SelectionSet, v *RootConfiguration) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._RootConfiguration(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSerialParity(ctx context.Context, v interface{}) (SerialParity, error) {
 	var res SerialParity
 	return res, res.UnmarshalGQL(v)
@@ -5155,6 +5896,15 @@ func (ec *executionContext) unmarshalNTemperaturePresetInput2ᚖgithubᚗcomᚋa
 	}
 	res, err := ec.unmarshalNTemperaturePresetInput2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx, v)
 	return &res, err
+}
+
+func (ec *executionContext) unmarshalNTerminatingFieldType2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTerminatingFieldType(ctx context.Context, v interface{}) (TerminatingFieldType, error) {
+	var res TerminatingFieldType
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalNTerminatingFieldType2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTerminatingFieldType(ctx context.Context, sel ast.SelectionSet, v TerminatingFieldType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {

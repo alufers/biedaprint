@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type ConfigurationFieldDescriptor interface {
+	IsConfigurationFieldDescriptor()
+}
+
 type AvailableUpdate struct {
 	TagName       string `json:"tagName"`
 	CreatedAt     string `json:"createdAt"`
@@ -44,9 +48,23 @@ type NewSettings struct {
 	TemperaturePresets   []*TemperaturePresetInput `json:"temperaturePresets"`
 }
 
+type ObjectConfigurationFieldDescriptor struct {
+	NameInParent string                         `json:"nameInParent"`
+	Label        string                         `json:"label"`
+	Description  string                         `json:"description"`
+	Fields       []ConfigurationFieldDescriptor `json:"fields"`
+}
+
+func (ObjectConfigurationFieldDescriptor) IsConfigurationFieldDescriptor() {}
+
 type PrintJob struct {
 	GcodeMeta   *GcodeFileMeta `json:"gcodeMeta"`
 	StartedTime time.Time      `json:"startedTime"`
+}
+
+type RootConfiguration struct {
+	SampleInt    int    `json:"sampleInt"`
+	SampleString string `json:"sampleString"`
 }
 
 type Settings struct {
@@ -71,6 +89,15 @@ type TemperaturePresetInput struct {
 	HotendTemperature float64 `json:"hotendTemperature"`
 	HotbedTemperature float64 `json:"hotbedTemperature"`
 }
+
+type TerminatingConfigurationFieldDescriptor struct {
+	NameInParent string               `json:"nameInParent"`
+	Type         TerminatingFieldType `json:"type"`
+	Label        string               `json:"label"`
+	Description  string               `json:"description"`
+}
+
+func (TerminatingConfigurationFieldDescriptor) IsConfigurationFieldDescriptor() {}
 
 type TrackedValue struct {
 	Name              string                  `json:"name"`
@@ -124,6 +151,49 @@ func (e *SerialParity) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SerialParity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type TerminatingFieldType string
+
+const (
+	TerminatingFieldTypeString  TerminatingFieldType = "STRING"
+	TerminatingFieldTypeInt     TerminatingFieldType = "INT"
+	TerminatingFieldTypeBoolean TerminatingFieldType = "BOOLEAN"
+)
+
+var AllTerminatingFieldType = []TerminatingFieldType{
+	TerminatingFieldTypeString,
+	TerminatingFieldTypeInt,
+	TerminatingFieldTypeBoolean,
+}
+
+func (e TerminatingFieldType) IsValid() bool {
+	switch e {
+	case TerminatingFieldTypeString, TerminatingFieldTypeInt, TerminatingFieldTypeBoolean:
+		return true
+	}
+	return false
+}
+
+func (e TerminatingFieldType) String() string {
+	return string(e)
+}
+
+func (e *TerminatingFieldType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TerminatingFieldType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TerminatingFieldType", str)
+	}
+	return nil
+}
+
+func (e TerminatingFieldType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

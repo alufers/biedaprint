@@ -110,6 +110,8 @@ type Query {
   currentPrintJob: PrintJob
   systemInformation: Map
   availableUpdates: [AvailableUpdate!]!
+  configuration: RootConfiguration!
+  configurationDescriptor: ConfigurationFieldDescriptor!
 }
 
 type Mutation {

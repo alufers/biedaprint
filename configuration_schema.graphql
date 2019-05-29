@@ -1,0 +1,12 @@
+type RootConfiguration {
+  sampleInt: Int!
+    @configurationField(
+      label: "Sample field"
+      description: "This is a simple field"
+    )
+  sampleString: String!
+    @configurationField(
+      label: "Sample field - string"
+      description: "This is a simple string field"
+    )
+}
