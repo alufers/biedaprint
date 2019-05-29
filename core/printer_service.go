@@ -92,7 +92,7 @@ func (pm *PrinterService) DisconnectFromSerial() error {
 	return pm.serial.Close()
 }
 
-func (pm *PrinterService) waitForSerialReady() {
+func (pm *PrinterService) WaitForSerialReady() {
 	pm.serialReadyCond.L.Lock()
 	defer pm.serialReadyCond.L.Unlock()
 	for !pm.serialReady {
@@ -102,7 +102,7 @@ func (pm *PrinterService) waitForSerialReady() {
 
 func (pm *PrinterService) serialWriterGoroutine() {
 	for {
-		pm.waitForSerialReady()
+		pm.WaitForSerialReady()
 		log.Print("Serial writer: serial ready")
 		for {
 			if pm.serial == nil {
@@ -155,21 +155,7 @@ func (pm *PrinterService) parseLine(line string) {
 	line = strings.TrimSpace(line)
 	//log.Println("GOT LINE: ", line)
 	if strings.HasPrefix(line, "T:") {
-		var temp float64
-		var target float64
-		var power int
-		var bedTemp float64
-		var betTargetTemp float64
-		var bedPower float64
-		if strings.Contains(line, "B:") { // has heated bed
-			fmt.Sscanf(line, "T:%f /%f B:%f /%f @:%d B@:%d", &temp, &target, &bedTemp, &betTargetTemp, &power, &bedPower)
-		} else {
-			fmt.Sscanf(line, "T:%f /%f @:%d", &temp, &target, &power)
-		}
-		pm.app.TrackedValuesService.TrackedValues["hotendTemperature"].UpdateValue(temp)
-		pm.app.TrackedValuesService.TrackedValues["targetHotendTemperature"].UpdateValue(target)
-		pm.app.TrackedValuesService.TrackedValues["hotbedTemperature"].UpdateValue(bedTemp)
-		pm.app.TrackedValuesService.TrackedValues["targetHotbedTemperature"].UpdateValue(betTargetTemp)
+		pm.app.HeatingService.processTemperatureReport(line)
 	} else if strings.HasPrefix(line, "ok") {
 		select {
 		case pm.okSem <- true:
@@ -188,7 +174,7 @@ func (pm *PrinterService) parseLine(line string) {
 //serialReader runs on a separate goroutine and handles broadcasting the serial messages to websockets and saving the data in a backbuffer
 func (pm *PrinterService) serialReaderGoroutine() {
 	for {
-		pm.waitForSerialReady()
+		pm.WaitForSerialReady()
 		lineBuf := []byte{}
 		for {
 			var data = make([]byte, 512)
