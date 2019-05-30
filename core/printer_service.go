@@ -145,7 +145,7 @@ func (pm *PrinterService) handleJob(job *PrintJobInternal) {
 		return
 	case <-heatingWaitChan:
 	}
-
+	log.Printf("Smart heating finished")
 	var sendAndMaybeResend func(string)
 	sendAndMaybeResend = func(l string) {
 		pm.serial.Write([]byte(l))
