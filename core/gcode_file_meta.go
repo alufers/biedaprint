@@ -68,6 +68,8 @@ func (gfm *GcodeFileMeta) AnalyzeGcodeFile(dataPath string) error {
 	gfm.PrintTime = sim.time
 	gfm.FilamentUsedMm = sim.filamentUsed
 	gfm.LayerIndexes = []*GcodeLayerIndex{}
+	gfm.HotendTemperature = sim.hotendTemperature
+	gfm.HotbedTemperature = sim.hotbedTemperature
 	for _, li := range sim.layerIndexes {
 		gfm.LayerIndexes = append(gfm.LayerIndexes, &li)
 	}

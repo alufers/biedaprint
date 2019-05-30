@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -177,4 +178,51 @@ func (hs *HeatingService) communicateWithPrinter() {
 			}
 		}
 	}
+}
+
+//SmartHeatUp uses temperature timings to heat up all the elements in a most time and energy-effiecient way
+func (hs *HeatingService) SmartHeatUp(hotendTarget, hotbedTarget float64, abort chan bool) {
+	hotendTiming := hs.getClosestHotendTiming(hotendTarget)
+	hotbedTiming := hs.getClosestHotbedTiming(hotbedTarget)
+	if hotendTiming == 0 || hotbedTiming == 0 {
+		// no timings, abort and set the temperatures the old way
+		hs.app.PrinterService.consoleWriteSem <- fmt.Sprintf("M104 %v\r\n", hotendTarget)
+		hs.app.PrinterService.consoleWriteSem <- fmt.Sprintf("M140 %v\r\n", hotbedTarget)
+		return
+	}
+	hs.app.PrinterService.consoleWriteSem <- fmt.Sprintf("M140 %v\r\n", hotbedTarget)
+	if hotbedTiming-hotendTiming > 0 {
+		select {
+		case <-time.After(hotbedTiming - hotendTiming):
+		case <-abort:
+			return
+		}
+	}
+	hs.app.PrinterService.consoleWriteSem <- fmt.Sprintf("M104 %v\r\n", hotendTarget)
+}
+
+func (hs *HeatingService) getClosestHotendTiming(target float64) time.Duration {
+	var bestTiming time.Duration
+	var bestTimingTempDiff = math.Inf(1)
+	for timingTemp, timing := range hs.HotendTimings {
+		diff := math.Abs(timingTemp - target)
+		if diff < bestTimingTempDiff {
+			bestTimingTempDiff = diff
+			bestTiming = timing
+		}
+	}
+	return bestTiming
+}
+
+func (hs *HeatingService) getClosestHotbedTiming(target float64) time.Duration {
+	var bestTiming time.Duration
+	var bestTimingTempDiff = math.Inf(1)
+	for timingTemp, timing := range hs.HotbedTimings {
+		diff := math.Abs(timingTemp - target)
+		if diff < bestTimingTempDiff {
+			bestTimingTempDiff = diff
+			bestTiming = timing
+		}
+	}
+	return bestTiming
 }

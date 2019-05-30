@@ -116,38 +116,58 @@ func (pm *PrinterService) serialWriterGoroutine() {
 					log.Printf("error while writing from serial console to serial: %v", err)
 				}
 			case job := <-pm.printJobSem:
-				log.Printf("New job %v", job)
-				lineChan, err := job.jobLines()
-				if err != nil {
-					log.Printf("Failed to read job lines: %v", err)
-					break
-				}
-				var sendAndMaybeResend func(string)
-				sendAndMaybeResend = func(l string) {
-					pm.serial.Write([]byte(l))
-					select {
-					case <-pm.okSem:
-					case num := <-pm.resendSem:
-						log.Printf("Resending line %v", num)
-						<-pm.okSem
-						sendAndMaybeResend(job.getLineForResend(num))
-					}
-				}
-			LineLoop:
-				for line := range lineChan {
-					select {
-					case c := <-pm.consoleWriteSem:
-						sendAndMaybeResend(c)
-						continue
-					case <-pm.abortPrintSem:
-						job.abort()
-						break LineLoop
-					default:
-					}
-					sendAndMaybeResend(line)
-				}
+				pm.handleJob(job)
 			}
 		}
+	}
+}
+
+func (pm *PrinterService) handleJob(job *PrintJobInternal) {
+	log.Printf("New job %v", job)
+	lineChan, err := job.jobLines()
+	if err != nil {
+		log.Printf("Failed to read job lines: %v", err)
+		return
+	}
+
+	log.Printf("Starting smart heating. Hotend target: %v, hotbed target: %v", job.GcodeMeta.HotendTemperature, job.GcodeMeta.HotbedTemperature)
+	heatingWaitChan := make(chan bool)
+	abortHeatingChan := make(chan bool, 1)
+	go func() {
+		pm.app.HeatingService.SmartHeatUp(job.GcodeMeta.HotendTemperature, job.GcodeMeta.HotbedTemperature, abortHeatingChan)
+		heatingWaitChan <- true
+	}()
+
+	select {
+	case <-pm.abortPrintSem:
+		abortHeatingChan <- true
+		job.abort()
+		return
+	case <-heatingWaitChan:
+	}
+
+	var sendAndMaybeResend func(string)
+	sendAndMaybeResend = func(l string) {
+		pm.serial.Write([]byte(l))
+		select {
+		case <-pm.okSem:
+		case num := <-pm.resendSem:
+			log.Printf("Resending line %v", num)
+			<-pm.okSem
+			sendAndMaybeResend(job.getLineForResend(num))
+		}
+	}
+	for line := range lineChan {
+		select {
+		case c := <-pm.consoleWriteSem:
+			sendAndMaybeResend(c)
+			continue
+		case <-pm.abortPrintSem:
+			job.abort()
+			return
+		default:
+		}
+		sendAndMaybeResend(line)
 	}
 }
 

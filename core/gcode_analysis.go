@@ -73,11 +73,13 @@ func (gps gcodePrinterStatus) nextAfterMovement(segments []string) (next gcodePr
 }
 
 type gcodeSimulator struct {
-	currentStatus gcodePrinterStatus
-	filamentUsed  float64 // milimeters
-	time          float64 // seconds
-	layerIndexes  []GcodeLayerIndex
-	layer         int
+	currentStatus     gcodePrinterStatus
+	filamentUsed      float64 // milimeters
+	time              float64 // seconds
+	layerIndexes      []GcodeLayerIndex
+	layer             int
+	hotendTemperature float64
+	hotbedTemperature float64
 }
 
 func (gs *gcodeSimulator) parseLine(line string, number int) error {
@@ -111,7 +113,29 @@ func (gs *gcodeSimulator) parseLine(line string, number int) error {
 			return err
 		}
 		gs.currentStatus = next
+	case "M104": // http://marlinfw.org/docs/gcode/M104.html Set Hotend Temperature
+		fallthrough
+	case "M109":
+		temp := gs.getFloatFlagFromSegment(segments, "S")
+		if temp != 0 {
+			gs.hotendTemperature = temp
+		}
+	case "M140": // http://marlinfw.org/docs/gcode/140.html Set Bed Temperature
+		temp := gs.getFloatFlagFromSegment(segments, "S")
+		if temp != 0 {
+			gs.hotbedTemperature = temp
+		}
 	default:
 	}
 	return nil
+}
+
+func (gs *gcodeSimulator) getFloatFlagFromSegment(segments []string, flag string) float64 {
+	for _, seg := range segments[1:] {
+		if strings.HasPrefix(seg, flag) {
+			f, _ := strconv.ParseFloat(strings.TrimPrefix(seg, flag), 64)
+			return f
+		}
+	}
+	return 0
 }
