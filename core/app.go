@@ -59,6 +59,7 @@ func (app *App) Init() {
 
 	app.DiscoveryService.Init()
 	app.PrinterService.Init()
+	app.HeatingService.Init()
 }
 
 //GetSettings returns a copy of settigns, safe for concurrent use
