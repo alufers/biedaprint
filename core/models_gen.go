@@ -19,13 +19,15 @@ type AvailableUpdate struct {
 }
 
 type GcodeFileMeta struct {
-	OriginalName   string             `json:"originalName"`
-	GcodeFileName  string             `json:"gcodeFileName"`
-	UploadDate     time.Time          `json:"uploadDate"`
-	TotalLines     int                `json:"totalLines"`
-	PrintTime      float64            `json:"printTime"`
-	FilamentUsedMm float64            `json:"filamentUsedMm"`
-	LayerIndexes   []*GcodeLayerIndex `json:"layerIndexes"`
+	OriginalName      string             `json:"originalName"`
+	GcodeFileName     string             `json:"gcodeFileName"`
+	UploadDate        time.Time          `json:"uploadDate"`
+	TotalLines        int                `json:"totalLines"`
+	PrintTime         float64            `json:"printTime"`
+	FilamentUsedMm    float64            `json:"filamentUsedMm"`
+	LayerIndexes      []*GcodeLayerIndex `json:"layerIndexes"`
+	HotendTemperature float64            `json:"hotendTemperature"`
+	HotbedTemperature float64            `json:"hotbedTemperature"`
 }
 
 type GcodeLayerIndex struct {

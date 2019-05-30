@@ -66,6 +66,9 @@ type GcodeFileMeta {
   printTime: Float!
   filamentUsedMm: Float!
   layerIndexes: [GcodeLayerIndex!]!
+
+  hotendTemperature: Float!
+  hotbedTemperature: Float!
 }
 
 type PrintJob {

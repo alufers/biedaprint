@@ -55,13 +55,15 @@ type ComplexityRoot struct {
 	}
 
 	GcodeFileMeta struct {
-		FilamentUsedMm func(childComplexity int) int
-		GcodeFileName  func(childComplexity int) int
-		LayerIndexes   func(childComplexity int) int
-		OriginalName   func(childComplexity int) int
-		PrintTime      func(childComplexity int) int
-		TotalLines     func(childComplexity int) int
-		UploadDate     func(childComplexity int) int
+		FilamentUsedMm    func(childComplexity int) int
+		GcodeFileName     func(childComplexity int) int
+		HotbedTemperature func(childComplexity int) int
+		HotendTemperature func(childComplexity int) int
+		LayerIndexes      func(childComplexity int) int
+		OriginalName      func(childComplexity int) int
+		PrintTime         func(childComplexity int) int
+		TotalLines        func(childComplexity int) int
+		UploadDate        func(childComplexity int) int
 	}
 
 	GcodeLayerIndex struct {
@@ -240,6 +242,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GcodeFileMeta.GcodeFileName(childComplexity), true
+
+	case "GcodeFileMeta.hotbedTemperature":
+		if e.complexity.GcodeFileMeta.HotbedTemperature == nil {
+			break
+		}
+
+		return e.complexity.GcodeFileMeta.HotbedTemperature(childComplexity), true
+
+	case "GcodeFileMeta.hotendTemperature":
+		if e.complexity.GcodeFileMeta.HotendTemperature == nil {
+			break
+		}
+
+		return e.complexity.GcodeFileMeta.HotendTemperature(childComplexity), true
 
 	case "GcodeFileMeta.layerIndexes":
 		if e.complexity.GcodeFileMeta.LayerIndexes == nil {
@@ -865,6 +881,9 @@ type GcodeFileMeta {
   printTime: Float!
   filamentUsedMm: Float!
   layerIndexes: [GcodeLayerIndex!]!
+
+  hotendTemperature: Float!
+  hotbedTemperature: Float!
 }
 
 type PrintJob {
@@ -1514,6 +1533,60 @@ func (ec *executionContext) _GcodeFileMeta_layerIndexes(ctx context.Context, fie
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNGcodeLayerIndex2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐGcodeLayerIndex(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GcodeFileMeta_hotendTemperature(ctx context.Context, field graphql.CollectedField, obj *GcodeFileMeta) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "GcodeFileMeta",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HotendTemperature, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GcodeFileMeta_hotbedTemperature(ctx context.Context, field graphql.CollectedField, obj *GcodeFileMeta) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "GcodeFileMeta",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HotbedTemperature, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GcodeLayerIndex_lineNumber(ctx context.Context, field graphql.CollectedField, obj *GcodeLayerIndex) graphql.Marshaler {
@@ -3996,6 +4069,16 @@ func (ec *executionContext) _GcodeFileMeta(ctx context.Context, sel ast.Selectio
 			}
 		case "layerIndexes":
 			out.Values[i] = ec._GcodeFileMeta_layerIndexes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "hotendTemperature":
+			out.Values[i] = ec._GcodeFileMeta_hotendTemperature(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "hotbedTemperature":
+			out.Values[i] = ec._GcodeFileMeta_hotbedTemperature(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
