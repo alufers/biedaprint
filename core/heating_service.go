@@ -171,6 +171,9 @@ func (hs *HeatingService) communicateWithPrinter() {
 			case <-time.After(time.Second * 2):
 				break AutoreportingCheckLoop
 			case <-hs.temperatureReportChan:
+				if hs.autoreportingAttempts > 0 {
+					hs.autoreportingAttempts--
+				}
 			}
 		}
 	}
