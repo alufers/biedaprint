@@ -96,7 +96,7 @@ func (hs *HeatingService) processTemperatureTimings(currentHotendTemperature, ta
 		if hs.hotendHeatingStart != nil {
 			// hotend temperature reached. Save the measurement
 			hs.HotendTimings[targetHotendTemperature] = time.Now().Sub(*hs.hotendHeatingStart)
-			fmt.Printf("Hotend heated up to %v in %v", targetHotendTemperature, hs.HotendTimings[targetHotendTemperature].String())
+			log.Printf("Hotend heated up to %v in %v", targetHotendTemperature, hs.HotendTimings[targetHotendTemperature].String())
 			hs.hotendHeatingStart = nil
 			shouldSaveTimings = true
 		}
@@ -114,7 +114,7 @@ func (hs *HeatingService) processTemperatureTimings(currentHotendTemperature, ta
 		if hs.hotbedHeatingStart != nil {
 			// hotbed temperature reached. Save the measurement
 			hs.HotbedTimings[targetHotbedTemperature] = time.Now().Sub(*hs.hotbedHeatingStart)
-			fmt.Printf("Hotbed heated up to %v in %v", targetHotbedTemperature, hs.HotbedTimings[targetHotbedTemperature].String())
+			log.Printf("Hotbed heated up to %v in %v", targetHotbedTemperature, hs.HotbedTimings[targetHotbedTemperature].String())
 			hs.hotbedHeatingStart = nil
 			shouldSaveTimings = true
 		}
