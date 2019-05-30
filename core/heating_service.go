@@ -155,13 +155,13 @@ func (hs *HeatingService) communicateWithPrinter() {
 		hs.app.PrinterService.WaitForSerialReady()
 		if hs.autoreportingAttempts < 5 {
 			time.Sleep(4 * time.Second)
-			hs.app.PrinterService.consoleWriteSem <- "M155 S1"
+			hs.app.PrinterService.consoleWriteSem <- "M155 S1\r\n"
 			hs.autoreportingAttempts++
 
 		} else {
 			log.Printf("Failed to recieve temeprature report using auto-reporting %d times. Reverting to polling", hs.autoreportingAttempts)
 			for {
-				hs.app.PrinterService.consoleWriteSem <- "M105"
+				hs.app.PrinterService.consoleWriteSem <- "M105\r\n"
 				time.Sleep(time.Second)
 			}
 		}
