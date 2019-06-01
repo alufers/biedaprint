@@ -130,22 +130,22 @@ func (pm *PrinterService) handleJob(job *PrintJobInternal) {
 		return
 	}
 
-	log.Printf("Starting smart heating. Hotend target: %v, hotbed target: %v", job.GcodeMeta.HotendTemperature, job.GcodeMeta.HotbedTemperature)
-	heatingWaitChan := make(chan bool)
-	abortHeatingChan := make(chan bool, 1)
-	go func() {
-		pm.app.HeatingService.SmartHeatUp(job.GcodeMeta.HotendTemperature, job.GcodeMeta.HotbedTemperature, abortHeatingChan)
-		heatingWaitChan <- true
-	}()
+	// log.Printf("Starting smart heating. Hotend target: %v, hotbed target: %v", job.GcodeMeta.HotendTemperature, job.GcodeMeta.HotbedTemperature)
+	// heatingWaitChan := make(chan bool)
+	// abortHeatingChan := make(chan bool, 1)
+	// go func() {
+	// 	pm.app.HeatingService.SmartHeatUp(job.GcodeMeta.HotendTemperature, job.GcodeMeta.HotbedTemperature, abortHeatingChan)
+	// 	heatingWaitChan <- true
+	// }()
 
-	select {
-	case <-pm.abortPrintSem:
-		abortHeatingChan <- true
-		job.abort()
-		return
-	case <-heatingWaitChan:
-	}
-	log.Printf("Smart heating finished")
+	// select {
+	// case <-pm.abortPrintSem:
+	// 	abortHeatingChan <- true
+	// 	job.abort()
+	// 	return
+	// case <-heatingWaitChan:
+	// }
+	// log.Printf("Smart heating finished")
 	var sendAndMaybeResend func(string)
 	sendAndMaybeResend = func(l string) {
 		pm.serial.Write([]byte(l))
