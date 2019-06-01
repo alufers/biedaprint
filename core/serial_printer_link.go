@@ -1,37 +1,40 @@
 package core
 
 import (
+	"io"
 	"log"
 	"sync"
 
+	"github.com/jacobsa/go-serial/serial"
 	"github.com/pkg/errors"
-	"go.bug.st/serial.v1"
 )
 
 type SerialPrinterLinkConfig struct {
 	SerialPort string
-	SerialMode *serial.Mode
+	SerialMode *serial.OpenOptions
 }
 
 func SerialPrinterLinkConfigFromSettings(settings *Settings) *SerialPrinterLinkConfig {
-	parity := serial.EvenParity
+	parity := serial.PARITY_EVEN
 	if settings.Parity == SerialParityNone {
-		parity = serial.NoParity
+		parity = serial.PARITY_NONE
 	}
 	return &SerialPrinterLinkConfig{
 		SerialPort: settings.SerialPort,
-		SerialMode: &serial.Mode{
-			BaudRate: settings.BaudRate,
-			Parity:   parity,
-			DataBits: settings.DataBits,
-			StopBits: serial.OneStopBit,
+		SerialMode: &serial.OpenOptions{
+			PortName:        settings.SerialPort,
+			BaudRate:        uint(settings.BaudRate),
+			ParityMode:      parity,
+			DataBits:        uint(settings.DataBits),
+			StopBits:        1,
+			MinimumReadSize: 1,
 		},
 	}
 }
 
 type SerialPrinterLink struct {
 	config            *SerialPrinterLinkConfig
-	connection        serial.Port
+	connection        io.ReadWriteCloser
 	statusMutex       *sync.RWMutex
 	status            PrinterLinkStatus
 	statusBroadcaster *EventBroadcaster
@@ -53,7 +56,7 @@ func (spl *SerialPrinterLink) SetConfig(config *SerialPrinterLinkConfig) {
 func (spl *SerialPrinterLink) Connect() error {
 	var err error
 	log.Printf("connecting with serial %#v", spl.config.SerialMode)
-	spl.connection, err = serial.Open(spl.config.SerialPort, spl.config.SerialMode)
+	spl.connection, err = serial.Open(*spl.config.SerialMode)
 	if err != nil {
 		return errors.Wrapf(err, "failed to open SerialPrinterLink at %v", spl.config.SerialPort)
 	}
@@ -83,13 +86,8 @@ func (spl *SerialPrinterLink) readerRoutine() {
 	for {
 		data := make([]byte, 512)
 		n, err := spl.connection.Read(data)
-		log.Printf("broadcasting %v", data[:n])
 		if err != nil {
-			if portErr, ok := err.(serial.PortError); ok {
-				if portErr.Code() == serial.PortClosed {
-					return
-				}
-			}
+
 			log.Printf("SerialPrinterLink.readerRoutine error: %v", err)
 			spl.updateStatus(StatusError)
 			return
