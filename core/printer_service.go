@@ -8,14 +8,14 @@ import (
 
 	"github.com/armon/circbuf"
 	"github.com/pkg/errors"
-	"go.bug.st/serial.v1"
 )
 
 type PrinterService struct {
-	app    *App
-	serial serial.Port
+	app         *App
+	printerLink PrinterLink
 
 	serialConnectMutex    *sync.Mutex
+	lineBuf               []byte
 	serialReady           bool
 	serialReadyCond       *sync.Cond
 	job                   *PrintJobInternal
@@ -31,6 +31,7 @@ type PrinterService struct {
 
 func NewPrinterService(app *App) *PrinterService {
 	return &PrinterService{
+		printerLink:           NewSerialPrinterLink(),
 		app:                   app,
 		serialConnectMutex:    &sync.Mutex{},
 		serialReadyCond:       sync.NewCond(&sync.Mutex{}),
@@ -45,59 +46,84 @@ func NewPrinterService(app *App) *PrinterService {
 }
 
 func (pm *PrinterService) Init() {
+	go pm.eventLoop()
 	go pm.serialWriterGoroutine()
-	go pm.serialReaderGoroutine()
 }
 
 func (pm *PrinterService) ConnectToSerial() error {
 	pm.serialConnectMutex.Lock()
 	defer pm.serialConnectMutex.Unlock()
-	parity := serial.EvenParity
-	if pm.app.GetSettings().Parity == SerialParityNone {
-		parity = serial.NoParity
+	pm.lineBuf = make([]byte, 0)
+
+	settings := pm.app.GetSettings()
+	pm.printerLink.(*SerialPrinterLink).SetConfig(SerialPrinterLinkConfigFromSettings(&settings))
+
+	err := pm.printerLink.Connect()
+	if err != nil {
+		return errors.Wrap(err, "failed to connect to printer")
 	}
 
-	ser, err := serial.Open(pm.app.GetSettings().SerialPort, &serial.Mode{
-		BaudRate: pm.app.GetSettings().BaudRate,
-		Parity:   parity,
-		DataBits: pm.app.GetSettings().DataBits,
-		StopBits: serial.OneStopBit,
-	})
-	if err != nil {
-		return errors.Wrap(err, "failed to connect to serial port")
-	}
-	pm.serial = ser
 	pm.scrollbackBufferMutex.Lock()
 	defer pm.scrollbackBufferMutex.Unlock()
-	pm.scrollbackBuffer, err = circbuf.NewBuffer(int64(pm.app.GetSettings().ScrollbackBufferSize))
+	pm.scrollbackBuffer, err = circbuf.NewBuffer(int64(settings.ScrollbackBufferSize))
 	if err != nil {
-		panic(err)
+		return errors.Wrap(err, "failed to create circbuf")
 	}
-	pm.serialReadyCond.L.Lock()
-	defer pm.serialReadyCond.L.Unlock()
-	pm.serialReady = true
-	pm.serialReadyCond.Broadcast()
-	pm.app.TrackedValuesService.TrackedValues["serialStatus"].UpdateValue("connected")
 	return nil
 }
 
 func (pm *PrinterService) DisconnectFromSerial() error {
 	pm.serialConnectMutex.Lock()
 	defer pm.serialConnectMutex.Unlock()
-	if !pm.serialReady {
-		return errors.New("serial not connected")
+	err := pm.printerLink.Disconnect()
+	if err != nil {
+		return errors.Wrap(err, "failed to disconnect from printer")
 	}
-	pm.serialReady = false
-	pm.app.TrackedValuesService.TrackedValues["serialStatus"].UpdateValue("disconnected")
-	return pm.serial.Close()
+	return nil
 }
 
 func (pm *PrinterService) WaitForSerialReady() {
-	pm.serialReadyCond.L.Lock()
-	defer pm.serialReadyCond.L.Unlock()
-	for !pm.serialReady {
-		pm.serialReadyCond.Wait()
+	if pm.printerLink.CurrentStatus() == StatusConnected {
+		return
 	}
+	statusEvent, cancel := pm.printerLink.Status().Subscribe()
+	defer cancel()
+	for status := range statusEvent {
+		if status == StatusConnected {
+			return
+		}
+	}
+}
+
+func (pm *PrinterService) eventLoop() {
+	statusEvent, _ := pm.printerLink.Status().Subscribe()
+	dataEvent, _ := pm.printerLink.Data().Subscribe()
+	for {
+		select {
+		case newStatus := <-statusEvent:
+			pm.app.TrackedValuesService.TrackedValues["serialStatus"].UpdateValue(newStatus.(PrinterLinkStatus).TrackedValueString())
+		case data := <-dataEvent:
+			pm.handleIncomingData(data.([]byte))
+		}
+	}
+}
+
+func (pm *PrinterService) handleIncomingData(data []byte) {
+	pm.scrollbackBufferMutex.Lock()
+	defer pm.scrollbackBufferMutex.Unlock()
+	pm.scrollbackBuffer.Write(data)
+
+	// lineparsing logic
+	for i := 0; i < len(data); i++ {
+		pm.lineBuf = append(pm.lineBuf, data[i])
+		if data[i] == '\n' {
+			pm.parseLine(string(pm.lineBuf))
+			pm.lineBuf = pm.lineBuf[0:0]
+		}
+	}
+	//serialConsole logic
+	strData := string(data)
+	pm.consoleBroadcaster.Broadcast(strData)
 }
 
 func (pm *PrinterService) serialWriterGoroutine() {
@@ -105,13 +131,10 @@ func (pm *PrinterService) serialWriterGoroutine() {
 		pm.WaitForSerialReady()
 		log.Print("Serial writer: serial ready")
 		for {
-			if pm.serial == nil {
-				break
-			}
 			select {
 			case c := <-pm.consoleWriteSem:
 				log.Print("Serial writer: serialConsoleWrite", c)
-				_, err := pm.serial.Write([]byte(c))
+				err := pm.printerLink.Write([]byte(c))
 				if err != nil {
 					log.Printf("error while writing from serial console to serial: %v", err)
 				}
@@ -129,26 +152,9 @@ func (pm *PrinterService) handleJob(job *PrintJobInternal) {
 		log.Printf("Failed to read job lines: %v", err)
 		return
 	}
-
-	// log.Printf("Starting smart heating. Hotend target: %v, hotbed target: %v", job.GcodeMeta.HotendTemperature, job.GcodeMeta.HotbedTemperature)
-	// heatingWaitChan := make(chan bool)
-	// abortHeatingChan := make(chan bool, 1)
-	// go func() {
-	// 	pm.app.HeatingService.SmartHeatUp(job.GcodeMeta.HotendTemperature, job.GcodeMeta.HotbedTemperature, abortHeatingChan)
-	// 	heatingWaitChan <- true
-	// }()
-
-	// select {
-	// case <-pm.abortPrintSem:
-	// 	abortHeatingChan <- true
-	// 	job.abort()
-	// 	return
-	// case <-heatingWaitChan:
-	// }
-	// log.Printf("Smart heating finished")
 	var sendAndMaybeResend func(string)
 	sendAndMaybeResend = func(l string) {
-		pm.serial.Write([]byte(l))
+		pm.printerLink.Write([]byte(l))
 		select {
 		case <-pm.okSem:
 		case num := <-pm.resendSem:
@@ -188,42 +194,5 @@ func (pm *PrinterService) parseLine(line string) {
 		case pm.resendSem <- lineNumber:
 		default:
 		}
-	}
-}
-
-//serialReader runs on a separate goroutine and handles broadcasting the serial messages to websockets and saving the data in a backbuffer
-func (pm *PrinterService) serialReaderGoroutine() {
-	for {
-		pm.WaitForSerialReady()
-		lineBuf := []byte{}
-		for {
-			var data = make([]byte, 512)
-			n, err := pm.serial.Read(data)
-			if err != nil {
-				log.Printf("Serial error %v", err)
-				//trackedValues["serialStatus"].updateValue("error")
-				break
-			}
-			func() {
-				// scrollback buffer logic
-				pm.scrollbackBufferMutex.Lock()
-				defer pm.scrollbackBufferMutex.Unlock()
-				pm.scrollbackBuffer.Write(data[:n])
-
-				// lineparsing logic
-				for i := 0; i < n; i++ {
-					lineBuf = append(lineBuf, data[i])
-					if data[i] == '\n' {
-						pm.parseLine(string(lineBuf))
-						lineBuf = lineBuf[0:0]
-					}
-				}
-				//serialConsole logic
-				strData := string(data[:n])
-				pm.consoleBroadcaster.Broadcast(strData)
-			}()
-
-		}
-
 	}
 }
