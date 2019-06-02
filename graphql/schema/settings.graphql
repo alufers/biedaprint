@@ -1,0 +1,66 @@
+directive @settingsPageDesc(name: String, description: String) on ENUM_VALUE
+
+enum SettingsPage {
+  GENERAL
+    @settingsPageDesc(
+      name: "General"
+      description: "General biedaprint settings."
+    )
+  SERIAL_PORT @settingsPageDesc(name: "Serial port", description: "Serial port connection settings.")
+  TEMPERATURES  @settingsPageDesc(name: "Temperatures", description: "Temperature control settings (material presets etc.).")
+}
+
+directive @settingsField(
+  label: String
+  description: String
+  page: SettingsPage
+) on FIELD_DEFINITION
+
+type TemperaturePreset {
+  name: String!
+  hotendTemperature: Float!
+  hotbedTemperature: Float!
+}
+
+enum SerialParity {
+  EVEN
+  NONE
+}
+
+type Settings {
+  serialPort: String!
+    @settingsField(
+      label: "Serial port"
+      description: "The serial port to connect to the printer"
+      page: SERIAL_PORT
+    )
+
+  baudRate: Int! @settingsField(label: "Baud rate")
+  scrollbackBufferSize: Int!
+    @settingsField(
+      label: "Scrollback buffer size"
+      description: "The number of bytes of the printer's output that should be stored in-memory."
+    )
+  dataPath: String! @settingsField(label: "Data path")
+  parity: SerialParity! @settingsField(label: "Parity")
+  dataBits: Int! @settingsField(label: "Baud rate")
+  startupCommand: String!
+  temperaturePresets: [TemperaturePreset!]!
+}
+
+input TemperaturePresetInput {
+  name: String!
+  hotendTemperature: Float!
+  hotbedTemperature: Float!
+}
+
+input NewSettings {
+  serialPort: String!
+  baudRate: Int!
+  parity: SerialParity!
+  dataBits: Int!
+  scrollbackBufferSize: Int!
+  dataPath: String!
+  startupCommand: String!
+  temperaturePresets: [TemperaturePresetInput!]!
+}

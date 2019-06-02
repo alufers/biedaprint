@@ -42,6 +42,9 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	SettingsField func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string, page *SettingsPage) (res interface{}, err error)
+
+	SettingsPageDesc func(ctx context.Context, obj interface{}, next graphql.Resolver, name *string, description *string) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -790,6 +793,37 @@ func (ec *executionContext) FieldMiddleware(ctx context.Context, obj interface{}
 			ret = nil
 		}
 	}()
+	rctx := graphql.GetResolverContext(ctx)
+	for _, d := range rctx.Field.Definition.Directives {
+		switch d.Name {
+		case "settingsField":
+			if ec.directives.SettingsField != nil {
+				rawArgs := d.ArgumentMap(ec.Variables)
+				args, err := ec.dir_settingsField_args(ctx, rawArgs)
+				if err != nil {
+					ec.Error(ctx, err)
+					return nil
+				}
+				n := next
+				next = func(ctx context.Context) (interface{}, error) {
+					return ec.directives.SettingsField(ctx, obj, n, args["label"].(*string), args["description"].(*string), args["page"].(*SettingsPage))
+				}
+			}
+		case "settingsPageDesc":
+			if ec.directives.SettingsPageDesc != nil {
+				rawArgs := d.ArgumentMap(ec.Variables)
+				args, err := ec.dir_settingsPageDesc_args(ctx, rawArgs)
+				if err != nil {
+					ec.Error(ctx, err)
+					return nil
+				}
+				n := next
+				next = func(ctx context.Context) (interface{}, error) {
+					return ec.directives.SettingsPageDesc(ctx, obj, n, args["name"].(*string), args["description"].(*string))
+				}
+			}
+		}
+	}
 	res, err := ec.ResolverMiddleware(ctx, next)
 	if err != nil {
 		ec.Error(ctx, err)
@@ -822,22 +856,8 @@ scalar Time
 scalar Map
 scalar Upload
 
-type Settings {
-  serialPort: String!
-  baudRate: Int!
-  scrollbackBufferSize: Int!
-  dataPath: String!
-  parity: SerialParity!
-  dataBits: Int!
-  startupCommand: String!
-  temperaturePresets: [TemperaturePreset!]!
-}
 
-type TemperaturePreset {
-  name: String!
-  hotendTemperature: Float!
-  hotbedTemperature: Float!
-}
+
 
 enum TrackedValueDisplayType {
   PLOT
@@ -847,10 +867,6 @@ enum TrackedValueDisplayType {
   STRING
 }
 
-enum SerialParity {
-  EVEN
-  NONE
-}
 
 type TrackedValue {
   name: String!
@@ -891,22 +907,6 @@ type PrintJob {
   startedTime: Time!
 }
 
-input TemperaturePresetInput {
-  name: String!
-  hotendTemperature: Float!
-  hotbedTemperature: Float!
-}
-
-input NewSettings {
-  serialPort: String!
-  baudRate: Int!
-  parity: SerialParity!
-  dataBits: Int!
-  scrollbackBufferSize: Int!
-  dataPath: String!
-  startupCommand: String!
-  temperaturePresets: [TemperaturePresetInput!]!
-}
 
 type AvailableUpdate {
   tagName: String!
@@ -950,11 +950,130 @@ type Subscription {
   serialConsoleData: String!
 }
 `},
+	&ast.Source{Name: "graphql/schema/settings.graphql", Input: `directive @settingsPageDesc(name: String, description: String) on ENUM_VALUE
+
+enum SettingsPage {
+  GENERAL
+    @settingsPageDesc(
+      name: "General"
+      description: "General biedaprint settings."
+    )
+  SERIAL_PORT @settingsPageDesc(name: "Serial port", description: "Serial port connection settings.")
+  TEMPERATURES  @settingsPageDesc(name: "Temperatures", description: "Temperature control settings (material presets etc.).")
+}
+
+directive @settingsField(
+  label: String
+  description: String
+  page: SettingsPage
+) on FIELD_DEFINITION
+
+type TemperaturePreset {
+  name: String!
+  hotendTemperature: Float!
+  hotbedTemperature: Float!
+}
+
+enum SerialParity {
+  EVEN
+  NONE
+}
+
+type Settings {
+  serialPort: String!
+    @settingsField(
+      label: "Serial port"
+      description: "The serial port to connect to the printer"
+      page: SERIAL_PORT
+    )
+
+  baudRate: Int! @settingsField(label: "Baud rate")
+  scrollbackBufferSize: Int!
+    @settingsField(
+      label: "Scrollback buffer size"
+      description: "The number of bytes of the printer's output that should be stored in-memory."
+    )
+  dataPath: String! @settingsField(label: "Data path")
+  parity: SerialParity! @settingsField(label: "Parity")
+  dataBits: Int! @settingsField(label: "Baud rate")
+  startupCommand: String!
+  temperaturePresets: [TemperaturePreset!]!
+}
+
+input TemperaturePresetInput {
+  name: String!
+  hotendTemperature: Float!
+  hotbedTemperature: Float!
+}
+
+input NewSettings {
+  serialPort: String!
+  baudRate: Int!
+  parity: SerialParity!
+  dataBits: Int!
+  scrollbackBufferSize: Int!
+  dataPath: String!
+  startupCommand: String!
+  temperaturePresets: [TemperaturePresetInput!]!
+}
+`},
 )
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_settingsField_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["label"]; ok {
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["label"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["description"]; ok {
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["description"] = arg1
+	var arg2 *SettingsPage
+	if tmp, ok := rawArgs["page"]; ok {
+		arg2, err = ec.unmarshalOSettingsPage2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) dir_settingsPageDesc_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["name"]; ok {
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["description"]; ok {
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["description"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_abortPrintJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -5626,6 +5745,30 @@ func (ec *executionContext) marshalOPrintJob2ᚖgithubᚗcomᚋalufersᚋbiedapr
 		return graphql.Null
 	}
 	return ec._PrintJob(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSettingsPage2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx context.Context, v interface{}) (SettingsPage, error) {
+	var res SettingsPage
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalOSettingsPage2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx context.Context, sel ast.SelectionSet, v SettingsPage) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOSettingsPage2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx context.Context, v interface{}) (*SettingsPage, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOSettingsPage2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOSettingsPage2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx context.Context, sel ast.SelectionSet, v *SettingsPage) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

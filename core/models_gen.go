@@ -129,6 +129,49 @@ func (e SerialParity) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type SettingsPage string
+
+const (
+	SettingsPageGeneral      SettingsPage = "GENERAL"
+	SettingsPageSerialPort   SettingsPage = "SERIAL_PORT"
+	SettingsPageTemperatures SettingsPage = "TEMPERATURES"
+)
+
+var AllSettingsPage = []SettingsPage{
+	SettingsPageGeneral,
+	SettingsPageSerialPort,
+	SettingsPageTemperatures,
+}
+
+func (e SettingsPage) IsValid() bool {
+	switch e {
+	case SettingsPageGeneral, SettingsPageSerialPort, SettingsPageTemperatures:
+		return true
+	}
+	return false
+}
+
+func (e SettingsPage) String() string {
+	return string(e)
+}
+
+func (e *SettingsPage) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SettingsPage(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SettingsPage", str)
+	}
+	return nil
+}
+
+func (e SettingsPage) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type TrackedValueDisplayType string
 
 const (

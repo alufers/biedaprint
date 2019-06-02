@@ -7,22 +7,8 @@ scalar Time
 scalar Map
 scalar Upload
 
-type Settings {
-  serialPort: String!
-  baudRate: Int!
-  scrollbackBufferSize: Int!
-  dataPath: String!
-  parity: SerialParity!
-  dataBits: Int!
-  startupCommand: String!
-  temperaturePresets: [TemperaturePreset!]!
-}
 
-type TemperaturePreset {
-  name: String!
-  hotendTemperature: Float!
-  hotbedTemperature: Float!
-}
+
 
 enum TrackedValueDisplayType {
   PLOT
@@ -32,10 +18,6 @@ enum TrackedValueDisplayType {
   STRING
 }
 
-enum SerialParity {
-  EVEN
-  NONE
-}
 
 type TrackedValue {
   name: String!
@@ -76,22 +58,6 @@ type PrintJob {
   startedTime: Time!
 }
 
-input TemperaturePresetInput {
-  name: String!
-  hotendTemperature: Float!
-  hotbedTemperature: Float!
-}
-
-input NewSettings {
-  serialPort: String!
-  baudRate: Int!
-  parity: SerialParity!
-  dataBits: Int!
-  scrollbackBufferSize: Int!
-  dataPath: String!
-  startupCommand: String!
-  temperaturePresets: [TemperaturePresetInput!]!
-}
 
 type AvailableUpdate {
   tagName: String!

@@ -20,10 +20,13 @@ build-multiplatform: build-frontend backend-graphql-codegen
 backend-graphql-codegen:
 	# go run github.com/99designs/gqlgen
 
-build-frontend: frontend-graphql-codegen
+build-frontend: frontend-graphql-codegen settings-schema-codegen
 	cd frontend; \
 	VUE_APP_GRAPHQL_HTTP=/query VUE_APP_GRAPHQL_WS_AUTO_RELATIVE=true node_modules/.bin/vue-cli-service build --dest ../static 
 
 frontend-graphql-codegen:
 	cd frontend; \
 	npm run graphql-codegen
+
+settings-schema-codegen:
+	go run go run codegen/gen_settings_schema/*.go

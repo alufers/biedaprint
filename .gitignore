@@ -4,6 +4,7 @@ settings.json
 static/
 node_modules
 #frontend/src/assets/gcode-docs.json
+frontend/src/assets/settings-schema.json
 biedaprint_data
 build/
 .DS_Store
