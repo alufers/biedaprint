@@ -19,7 +19,7 @@ import {
   SubscribeToTrackedValueUpdatedByNameSubscription,
   SubscribeToTrackedValueUpdatedByNameSubscriptionVariables
 } from "../graphql-models-gen";
-import getTrackedValueByNameWithMeta from "../../../queries/getTrackedValueByNameWithMeta.graphql";
+import getTrackedValueByNameWithMeta from "../../../graphql/queries/getTrackedValueByNameWithMeta.graphql";
 import { QueryResult } from "vue-apollo/types/vue-apollo";
 import gql from "graphql-tag";
 

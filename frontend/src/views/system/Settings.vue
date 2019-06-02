@@ -99,8 +99,8 @@ import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import LoadableMixin from "../../LoadableMixin";
 import gql from "graphql-tag";
-import getSettingsAndSerialPorts from "../../../../queries/getSettingsAndSerialPorts.graphql";
-import updateSettings from "../../../../queries/updateSettings.graphql";
+import getSettingsAndSerialPorts from "../../../../graphql/queries/getSettingsAndSerialPorts.graphql";
+import updateSettings from "../../../../graphql/queries/updateSettings.graphql";
 import {
   GetSettingsAndSerialPortsQuery,
   UpdateSettingsMutation,

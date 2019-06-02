@@ -36,9 +36,9 @@
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import GcodeDocs from "../../components/GcodeDocs.vue";
-import sendConsoleCommand from "../../../../queries/sendConsoleCommand.graphql";
-import getScrollbackBufferAndRecentCommands from "../../../../queries/getScrollbackBufferAndRecentCommands.graphql";
-import serialConsoleDataSubscription from "../../../../queries/serialConsoleDataSubscription.graphql";
+import sendConsoleCommand from "../../../../graphql/queries/sendConsoleCommand.graphql";
+import getScrollbackBufferAndRecentCommands from "../../../../graphql/queries/getScrollbackBufferAndRecentCommands.graphql";
+import serialConsoleDataSubscription from "../../../../graphql/queries/serialConsoleDataSubscription.graphql";
 import LoadableMixin from "../../LoadableMixin";
 import {
   SendConsoleCommandMutation,

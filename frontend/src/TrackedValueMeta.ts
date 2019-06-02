@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Component, { createDecorator } from "vue-class-component";
-import getTrackedValueByNameWithMeta from "../../queries/getTrackedValueByNameWithMeta.graphql";
+import getTrackedValueByNameWithMeta from "../../graphql/queries/getTrackedValueByNameWithMeta.graphql";
 import {
   GetTrackedValueByNameWithMetaQuery,
   GetTrackedValueByNameWithMetaQueryVariables

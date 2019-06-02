@@ -28,7 +28,7 @@ import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import LoadableMixin from "../../LoadableMixin";
 import gql from "graphql-tag";
-import getSystemInformation from "../../../../queries/getSystemInformation.graphql";
+import getSystemInformation from "../../../../graphql/queries/getSystemInformation.graphql";
 import { GetSystemInformationQuery } from "../../graphql-models-gen";
 import LoaderGuard from "../../components/LoaderGuard.vue";
 import { Watch } from "vue-property-decorator";

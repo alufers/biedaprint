@@ -54,13 +54,13 @@
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import LoadableMixin from "../LoadableMixin";
-import { uploadGcode } from "../../../queries/uploadGcode.graphql";
+import { uploadGcode } from "../../../graphql/queries/uploadGcode.graphql";
 import {
   UploadGcodeMutationVariables,
   UploadGcodeMutation,
   GetGcodeFileMetasQuery
 } from "../graphql-models-gen";
-import { getGcodeFileMetas } from "../../../queries/getGcodeFileMetas.graphql";
+import { getGcodeFileMetas } from "../../../graphql/queries/getGcodeFileMetas.graphql";
 
 @Component({})
 export default class GcodeUploadZone extends mixins(LoadableMixin) {

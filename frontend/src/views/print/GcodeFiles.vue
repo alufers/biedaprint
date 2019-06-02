@@ -82,8 +82,8 @@ import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import { DateTime, Duration, DurationObject, DurationObjectUnits } from "luxon";
 import GcodeUploadZone from "../../components/GcodeUploadZone.vue";
-import { startPrintJob } from "../../../../queries/startPrintJob.graphql";
-import { deleteGcodeFile } from "../../../../queries/deleteGcodeFile.graphql";
+import { startPrintJob } from "../../../../graphql/queries/startPrintJob.graphql";
+import { deleteGcodeFile } from "../../../../graphql/queries/deleteGcodeFile.graphql";
 import LoadableMixin from "../../LoadableMixin";
 import {
   StartPrintJobMutation,
@@ -93,7 +93,7 @@ import {
   GetGcodeFileMetasQuery,
   GcodeFileMeta
 } from "../../graphql-models-gen";
-import { getGcodeFileMetas } from "../../../../queries/getGcodeFileMetas.graphql";
+import { getGcodeFileMetas } from "../../../../graphql/queries/getGcodeFileMetas.graphql";
 import ApolloQuery from "../../ApolloQuery";
 import { Watch } from "vue-property-decorator";
 

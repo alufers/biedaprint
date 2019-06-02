@@ -1,7 +1,7 @@
 schema: ../schema.graphql
 documents:
   - src/**/*.{ts,tsx}
-  - ../queries/**/*.graphql
+  - ../graphql/queries/**/*.graphql
 generates:
   src/graphql-models-gen.ts:
     - typescript

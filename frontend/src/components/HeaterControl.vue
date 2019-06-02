@@ -65,7 +65,7 @@ import Component, { mixins } from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
 import TrackedValueSubscription from "../TrackedValueSubscription";
 import LoadableMixin from "../LoadableMixin";
-import { sendGcode } from "../../../queries/sendGcode.graphql";
+import { sendGcode } from "../../../graphql/queries/sendGcode.graphql";
 import {
   SendGcodeMutation,
   SendGcodeMutationVariables,
@@ -74,7 +74,7 @@ import {
   Settings
 } from "../graphql-models-gen";
 import ApolloQuery from "../ApolloQuery";
-import { getTemperaturePresets } from "../../../queries/getTemperaturePresets.graphql";
+import { getTemperaturePresets } from "../../../graphql/queries/getTemperaturePresets.graphql";
 import { setTimeout } from "timers";
 
 @Component({})

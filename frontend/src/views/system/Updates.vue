@@ -52,9 +52,9 @@ import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import LoadableMixin from "../../LoadableMixin";
 import gql from "graphql-tag";
-import getAvailableUpdates from "../../../../queries/getAvailableUpdates.graphql";
-import performUpdate from "../../../../queries/performUpdate.graphql";
-import downloadUpdate from "../../../../queries/downloadUpdate.graphql";
+import getAvailableUpdates from "../../../../graphql/queries/getAvailableUpdates.graphql";
+import performUpdate from "../../../../graphql/queries/performUpdate.graphql";
+import downloadUpdate from "../../../../graphql/queries/downloadUpdate.graphql";
 import {
   GetAvailableUpdatesQuery,
   AvailableUpdate,

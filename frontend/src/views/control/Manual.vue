@@ -49,7 +49,7 @@
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import LoadableMixin from "../../LoadableMixin";
-import { sendGcode } from "../../../../queries/sendGcode.graphql";
+import { sendGcode } from "../../../../graphql/queries/sendGcode.graphql";
 import {
   SendGcodeMutation,
   SendGcodeMutationVariables

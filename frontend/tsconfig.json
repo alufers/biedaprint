@@ -27,7 +27,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx",
-    "../queries/*.graphql",
+    "../graphql/queries/*.graphql",
     "types/**/*.ts"
   ],
   "exclude": ["node_modules"]
