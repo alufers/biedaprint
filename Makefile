@@ -29,4 +29,4 @@ frontend-graphql-codegen:
 	npm run graphql-codegen
 
 settings-schema-codegen:
-	go run go run codegen/gen_settings_schema/*.go
+	go run codegen/gen_settings_schema/*.go
