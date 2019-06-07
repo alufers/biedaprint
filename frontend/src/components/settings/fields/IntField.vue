@@ -2,7 +2,7 @@
   <div>
     <div class="field">
       <label class="label">{{fieldDescriptor.label}}</label>
-      <input type="text" class="input" :value="value" @input="onFieldInput">
+      <input type="number" class="input" :value="value" @input="onFieldInput">
       <p class="help" v-if="fieldDescriptor.description">{{fieldDescriptor.description}}</p>
     </div>
   </div>
@@ -23,13 +23,13 @@ export default class TextField extends Vue {
   fieldDescriptor: SettingsFieldDescriptor;
 
   @Prop({
-    type: String
+    type: Number
   })
-  value: string;
+  value: number;
 
   @Emit("input")
   onFieldInput(e: Event) {
-    return (<HTMLInputElement>e.target).value;
+    return parseInt((<HTMLInputElement>e.target).value);
   }
 }
 </script>

@@ -52,7 +52,7 @@ type Settings {
       page: SERIAL_PORT
     )
   parity: SerialParity! @settingsField(label: "Parity", page: SERIAL_PORT)
-  dataBits: Int! @settingsField(label: "Baud rate", page: SERIAL_PORT)
+  dataBits: Int! @settingsField(label: "Data bits", page: SERIAL_PORT)
 
   # GENERAL PAGE
   dataPath: String! @settingsField(label: "Data path", page: GENERAL)
@@ -61,8 +61,6 @@ type Settings {
 
   temperaturePresets: [TemperaturePreset!]!
 }
-
-
 
 input TemperaturePresetInput {
   name: String!
