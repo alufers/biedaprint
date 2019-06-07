@@ -74,7 +74,7 @@ export default class SettingsPage extends mixins(LoadableMixin) {
   }
 
   fieldValue(field: SettingsFieldDescriptor) {
-    return this.settings[field.key];
+    return (this.settings as any)[field.key];
   }
 
   onFieldInputEvent(field: SettingsFieldDescriptor, newValue: any) {
@@ -83,7 +83,7 @@ export default class SettingsPage extends mixins(LoadableMixin) {
       query: getSettings
     });
 
-    settings[field.key] = newValue;
+    (settings as any)[field.key] = newValue;
     cache.writeQuery<GetSettingsQuery>({
       query: getSettings,
       data: { settings }
