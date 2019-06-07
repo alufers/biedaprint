@@ -8,8 +8,6 @@ scalar Map
 scalar Upload
 
 
-
-
 enum TrackedValueDisplayType {
   PLOT
   TIME

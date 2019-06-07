@@ -857,8 +857,6 @@ scalar Map
 scalar Upload
 
 
-
-
 enum TrackedValueDisplayType {
   PLOT
   TIME
@@ -958,8 +956,16 @@ enum SettingsPage {
       name: "General"
       description: "General biedaprint settings."
     )
-  SERIAL_PORT @settingsPageDesc(name: "Serial port", description: "Serial port connection settings.")
-  TEMPERATURES  @settingsPageDesc(name: "Temperatures", description: "Temperature control settings (material presets etc.).")
+  SERIAL_PORT
+    @settingsPageDesc(
+      name: "Serial port"
+      description: "Serial port connection settings."
+    )
+  TEMPERATURES
+    @settingsPageDesc(
+      name: "Temperatures"
+      description: "Temperature control settings (material presets etc.)."
+    )
 }
 
 directive @settingsField(
@@ -980,25 +986,32 @@ enum SerialParity {
 }
 
 type Settings {
+  # SERIAL PORT PAGE
   serialPort: String!
     @settingsField(
       label: "Serial port"
       description: "The serial port to connect to the printer"
       page: SERIAL_PORT
     )
-
-  baudRate: Int! @settingsField(label: "Baud rate")
+  baudRate: Int! @settingsField(label: "Baud rate", page: SERIAL_PORT)
   scrollbackBufferSize: Int!
     @settingsField(
       label: "Scrollback buffer size"
       description: "The number of bytes of the printer's output that should be stored in-memory."
+      page: SERIAL_PORT
     )
-  dataPath: String! @settingsField(label: "Data path")
-  parity: SerialParity! @settingsField(label: "Parity")
-  dataBits: Int! @settingsField(label: "Baud rate")
+  parity: SerialParity! @settingsField(label: "Parity", page: SERIAL_PORT)
+  dataBits: Int! @settingsField(label: "Baud rate", page: SERIAL_PORT)
+
+  # GENERAL PAGE
+  dataPath: String! @settingsField(label: "Data path", page: GENERAL)
   startupCommand: String!
+    @settingsField(label: "Startup command", page: GENERAL)
+
   temperaturePresets: [TemperaturePreset!]!
 }
+
+
 
 input TemperaturePresetInput {
   name: String!
@@ -2567,33 +2580,6 @@ func (ec *executionContext) _Settings_scrollbackBufferSize(ctx context.Context, 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Settings_dataPath(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "Settings",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DataPath, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Settings_parity(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
@@ -2646,6 +2632,33 @@ func (ec *executionContext) _Settings_dataBits(ctx context.Context, field graphq
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_dataPath(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Settings",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DataPath, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Settings_startupCommand(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
@@ -4517,11 +4530,6 @@ func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "dataPath":
-			out.Values[i] = ec._Settings_dataPath(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "parity":
 			out.Values[i] = ec._Settings_parity(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4529,6 +4537,11 @@ func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "dataBits":
 			out.Values[i] = ec._Settings_dataBits(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "dataPath":
+			out.Values[i] = ec._Settings_dataPath(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

@@ -55,9 +55,9 @@ type Settings struct {
 	SerialPort           string               `json:"serialPort"`
 	BaudRate             int                  `json:"baudRate"`
 	ScrollbackBufferSize int                  `json:"scrollbackBufferSize"`
-	DataPath             string               `json:"dataPath"`
 	Parity               SerialParity         `json:"parity"`
 	DataBits             int                  `json:"dataBits"`
+	DataPath             string               `json:"dataPath"`
 	StartupCommand       string               `json:"startupCommand"`
 	TemperaturePresets   []*TemperaturePreset `json:"temperaturePresets"`
 }

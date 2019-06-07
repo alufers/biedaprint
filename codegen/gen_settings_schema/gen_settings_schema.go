@@ -7,6 +7,7 @@ import (
 	"log"
 	"path/filepath"
 
+	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
@@ -62,6 +63,7 @@ func processPages(schema *ast.Schema) []*SettingsPage {
 	for _, enumValue := range pagesEnum.EnumValues {
 		if directive := enumValue.Directives.ForName("settingsPageDesc"); directive != nil {
 			pages = append(pages, &SettingsPage{
+				ParamName:   strcase.ToKebab(enumValue.Name),
 				EnumName:    enumValue.Name,
 				Name:        directive.Arguments.ForName("name").Value.Raw,
 				Description: directive.Arguments.ForName("description").Value.Raw,
@@ -70,6 +72,55 @@ func processPages(schema *ast.Schema) []*SettingsPage {
 	}
 
 	return pages
+}
+
+func processFields(schema *ast.Schema) []*SettingsField {
+	settingsType := schema.Types["Settings"]
+	if settingsType == nil || settingsType.Kind != ast.Object {
+		panic("Settings must not be nil and must be an object")
+	}
+
+	fields := []*SettingsField{}
+
+	for _, field := range settingsType.Fields {
+		if directive := field.Directives.ForName("settingsField"); directive != nil {
+			typeName := field.Type.String()
+			var description string
+			pageNameArg := directive.Arguments.ForName("page")
+			if pageNameArg == nil {
+				panic("page name missing")
+			}
+			if descriptionArg := directive.Arguments.ForName("description"); descriptionArg != nil {
+				description = descriptionArg.Value.Raw
+			}
+			var editComponent string
+			if editComponentArg := directive.Arguments.ForName("editComponent"); editComponentArg != nil {
+				editComponent = editComponentArg.Value.Raw
+			} else {
+				switch typeName {
+				case "Int!":
+					editComponent = "IntField"
+				case "Float!":
+					editComponent = "FloatField"
+				case "String!":
+					editComponent = "TextField"
+				case "Boolean!":
+					editComponent = "CheckboxField"
+				}
+			}
+			fields = append(fields, &SettingsField{
+				Key:           field.Name,
+				ParamName:     strcase.ToKebab(field.Name),
+				PageEnumName:  pageNameArg.Value.Raw,
+				GraphQLType:   typeName,
+				Label:         directive.Arguments.ForName("label").Value.Raw,
+				Description:   description,
+				EditComponent: editComponent,
+			})
+		}
+	}
+
+	return fields
 }
 
 func main() {
@@ -84,7 +135,8 @@ func main() {
 	ps := processPages(schema)
 
 	setSchema := &SettingsSchema{
-		Pages: ps,
+		Pages:  ps,
+		Fields: processFields(schema),
 	}
 
 	data, _ := json.MarshalIndent(setSchema, "", "  ")

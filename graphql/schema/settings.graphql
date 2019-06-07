@@ -6,14 +6,23 @@ enum SettingsPage {
       name: "General"
       description: "General biedaprint settings."
     )
-  SERIAL_PORT @settingsPageDesc(name: "Serial port", description: "Serial port connection settings.")
-  TEMPERATURES  @settingsPageDesc(name: "Temperatures", description: "Temperature control settings (material presets etc.).")
+  SERIAL_PORT
+    @settingsPageDesc(
+      name: "Serial port"
+      description: "Serial port connection settings."
+    )
+  TEMPERATURES
+    @settingsPageDesc(
+      name: "Temperatures"
+      description: "Temperature control settings (material presets etc.)."
+    )
 }
 
 directive @settingsField(
   label: String
   description: String
   page: SettingsPage
+  editComponent: String
 ) on FIELD_DEFINITION
 
 type TemperaturePreset {
@@ -28,25 +37,32 @@ enum SerialParity {
 }
 
 type Settings {
+  # SERIAL PORT PAGE
   serialPort: String!
     @settingsField(
       label: "Serial port"
       description: "The serial port to connect to the printer"
       page: SERIAL_PORT
     )
-
-  baudRate: Int! @settingsField(label: "Baud rate")
+  baudRate: Int! @settingsField(label: "Baud rate", page: SERIAL_PORT)
   scrollbackBufferSize: Int!
     @settingsField(
       label: "Scrollback buffer size"
       description: "The number of bytes of the printer's output that should be stored in-memory."
+      page: SERIAL_PORT
     )
-  dataPath: String! @settingsField(label: "Data path")
-  parity: SerialParity! @settingsField(label: "Parity")
-  dataBits: Int! @settingsField(label: "Baud rate")
+  parity: SerialParity! @settingsField(label: "Parity", page: SERIAL_PORT)
+  dataBits: Int! @settingsField(label: "Baud rate", page: SERIAL_PORT)
+
+  # GENERAL PAGE
+  dataPath: String! @settingsField(label: "Data path", page: GENERAL)
   startupCommand: String!
+    @settingsField(label: "Startup command", page: GENERAL)
+
   temperaturePresets: [TemperaturePreset!]!
 }
+
+
 
 input TemperaturePresetInput {
   name: String!

@@ -16,6 +16,7 @@ require (
 	github.com/gobuffalo/packr/v2 v2.1.0
 	github.com/gorilla/websocket v1.4.0
 	github.com/grandcat/zeroconf v0.0.0-20190424104450-85eadb44205c
+	github.com/iancoleman/strcase v0.0.0-20190422225806-e506e3ef7365
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
 	github.com/miekg/dns v1.1.12 // indirect

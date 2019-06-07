@@ -81,7 +81,16 @@ export const routerConfig: RouterOptions = {
           component: () =>
             import(
               /* webpackChunkName: "settings" */ "./views/system/Settings.vue"
-            )
+            ),
+          children: [
+            {
+              path: ":pageName",
+              component: () =>
+                import(
+                  /* webpackChunkName: "settings" */ "./views/system/Settings/SettingsPage.vue"
+                )
+            }
+          ]
         },
         {
           path: "system-info",
