@@ -6,4 +6,5 @@ export default interface SettingsFieldDescriptor {
   editComponent: string;
   label: string;
   description: string;
+  enumTypeName: string;
 }

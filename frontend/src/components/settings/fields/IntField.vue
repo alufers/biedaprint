@@ -3,7 +3,7 @@
     <div class="field">
       <label class="label">{{fieldDescriptor.label}}</label>
       <input type="number" class="input" :value="value" @input="onFieldInput">
-      <p class="help" v-if="fieldDescriptor.description">{{fieldDescriptor.description}}</p>
+      <p class="help">{{fieldDescriptor.description}}</p>
     </div>
   </div>
 </template>
@@ -15,7 +15,7 @@ import { Prop, Emit } from "vue-property-decorator";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
 
 @Component({})
-export default class TextField extends Vue {
+export default class IntField extends Vue {
   @Prop({
     required: true,
     type: Object

@@ -1,4 +1,5 @@
 directive @settingsPageDesc(name: String, description: String) on ENUM_VALUE
+directive @enumValueDesc(label: String) on ENUM_VALUE
 
 enum SettingsPage {
   GENERAL
@@ -32,8 +33,8 @@ type TemperaturePreset {
 }
 
 enum SerialParity {
-  EVEN
-  NONE
+  EVEN @enumValueDesc(label: "Even")
+  NONE @enumValueDesc(label: "None")
 }
 
 type Settings {
@@ -60,6 +61,11 @@ type Settings {
     @settingsField(label: "Startup command", page: GENERAL)
 
   temperaturePresets: [TemperaturePreset!]!
+    @settingsField(
+      label: "Temperature presets"
+      page: TEMPERATURES
+      editComponent: "TemperaturePresetsTable"
+    )
 }
 
 input TemperaturePresetInput {

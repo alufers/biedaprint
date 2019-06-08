@@ -51,7 +51,7 @@ func processGraphqlType(def *ast.Definition) {
 	}
 }
 
-func processPages(schema *ast.Schema) []*SettingsPage {
+func processPages(schema *ast.Schema, result *SettingsSchema) {
 	pagesEnum := schema.Types["SettingsPage"]
 
 	if pagesEnum == nil || pagesEnum.Kind != ast.Enum {
@@ -71,10 +71,47 @@ func processPages(schema *ast.Schema) []*SettingsPage {
 		}
 	}
 
-	return pages
+	result.Pages = pages
 }
 
-func processFields(schema *ast.Schema) []*SettingsField {
+func isTypeEnum(t *ast.Definition) bool {
+
+	if t == nil || t.Kind != ast.Enum {
+		return false
+	}
+	return true
+}
+
+func processEnumType(schema *ast.Schema, result *SettingsSchema, enumName string) {
+	enumType := schema.Types[enumName]
+
+	if !isTypeEnum(enumType) {
+		return
+	}
+
+	for _, se := range result.Enums {
+		if se.Name == enumName {
+			return
+		}
+	}
+	settingsEnum := &SettingsEnum{
+		Name:   enumName,
+		Values: []*SettingsEnumValue{},
+	}
+
+	for _, val := range enumType.EnumValues {
+		if valDirective := val.Directives.ForName("enumValueDesc"); valDirective != nil {
+			settingsEnum.Values = append(settingsEnum.Values, &SettingsEnumValue{
+				Value: val.Name,
+				Label: valDirective.Arguments.ForName("label").Value.Raw,
+			})
+		}
+	}
+
+	result.Enums = append(result.Enums, settingsEnum)
+}
+
+func processFields(schema *ast.Schema, result *SettingsSchema) {
 	settingsType := schema.Types["Settings"]
 	if settingsType == nil || settingsType.Kind != ast.Object {
 		panic("Settings must not be nil and must be an object")
@@ -107,7 +144,11 @@ func processFields(schema *ast.Schema) []*SettingsField {
 				case "Boolean!":
 					editComponent = "CheckboxField"
 				}
+				if isTypeEnum(schema.Types[field.Type.Name()]) {
+					editComponent = "EnumSelect"
+				}
 			}
+			processEnumType(schema, result, field.Type.Name())
 			fields = append(fields, &SettingsField{
 				Key:           field.Name,
 				ParamName:     strcase.ToKebab(field.Name),
@@ -116,11 +157,12 @@ func processFields(schema *ast.Schema) []*SettingsField {
 				Label:         directive.Arguments.ForName("label").Value.Raw,
 				Description:   description,
 				EditComponent: editComponent,
+				EnumTypeName:  field.Type.Name(),
 			})
 		}
 	}
 
-	return fields
+	result.Fields = fields
 }
 
 func main() {
@@ -132,13 +174,10 @@ func main() {
 	if parseError != nil {
 		log.Fatalf("failed to parse schema: %v", parseError.Message)
 	}
-	ps := processPages(schema)
 
-	setSchema := &SettingsSchema{
-		Pages:  ps,
-		Fields: processFields(schema),
-	}
-
+	setSchema := &SettingsSchema{}
+	processFields(schema, setSchema)
+	processPages(schema, setSchema)
 	data, _ := json.MarshalIndent(setSchema, "", "  ")
 
 	err = ioutil.WriteFile("frontend/src/assets/settings-schema.json", data, 0666)
