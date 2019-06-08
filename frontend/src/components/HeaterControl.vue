@@ -63,7 +63,7 @@
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
-import TrackedValueSubscription from "../TrackedValueSubscription";
+import TrackedValueSubscription from "../decorators/TrackedValueSubscription";
 import LoadableMixin from "../LoadableMixin";
 import { sendGcode } from "../../../graphql/queries/sendGcode.graphql";
 import {
@@ -73,7 +73,7 @@ import {
   TemperaturePreset,
   Settings
 } from "../graphql-models-gen";
-import ApolloQuery from "../ApolloQuery";
+import ApolloQuery from "../decorators/ApolloQuery";
 import { getTemperaturePresets } from "../../../graphql/queries/getTemperaturePresets.graphql";
 import { setTimeout } from "timers";
 

@@ -94,7 +94,7 @@ import {
   GcodeFileMeta
 } from "../../graphql-models-gen";
 import { getGcodeFileMetas } from "../../../../graphql/queries/getGcodeFileMetas.graphql";
-import ApolloQuery from "../../ApolloQuery";
+import ApolloQuery from "../../decorators/ApolloQuery";
 import { Watch } from "vue-property-decorator";
 
 @Component({

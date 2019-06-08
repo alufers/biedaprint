@@ -5,7 +5,7 @@ import {
   GetTrackedValueByNameOnlyValueQuery,
   SubscribeToTrackedValueUpdatedByNameSubscription,
   SubscribeToTrackedValueUpdatedByNameSubscriptionVariables
-} from "./graphql-models-gen";
+} from "../graphql-models-gen";
 import { QueryResult } from "vue-apollo/types/vue-apollo";
 
 /**

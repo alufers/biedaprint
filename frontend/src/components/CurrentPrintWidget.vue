@@ -44,7 +44,7 @@
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import { DateTime } from "luxon";
-import TrackedValueSubscription from "../TrackedValueSubscription";
+import TrackedValueSubscription from "../decorators/TrackedValueSubscription";
 import LoadableMixin from "../LoadableMixin";
 import { abortPrintJob } from "../../../graphql/queries/abortPrintJob.graphql";
 

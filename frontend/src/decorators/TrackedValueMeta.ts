@@ -4,7 +4,7 @@ import getTrackedValueByNameWithMeta from "../../graphql/queries/getTrackedValue
 import {
   GetTrackedValueByNameWithMetaQuery,
   GetTrackedValueByNameWithMetaQueryVariables
-} from "./graphql-models-gen";
+} from "../graphql-models-gen";
 
 export default function TrackedValueMeta(tvName: string) {
   return createDecorator((options, key) => {

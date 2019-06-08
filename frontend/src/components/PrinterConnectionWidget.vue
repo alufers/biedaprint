@@ -21,7 +21,7 @@
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
 import gql from "graphql-tag";
-import TrackedValueSubscription from "../TrackedValueSubscription";
+import TrackedValueSubscription from "../decorators/TrackedValueSubscription";
 import { TrackedValue } from "../graphql-models-gen";
 import LoadableMixin from "../LoadableMixin";
 

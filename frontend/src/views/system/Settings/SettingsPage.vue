@@ -36,7 +36,7 @@ import {
   UpdateSettingsMutationVariables
 } from "../../../graphql-models-gen";
 import LoadableMixin from "../../../LoadableMixin";
-import ApolloQuery from "../../../ApolloQuery";
+import ApolloQuery from "../../../decorators/ApolloQuery";
 import { getSettings } from "../../../../../graphql/queries/getSettings.graphql";
 import LoaderGuard from "../../../components/LoaderGuard.vue";
 import { updateSettings } from "../../../../../graphql/queries/updateSettings.graphql";

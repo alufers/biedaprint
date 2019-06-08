@@ -73,7 +73,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import TrackedValueSubscription from "../TrackedValueSubscription";
+import TrackedValueSubscription from "../decorators/TrackedValueSubscription";
 import { routerConfig } from "../router";
 import urlJoin from "url-join";
 
