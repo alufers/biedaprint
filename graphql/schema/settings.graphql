@@ -7,11 +7,13 @@ enum SettingsPage {
       name: "General"
       description: "General biedaprint settings."
     )
+
   SERIAL_PORT
     @settingsPageDesc(
       name: "Serial port"
       description: "Serial port connection settings."
     )
+    
   TEMPERATURES
     @settingsPageDesc(
       name: "Temperatures"
@@ -30,6 +32,7 @@ directive @settingsField(
   description: String
   page: SettingsPage
   editComponent: String
+  unit: String
 ) on FIELD_DEFINITION
 
 type TemperaturePreset {

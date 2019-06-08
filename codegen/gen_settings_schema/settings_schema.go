@@ -22,6 +22,7 @@ type SettingsField struct {
 	Label         string `json:"label"`
 	Description   string `json:"description"`
 	EnumTypeName  string `json:"enumTypeName"`
+	Unit          string `json:"unit"`
 }
 
 type SettingsEnum struct {
