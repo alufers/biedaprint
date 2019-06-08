@@ -2,6 +2,10 @@ import Vue, { CreateElement, VNode } from "vue";
 import Component from "vue-class-component";
 import { Inject, Watch } from "vue-property-decorator";
 
+/**
+ * HighlightableText is a vue component (it uses a render function so no .vue file is required) which renders a <span> and highlights the keywords provided by HighlightableTextZone in the context.
+ * It only highlights the top-level text nodes in its default children slot.
+ */
 @Component<HighlightableText>({})
 export default class HighlightableText extends Vue {
   @Inject("$highlightsComputed")
