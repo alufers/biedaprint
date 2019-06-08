@@ -26,8 +26,7 @@ import Component, { mixins } from "vue-class-component";
 import settingsSchema from "../../../assets/settings-schema.json";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
 import SettingsPageDescriptor from "../../../types/SettingsPageDescriptor";
-import TextField from "../../../components/settings/fields/TextField.vue";
-import IntField from "../../../components/settings/fields/IntField.vue";
+import GenericInputField from "../../../components/settings/fields/GenericInputField.vue";
 import EnumSelect from "../../../components/settings/fields/EnumSelect.vue";
 import TemperaturePresetsTable from "../../../components/settings/fields/TemperaturePresetsTable.vue";
 import {
@@ -67,15 +66,14 @@ export default class SettingsPage extends mixins(LoadableMixin) {
 
   fieldComponent(field: SettingsFieldDescriptor) {
     switch (field.editComponent) {
-      case "IntField":
-        return IntField;
       case "EnumSelect":
         return EnumSelect;
       case "TemperaturePresetsTable":
         return TemperaturePresetsTable;
       case "TextField":
+      case "IntField":
       default:
-        return TextField;
+        return GenericInputField;
     }
   }
 

@@ -2,7 +2,7 @@
   <div>
     <div class="field">
       <label class="label">{{fieldDescriptor.label}}</label>
-      <input type="text" class="input" :value="value" @input="onFieldInput">
+      <input :type="inputType" class="input" :value="value" @input="onFieldInput">
       <p class="help">{{fieldDescriptor.description}}</p>
     </div>
   </div>
@@ -22,14 +22,29 @@ export default class TextField extends Vue {
   })
   fieldDescriptor: SettingsFieldDescriptor;
 
-  @Prop({
-    type: String
-  })
-  value: string;
+  @Prop({})
+  value: any;
 
   @Emit("input")
   onFieldInput(e: Event) {
-    return (<HTMLInputElement>e.target).value;
+    let rawValue = (<HTMLInputElement>e.target).value;
+    if (this.fieldDescriptor.editComponent === "IntField") {
+      return parseInt(rawValue);
+    }
+    if (this.fieldDescriptor.editComponent === "FloatField") {
+      return parseFloat(rawValue);
+    }
+    return rawValue;
+  }
+
+  get inputType() {
+    switch (this.fieldDescriptor.editComponent) {
+      case "IntField":
+      case "FloatField":
+        return "number";
+      default:
+        return "text";
+    }
   }
 }
 </script>
