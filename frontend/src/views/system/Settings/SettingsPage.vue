@@ -39,7 +39,7 @@ import ApolloQuery from "../../../decorators/ApolloQuery";
 import { getSettings } from "../../../../../graphql/queries/getSettings.graphql";
 import LoaderGuard from "../../../components/LoaderGuard.vue";
 import { updateSettings } from "../../../../../graphql/queries/updateSettings.graphql";
-import omitTypename from "../../../omitTypename";
+import omitTypename from "../../../util/omitTypename";
 
 @Component({
   components: {
