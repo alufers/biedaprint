@@ -5,7 +5,13 @@ SettingsMenu geneartes a settings menu from the settings schema.
   <aside class="menu">
     <div class="field">
       <p class="control has-icons-right">
-        <input class="input" type="text" placeholder="Search settings">
+        <input
+          class="input"
+          type="text"
+          placeholder="Search settings"
+          :value="searchQuery"
+          @input="onSearched"
+        >
 
         <span class="icon is-small is-right">
           <i class="fas fa-search"></i>
@@ -32,6 +38,19 @@ export default class SettingsMenu extends Vue {
 
   linkToPage(page: any) {
     return `/system/settings/${page.paramName}`;
+  }
+  get searchQuery() {
+    let matched = this.$route.matched[this.$route.matched.length - 1];
+    if (!matched || matched.name !== "settings-search") {
+      return "";
+    }
+    return this.$route.query.query;
+  }
+  onSearched(ev: Event) {
+    this.$router.push(
+      "/system/settings/search?query=" +
+        encodeURIComponent((ev.target as HTMLInputElement).value)
+    );
   }
 }
 </script>

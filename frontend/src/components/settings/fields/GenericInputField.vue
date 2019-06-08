@@ -1,9 +1,13 @@
 <template>
   <div>
     <div class="field">
-      <label class="label">{{fieldDescriptor.label}}</label>
+      <label class="label">
+        <HighlightableText>{{fieldDescriptor.label}}</HighlightableText>
+      </label>
       <input :type="inputType" class="input" :value="value" @input="onFieldInput">
-      <p class="help">{{fieldDescriptor.description}}</p>
+      <p class="help">
+        <HighlightableText>{{fieldDescriptor.description}}</HighlightableText>
+      </p>
     </div>
   </div>
 </template>
@@ -13,8 +17,13 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Emit } from "vue-property-decorator";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
+import HighlightableText from "../../HighlightableText";
 
-@Component({})
+@Component({
+  components: {
+    HighlightableText
+  }
+})
 export default class TextField extends Vue {
   @Prop({
     required: true,

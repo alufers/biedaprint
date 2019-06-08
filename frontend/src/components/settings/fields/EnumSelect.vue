@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="field">
-      <label class="label">{{fieldDescriptor.label}}</label>
+      <label class="label">
+        <HighlightableText>{{fieldDescriptor.label}}</HighlightableText>
+      </label>
       <div class="control">
         <div class="select">
           <select :value="value" @input="onFieldInput">
@@ -9,7 +11,9 @@
           </select>
         </div>
       </div>
-      <p class="help">{{fieldDescriptor.description}}</p>
+      <p class="help">
+        <HighlightableText>{{fieldDescriptor.description}}</HighlightableText>
+      </p>
     </div>
   </div>
 </template>
@@ -20,8 +24,13 @@ import Component from "vue-class-component";
 import { Prop, Emit } from "vue-property-decorator";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
 import settingsSchema from "../../../assets/settings-schema.json";
+import HighlightableText from "../../HighlightableText";
 
-@Component({})
+@Component({
+  components: {
+    HighlightableText
+  }
+})
 export default class EnumSelect extends Vue {
   @Prop({
     required: true,

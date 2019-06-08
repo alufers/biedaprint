@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="this.pageData">
     <h3 class="subtitle">{{pageData.name}}</h3>
     <p class="has-text-grey-light">{{pageData.description}}</p>
     <br>
@@ -38,6 +38,9 @@ import FieldsList from "../../../components/settings/FieldsList.vue";
 })
 export default class SettingsPage extends mixins(LoadableMixin) {
   get fields(): SettingsFieldDescriptor[] {
+    if (!this.pageData) {
+      return [];
+    }
     return settingsSchema.fields.filter(
       (f: SettingsFieldDescriptor) => f.pageEnumName === this.pageData.enumName
     );

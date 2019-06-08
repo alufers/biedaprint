@@ -25,7 +25,9 @@ import HighlightableTextCSSWrapper from "./HighlightableTextCSSWrapper.vue";
   }
 })
 export default class HighlightableTextZone extends Vue {
-  @Prop()
+  @Prop({
+    type: Array
+  })
   highlights: string[];
 
   get highlightsComputed() {

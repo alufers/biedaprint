@@ -8,13 +8,22 @@ import { Inject, Watch } from "vue-property-decorator";
  */
 @Component<HighlightableText>({})
 export default class HighlightableText extends Vue {
-  @Inject("$highlightsComputed")
+  @Inject({
+    from: "$highlightsComputed",
+    default: null
+  })
   $highlightsComputed: Function;
 
   get highlights(): string[] {
+    if (!this.$highlightsComputed) {
+      return null;
+    }
     return this.$highlightsComputed();
   }
   render(createElement: CreateElement) {
+    if (!this.highlights) {
+      return createElement("span", this.$slots.default);
+    }
     return createElement(
       "span",
       this.processVNodeList(this.$slots.default, createElement)

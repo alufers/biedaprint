@@ -84,6 +84,14 @@ export const routerConfig: RouterOptions = {
             ),
           children: [
             {
+              path: "search",
+              name: "settings-search",
+              component: () =>
+                import(
+                  /* webpackChunkName: "settingssearch" */ "./views/system/Settings/Search.vue"
+                )
+            },
+            {
               path: ":pageName",
               component: () =>
                 import(

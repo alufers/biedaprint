@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="field">
-      <label class="label">{{fieldDescriptor.label}}</label>
+      <label class="label">
+        <HighlightableText>{{fieldDescriptor.label}}</HighlightableText>
+      </label>
 
       <table class="table">
         <thead>
@@ -43,7 +45,9 @@
           </tr>
         </tfoot>
       </table>
-      <p class="help">{{fieldDescriptor.description}}</p>
+      <p class="help">
+        <HighlightableText>{{fieldDescriptor.description}}</HighlightableText>
+      </p>
     </div>
   </div>
 </template>
@@ -54,8 +58,13 @@ import Component from "vue-class-component";
 import { Prop, Emit, Watch } from "vue-property-decorator";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
 import { TemperaturePreset } from "../../../graphql-models-gen";
+import HighlightableText from "../../HighlightableText";
 
-@Component({})
+@Component({
+  components: {
+    HighlightableText
+  }
+})
 export default class TextField extends Vue {
   @Prop({
     required: true,
