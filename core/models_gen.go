@@ -135,17 +135,19 @@ const (
 	SettingsPageGeneral      SettingsPage = "GENERAL"
 	SettingsPageSerialPort   SettingsPage = "SERIAL_PORT"
 	SettingsPageTemperatures SettingsPage = "TEMPERATURES"
+	SettingsPageCura         SettingsPage = "CURA"
 )
 
 var AllSettingsPage = []SettingsPage{
 	SettingsPageGeneral,
 	SettingsPageSerialPort,
 	SettingsPageTemperatures,
+	SettingsPageCura,
 }
 
 func (e SettingsPage) IsValid() bool {
 	switch e {
-	case SettingsPageGeneral, SettingsPageSerialPort, SettingsPageTemperatures:
+	case SettingsPageGeneral, SettingsPageSerialPort, SettingsPageTemperatures, SettingsPageCura:
 		return true
 	}
 	return false

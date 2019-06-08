@@ -42,7 +42,9 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	SettingsField func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string, page *SettingsPage) (res interface{}, err error)
+	EnumValueDesc func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string) (res interface{}, err error)
+
+	SettingsField func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string, page *SettingsPage, editComponent *string) (res interface{}, err error)
 
 	SettingsPageDesc func(ctx context.Context, obj interface{}, next graphql.Resolver, name *string, description *string) (res interface{}, err error)
 }
@@ -796,6 +798,19 @@ func (ec *executionContext) FieldMiddleware(ctx context.Context, obj interface{}
 	rctx := graphql.GetResolverContext(ctx)
 	for _, d := range rctx.Field.Definition.Directives {
 		switch d.Name {
+		case "enumValueDesc":
+			if ec.directives.EnumValueDesc != nil {
+				rawArgs := d.ArgumentMap(ec.Variables)
+				args, err := ec.dir_enumValueDesc_args(ctx, rawArgs)
+				if err != nil {
+					ec.Error(ctx, err)
+					return nil
+				}
+				n := next
+				next = func(ctx context.Context) (interface{}, error) {
+					return ec.directives.EnumValueDesc(ctx, obj, n, args["label"].(*string))
+				}
+			}
 		case "settingsField":
 			if ec.directives.SettingsField != nil {
 				rawArgs := d.ArgumentMap(ec.Variables)
@@ -806,7 +821,7 @@ func (ec *executionContext) FieldMiddleware(ctx context.Context, obj interface{}
 				}
 				n := next
 				next = func(ctx context.Context) (interface{}, error) {
-					return ec.directives.SettingsField(ctx, obj, n, args["label"].(*string), args["description"].(*string), args["page"].(*SettingsPage))
+					return ec.directives.SettingsField(ctx, obj, n, args["label"].(*string), args["description"].(*string), args["page"].(*SettingsPage), args["editComponent"].(*string))
 				}
 			}
 		case "settingsPageDesc":
@@ -949,6 +964,7 @@ type Subscription {
 }
 `},
 	&ast.Source{Name: "graphql/schema/settings.graphql", Input: `directive @settingsPageDesc(name: String, description: String) on ENUM_VALUE
+directive @enumValueDesc(label: String) on ENUM_VALUE
 
 enum SettingsPage {
   GENERAL
@@ -966,12 +982,19 @@ enum SettingsPage {
       name: "Temperatures"
       description: "Temperature control settings (material presets etc.)."
     )
+
+  CURA
+    @settingsPageDesc(
+      name: "Cura"
+      description: "Controls the configuration of the cura slicer."
+    )
 }
 
 directive @settingsField(
   label: String
   description: String
   page: SettingsPage
+  editComponent: String
 ) on FIELD_DEFINITION
 
 type TemperaturePreset {
@@ -981,8 +1004,8 @@ type TemperaturePreset {
 }
 
 enum SerialParity {
-  EVEN
-  NONE
+  EVEN @enumValueDesc(label: "Even")
+  NONE @enumValueDesc(label: "None")
 }
 
 type Settings {
@@ -1001,7 +1024,7 @@ type Settings {
       page: SERIAL_PORT
     )
   parity: SerialParity! @settingsField(label: "Parity", page: SERIAL_PORT)
-  dataBits: Int! @settingsField(label: "Baud rate", page: SERIAL_PORT)
+  dataBits: Int! @settingsField(label: "Data bits", page: SERIAL_PORT)
 
   # GENERAL PAGE
   dataPath: String! @settingsField(label: "Data path", page: GENERAL)
@@ -1009,9 +1032,14 @@ type Settings {
     @settingsField(label: "Startup command", page: GENERAL)
 
   temperaturePresets: [TemperaturePreset!]!
+    @settingsField(
+      label: "Temperature presets"
+      page: TEMPERATURES
+      editComponent: "TemperaturePresetsTable"
+    )
+
+    
 }
-
-
 
 input TemperaturePresetInput {
   name: String!
@@ -1035,6 +1063,20 @@ input NewSettings {
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_enumValueDesc_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["label"]; ok {
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["label"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) dir_settingsField_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1063,6 +1105,14 @@ func (ec *executionContext) dir_settingsField_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["page"] = arg2
+	var arg3 *string
+	if tmp, ok := rawArgs["editComponent"]; ok {
+		arg3, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["editComponent"] = arg3
 	return args, nil
 }
 

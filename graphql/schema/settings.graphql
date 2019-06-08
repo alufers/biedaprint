@@ -17,6 +17,12 @@ enum SettingsPage {
       name: "Temperatures"
       description: "Temperature control settings (material presets etc.)."
     )
+
+  CURA
+    @settingsPageDesc(
+      name: "Cura"
+      description: "Controls the configuration of the cura slicer."
+    )
 }
 
 directive @settingsField(
@@ -66,6 +72,8 @@ type Settings {
       page: TEMPERATURES
       editComponent: "TemperaturePresetsTable"
     )
+
+    
 }
 
 input TemperaturePresetInput {
