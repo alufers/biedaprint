@@ -1,3 +1,6 @@
+<!--
+FieldsList renders field editComponents based on a list of field descriptors. It provides them with the data from the settings and handles the input events.
+ -->
 <template>
   <LoaderGuard>
     <component
@@ -46,8 +49,6 @@ export default class FieldsList extends mixins(LoadableMixin) {
 
   @Prop({ type: Array })
   fields: SettingsFieldDescriptor[];
-
-  
 
   fieldComponent(field: SettingsFieldDescriptor) {
     switch (field.editComponent) {
