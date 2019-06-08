@@ -1,7 +1,12 @@
+<!--
+GcodeDocs are shown in the serial console sidebar. They show docs scraped from the Marlin documentation by gcode_docs_extractor. The user can search the docs using fuse.js.
+This component communicates with the SerialConsole component using props and events so that the relevant documentation is shown to the user when he is entering it in the serial console input.
+-->
 <template>
   <div>
     <nav class="panel">
       <p class="panel-heading">Gcode docs</p>
+      <!-- The search header with the input -->
       <div class="panel-block">
         <p class="control has-icons-left">
           <input class="input is-small" type="text" placeholder="Search" v-model="searchQuery">
@@ -10,6 +15,7 @@
           </span>
         </p>
       </div>
+      <!-- The results of the search, HighlightableTextZone is used to emphasize the relevant information in the command documentation-->
       <HighlightableTextZone :highlights="searchHighlighs">
         <div class="panel-block" v-for="doc in filteredDocs" :key="doc.code">
           <div>
@@ -25,6 +31,7 @@
             <p class="has-text-grey">
               <HighlightableText>{{doc.brief}}</HighlightableText>
             </p>
+            <!-- Show the parameters of the gcode command when there are only two or less results left to conserve space -->
             <div v-if="filteredDocs.length <= 2" class="params-list">
               <div class="menu">
                 <p class="menu-label">Parameters</p>
@@ -32,6 +39,7 @@
                   <li v-for="(param, i) in doc.parameters" :key="i">
                     <span class="tag code-margin optional-mark" v-if="param.optional">Optional</span>
                     <div class="tags has-addons">
+                      <!-- This is needed due to YAML interpreting 'Y' as a true boolean value. -->
                       <code class="tag is-primary">{{param.tag === true ? 'Y' : param.tag}}</code>
                       <template v-if="param.values">
                         <code
@@ -52,6 +60,7 @@
 
             <div class="buttons buttons-marg">
               <button
+                title="Put this command in the serial console input."
                 class="button is-primary is-outlined is-small"
                 @click="$emit('useGcode', doc.codes[0])"
               >Use</button>
@@ -59,6 +68,7 @@
                 class="button is-text is-small"
                 :href="'http://marlinfw.org/docs/gcode/' + doc.base + '.html'"
                 target="_blank"
+                title="Go to the online Marlin documentation with more information about this command."
               >More...</a>
             </div>
           </div>
@@ -131,7 +141,7 @@ export default class GcodeDocs extends Vue {
     if (query === "") {
       return this.dataKeys.slice(0, 10);
     }
-    return this.fuse.search(query, { limit: 10 }) as unknown as string[];
+    return (this.fuse.search(query, { limit: 10 }) as unknown) as string[];
   }
 
   get filteredDocs() {

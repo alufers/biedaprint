@@ -1,3 +1,7 @@
+<!-- 
+Navbar uses information from the router config to generate the main app navbar with links to all the pages.
+It also handles showing the serial status.
+-->
 <template>
   <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
@@ -29,7 +33,7 @@
           >
             <router-link class="navbar-link" :to="route.path">
               <span class="icon" v-if="route.menuIcon">
-                <i class="fas" :class="route.menuIcon"></i> &nbsp; &nbsp; &nbsp;  &nbsp;
+                <i class="fas" :class="route.menuIcon"></i> &nbsp; &nbsp; &nbsp; &nbsp;
               </span>
               <span>{{route.menuName || route.name}}</span>
             </router-link>

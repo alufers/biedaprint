@@ -1,3 +1,8 @@
+<!-- 
+The Alerts component is used to show global information about errors on top of the page.
+It is only used once in the main App component, because it pulls global data about alerts from the vuex store.
+Various functions should use the store's actions to show their alerts in a consistent way.
+-->
 <template>
   <div class="alerts-container">
     <div class="message" v-for="alert in alerts" :key="alert.id" :class="alertClass(alert)">

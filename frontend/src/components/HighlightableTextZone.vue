@@ -1,3 +1,7 @@
+<!-- 
+HighlightableTextZone provides informatio nabout the fragments of text to highlight in HighlightableText via the provide/inject api.
+It is used in places where we want to visually emphasize search queries in the searched content.
+-->
 <template>
   <HighlightableTextCSSWrapper>
     <slot></slot>
@@ -16,7 +20,7 @@ import HighlightableTextCSSWrapper from "./HighlightableTextCSSWrapper.vue";
   },
   provide() {
     return {
-      $highlightsComputed: () => this.highlightsComputed
+      $highlightsComputed: () => this.highlightsComputed // weird hack to inject reactive values
     };
   }
 })

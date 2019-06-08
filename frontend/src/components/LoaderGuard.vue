@@ -1,3 +1,6 @@
+<!-- 
+LoaderGuard when used with LoadableMixin hides its contents and shows a loading animation when the parent component is in a loading  tate.
+-->
 <template>
   <div v-if="$parent.loading">
     <div class="sk-folding-cube">
@@ -17,9 +20,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 
 @Component({})
-export default class LoaderGuard extends Vue {
-
-}
+export default class LoaderGuard extends Vue {}
 </script>
 
 <style scoped>

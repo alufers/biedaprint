@@ -1,3 +1,7 @@
+<!--
+GcodeUploadZone is the UI element which allows the user to drag or select the gcode files to be uploaded to the system. 
+It handles showing the UI as well as uploading the files.
+-->
 <template>
   <div>
     <div

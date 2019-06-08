@@ -1,3 +1,8 @@
+<!-- 
+TemperatureDisplay shows a Chart.js chart of all the temperatures and targets.
+Uses trackedValues to update it using subscriptions.
+-->
+
 <template>
   <div>
     <h2 class="subtitle">Temperature graph</h2>

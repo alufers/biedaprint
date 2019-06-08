@@ -1,3 +1,6 @@
+<!-- 
+SettingsMenu geneartes a settings menu from the settings schema.
+-->
 <template>
   <aside class="menu">
     <div class="field">

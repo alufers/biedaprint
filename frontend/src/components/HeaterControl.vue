@@ -1,3 +1,7 @@
+<!--
+HeaterControl is the UI element which shows the current temperature of a heater and allows it to pe controller by the user. 
+It supports reading temperature presets from the settings as well as entering custom temps.
+-->
 <template>
   <div>
     <div class="field">
@@ -175,7 +179,7 @@ export default class HeaterControl extends mixins(LoadableMixin) {
   width: auto;
 }
 
-.is-danger+ .temperature-input {
+.is-danger + .temperature-input {
   color: white;
 }
 
