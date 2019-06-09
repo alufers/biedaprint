@@ -1,0 +1,3 @@
+mutation performManualMovement($vec: ManualMovementPositionVector!) {
+  performManualMovement(vec: $vec)
+}
