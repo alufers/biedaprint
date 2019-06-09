@@ -50,7 +50,8 @@ export default class TemperatureDisplay extends mixins(LoadableMixin) {
           query: getTrackedValueByNameWithMeta,
           variables: <GetTrackedValueByNameWithMetaQueryVariables>{
             name: valueToShow
-          }
+          },
+          fetchPolicy: "network-only"
         });
         tvMetas[valueToShow] = data.trackedValue;
         let observable = this.$apollo.subscribe<
