@@ -61,6 +61,14 @@
             >X+</button>
           </td>
           <td></td>
+          <td>
+            <button
+              :class="isLoadingClass"
+              class="button is-primary is-centered"
+              @click="moveZPositive"
+              title
+            >Z+</button>
+          </td>
         </tr>
         <tr>
           <td>
@@ -71,7 +79,16 @@
               title
             >Y-</button>
           </td>
-          <td></td>
+          <td>
+            <button
+              :class="isLoadingClass"
+              class="button is-centered is-outlined"
+              @click="centerXY"
+              title
+            >
+              <i class="fas fa-crosshairs"></i>
+            </button>
+          </td>
           <td>
             <button
               :class="isLoadingClass"
@@ -80,6 +97,7 @@
               title
             >Y+</button>
           </td>
+          <td></td>
         </tr>
         <tr>
           <td></td>
@@ -92,9 +110,28 @@
             >X-</button>
           </td>
           <td></td>
+          <td>
+            <button
+              :class="isLoadingClass"
+              class="button is-primary is-centered"
+              @click="moveZNegative"
+              title
+            >Z-</button>
+          </td>
         </tr>
       </tbody>
     </table>
+    <div class="tabs is-toggle">
+      <ul>
+        <li
+          v-for="opt in allowedMovementAmounts"
+          :key="opt"
+          :class="opt === movementAmount && 'is-active'"
+        >
+          <a @click.prevent="movementAmount = opt">{{opt}}</a>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -113,6 +150,9 @@ import { performManualMovement } from "../../../../graphql/queries/performManual
 
 @Component({})
 export default class Manual extends mixins(LoadableMixin) {
+  allowedMovementAmounts = [0.1, 1, 10, 100];
+  movementAmount = 10;
+
   sendGCODE(gcode: string) {
     this.withLoader(async () => {
       await this.$apollo.mutate<SendGcodeMutation>({
@@ -140,17 +180,25 @@ export default class Manual extends mixins(LoadableMixin) {
     });
   }
   moveXPositive() {
-    this.performManualMovement({ X: 10 });
+    this.performManualMovement({ X: this.movementAmount });
   }
   moveXNegative() {
-    this.performManualMovement({ X: -10 });
+    this.performManualMovement({ X: -this.movementAmount });
   }
   moveYNegative() {
-    this.performManualMovement({ Y: -10 });
+    this.performManualMovement({ Y: -this.movementAmount });
   }
   moveYPositive() {
-    this.performManualMovement({ Y: 10 });
+    this.performManualMovement({ Y: this.movementAmount });
   }
+
+  moveZPositive() {
+    this.performManualMovement({ Z: this.movementAmount });
+  }
+  moveZNegative() {
+    this.performManualMovement({ Z: -this.movementAmount });
+  }
+  centerXY() {}
 }
 </script>
 <style scoped>
