@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/pkg/errors"
@@ -30,14 +31,17 @@ type ManualMovementService struct {
 
 func NewManualMovementService(app *App) *ManualMovementService {
 	return &ManualMovementService{
-		app: app,
+		app:                app,
+		positionReportChan: make(chan string),
 	}
 }
 
 func (mms *ManualMovementService) ProcessPositionReportLine(line string) {
+	log.Printf("Recieved position report line in manual movement service")
 	select {
 	case mms.positionReportChan <- line:
 	default:
+		log.Print("Ignoring position report line, no manual uperation in progress")
 	}
 }
 
