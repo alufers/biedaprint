@@ -14,7 +14,7 @@ It also handles showing the serial status.
         aria-label="menu"
         aria-expanded="false"
         data-target="navbarBasicExample"
-        @click="navbarActive = !navbarActive"
+        @click.prevent="navbarActive = !navbarActive"
         :class="{'is-active': navbarActive}"
       >
         <span aria-hidden="true"></span>
@@ -31,7 +31,7 @@ It also handles showing the serial status.
             exact
             :key="route.path"
           >
-            <router-link class="navbar-link" :to="route.path">
+            <router-link class="navbar-link" :to="route.path" @click.native="navbarActive = false">
               <span class="icon" v-if="route.menuIcon">
                 <i class="fas" :class="route.menuIcon"></i> &nbsp; &nbsp; &nbsp; &nbsp;
               </span>
@@ -43,6 +43,7 @@ It also handles showing the serial status.
                 :to="urlJoin(route.path, child.path)"
                 v-for="child in route.children"
                 :key="child.path"
+                @click.native="navbarActive = false"
               >
                 <span class="icon" v-if="child.menuIcon">
                   <i class="fas" :class="child.menuIcon"></i>
@@ -55,6 +56,7 @@ It also handles showing the serial status.
             :key="route.path"
             class="navbar-item"
             :to="route.path"
+            @click.native="navbarActive = false"
             v-else
           >{{route.menuName || route.name}}</router-link>
         </template>
