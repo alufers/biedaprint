@@ -44,7 +44,7 @@ type ResolverRoot interface {
 type DirectiveRoot struct {
 	EnumValueDesc func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string) (res interface{}, err error)
 
-	SettingsField func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string, page *SettingsPage, editComponent *string) (res interface{}, err error)
+	SettingsField func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string, page *SettingsPage, editComponent *string, unit *string) (res interface{}, err error)
 
 	SettingsPageDesc func(ctx context.Context, obj interface{}, next graphql.Resolver, name *string, description *string) (res interface{}, err error)
 }
@@ -77,17 +77,18 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AbortPrintJob        func(childComplexity int, void *bool) int
-		ConnectToSerial      func(childComplexity int, void *bool) int
-		DeleteGcodeFile      func(childComplexity int, gcodeFilename string) int
-		DisconnectFromSerial func(childComplexity int, void *bool) int
-		DownloadUpdate       func(childComplexity int, tagName string) int
-		PerformUpdate        func(childComplexity int, tagName string) int
-		SendConsoleCommand   func(childComplexity int, cmd string) int
-		SendGcode            func(childComplexity int, cmd string) int
-		StartPrintJob        func(childComplexity int, gcodeFilename string) int
-		UpdateSettings       func(childComplexity int, settings NewSettings) int
-		UploadGcode          func(childComplexity int, file graphql.Upload) int
+		AbortPrintJob         func(childComplexity int, void *bool) int
+		ConnectToSerial       func(childComplexity int, void *bool) int
+		DeleteGcodeFile       func(childComplexity int, gcodeFilename string) int
+		DisconnectFromSerial  func(childComplexity int, void *bool) int
+		DownloadUpdate        func(childComplexity int, tagName string) int
+		PerformManualMovement func(childComplexity int, vec ManualMovementPositionVector) int
+		PerformUpdate         func(childComplexity int, tagName string) int
+		SendConsoleCommand    func(childComplexity int, cmd string) int
+		SendGcode             func(childComplexity int, cmd string) int
+		StartPrintJob         func(childComplexity int, gcodeFilename string) int
+		UpdateSettings        func(childComplexity int, settings NewSettings) int
+		UploadGcode           func(childComplexity int, file graphql.Upload) int
 	}
 
 	PrintJob struct {
@@ -158,6 +159,7 @@ type MutationResolver interface {
 	AbortPrintJob(ctx context.Context, void *bool) (*bool, error)
 	DownloadUpdate(ctx context.Context, tagName string) (*bool, error)
 	PerformUpdate(ctx context.Context, tagName string) (*bool, error)
+	PerformManualMovement(ctx context.Context, vec ManualMovementPositionVector) (*bool, error)
 }
 type QueryResolver interface {
 	SerialPorts(ctx context.Context) ([]string, error)
@@ -370,6 +372,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DownloadUpdate(childComplexity, args["tagName"].(string)), true
+
+	case "Mutation.performManualMovement":
+		if e.complexity.Mutation.PerformManualMovement == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_performManualMovement_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.PerformManualMovement(childComplexity, args["vec"].(ManualMovementPositionVector)), true
 
 	case "Mutation.performUpdate":
 		if e.complexity.Mutation.PerformUpdate == nil {
@@ -821,7 +835,7 @@ func (ec *executionContext) FieldMiddleware(ctx context.Context, obj interface{}
 				}
 				n := next
 				next = func(ctx context.Context) (interface{}, error) {
-					return ec.directives.SettingsField(ctx, obj, n, args["label"].(*string), args["description"].(*string), args["page"].(*SettingsPage), args["editComponent"].(*string))
+					return ec.directives.SettingsField(ctx, obj, n, args["label"].(*string), args["description"].(*string), args["page"].(*SettingsPage), args["editComponent"].(*string), args["unit"].(*string))
 				}
 			}
 		case "settingsPageDesc":
@@ -871,7 +885,6 @@ scalar Time
 scalar Map
 scalar Upload
 
-
 enum TrackedValueDisplayType {
   PLOT
   TIME
@@ -879,7 +892,6 @@ enum TrackedValueDisplayType {
   BOOLEAN
   STRING
 }
-
 
 type TrackedValue {
   name: String!
@@ -920,7 +932,6 @@ type PrintJob {
   startedTime: Time!
 }
 
-
 type AvailableUpdate {
   tagName: String!
   createdAt: String!
@@ -943,6 +954,13 @@ type Query {
   availableUpdates: [AvailableUpdate!]!
 }
 
+input ManualMovementPositionVector {
+  X: Float!
+  Y: Float!
+  Z: Float!
+  E: Float!
+}
+
 type Mutation {
   updateSettings(settings: NewSettings!): Settings! # update the system settings
   connectToSerial(void: Boolean): Boolean
@@ -953,8 +971,9 @@ type Mutation {
   deleteGcodeFile(gcodeFilename: String!): Boolean
   startPrintJob(gcodeFilename: String!): Boolean
   abortPrintJob(void: Boolean): Boolean
-  downloadUpdate(tagName: String!): Boolean
-  performUpdate(tagName: String!): Boolean
+  downloadUpdate(tagName: String!): Boolean # download an updated binary from github by tag name
+  performUpdate(tagName: String!): Boolean # replace the current binary with a previously downloaded one
+  performManualMovement(vec: ManualMovementPositionVector!): Boolean
 }
 
 type Subscription {
@@ -972,11 +991,13 @@ enum SettingsPage {
       name: "General"
       description: "General biedaprint settings."
     )
+
   SERIAL_PORT
     @settingsPageDesc(
       name: "Serial port"
       description: "Serial port connection settings."
     )
+    
   TEMPERATURES
     @settingsPageDesc(
       name: "Temperatures"
@@ -995,6 +1016,7 @@ directive @settingsField(
   description: String
   page: SettingsPage
   editComponent: String
+  unit: String
 ) on FIELD_DEFINITION
 
 type TemperaturePreset {
@@ -1113,6 +1135,14 @@ func (ec *executionContext) dir_settingsField_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["editComponent"] = arg3
+	var arg4 *string
+	if tmp, ok := rawArgs["unit"]; ok {
+		arg4, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["unit"] = arg4
 	return args, nil
 }
 
@@ -1205,6 +1235,20 @@ func (ec *executionContext) field_Mutation_downloadUpdate_args(ctx context.Conte
 		}
 	}
 	args["tagName"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_performManualMovement_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 ManualMovementPositionVector
+	if tmp, ok := rawArgs["vec"]; ok {
+		arg0, err = ec.unmarshalNManualMovementPositionVector2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐManualMovementPositionVector(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["vec"] = arg0
 	return args, nil
 }
 
@@ -2159,6 +2203,37 @@ func (ec *executionContext) _Mutation_performUpdate(ctx context.Context, field g
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().PerformUpdate(rctx, args["tagName"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_performManualMovement(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_performManualMovement_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().PerformManualMovement(rctx, args["vec"].(ManualMovementPositionVector))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -4058,6 +4133,42 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputManualMovementPositionVector(ctx context.Context, v interface{}) (ManualMovementPositionVector, error) {
+	var it ManualMovementPositionVector
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "X":
+			var err error
+			it.X, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Y":
+			var err error
+			it.Y, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Z":
+			var err error
+			it.Z, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "E":
+			var err error
+			it.E, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewSettings(ctx context.Context, v interface{}) (NewSettings, error) {
 	var it NewSettings
 	var asMap = v.(map[string]interface{})
@@ -4347,6 +4458,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec._Mutation_downloadUpdate(ctx, field)
 		case "performUpdate":
 			out.Values[i] = ec._Mutation_performUpdate(ctx, field)
+		case "performManualMovement":
+			out.Values[i] = ec._Mutation_performManualMovement(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5267,6 +5380,10 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNManualMovementPositionVector2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐManualMovementPositionVector(ctx context.Context, v interface{}) (ManualMovementPositionVector, error) {
+	return ec.unmarshalInputManualMovementPositionVector(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNNewSettings2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐNewSettings(ctx context.Context, v interface{}) (NewSettings, error) {

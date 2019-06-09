@@ -7,7 +7,6 @@ scalar Time
 scalar Map
 scalar Upload
 
-
 enum TrackedValueDisplayType {
   PLOT
   TIME
@@ -15,7 +14,6 @@ enum TrackedValueDisplayType {
   BOOLEAN
   STRING
 }
-
 
 type TrackedValue {
   name: String!
@@ -56,7 +54,6 @@ type PrintJob {
   startedTime: Time!
 }
 
-
 type AvailableUpdate {
   tagName: String!
   createdAt: String!
@@ -79,6 +76,13 @@ type Query {
   availableUpdates: [AvailableUpdate!]!
 }
 
+input ManualMovementPositionVector {
+  X: Float!
+  Y: Float!
+  Z: Float!
+  E: Float!
+}
+
 type Mutation {
   updateSettings(settings: NewSettings!): Settings! # update the system settings
   connectToSerial(void: Boolean): Boolean
@@ -89,8 +93,9 @@ type Mutation {
   deleteGcodeFile(gcodeFilename: String!): Boolean
   startPrintJob(gcodeFilename: String!): Boolean
   abortPrintJob(void: Boolean): Boolean
-  downloadUpdate(tagName: String!): Boolean
-  performUpdate(tagName: String!): Boolean
+  downloadUpdate(tagName: String!): Boolean # download an updated binary from github by tag name
+  performUpdate(tagName: String!): Boolean # replace the current binary with a previously downloaded one
+  performManualMovement(vec: ManualMovementPositionVector!): Boolean
 }
 
 type Subscription {

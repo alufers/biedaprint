@@ -14,6 +14,7 @@ type App struct {
 	TrackedValuesService  *TrackedValuesService
 	DiscoveryService      *DiscoveryService
 	HeatingService        *HeatingService
+	ManualMovementService *ManualMovementService
 	router                *gin.Engine
 }
 
@@ -47,6 +48,7 @@ func NewApp() *App {
 	app.TrackedValuesService = NewTrackedValuesService(app)
 	app.DiscoveryService = NewDiscoveryService(app)
 	app.HeatingService = NewHeatingService(app)
+	app.ManualMovementService = NewManualMovementService(app)
 	return app
 }
 

@@ -35,6 +35,13 @@ type GcodeLayerIndex struct {
 	LayerNumber int `json:"layerNumber"`
 }
 
+type ManualMovementPositionVector struct {
+	X float64 `json:"X"`
+	Y float64 `json:"Y"`
+	Z float64 `json:"Z"`
+	E float64 `json:"E"`
+}
+
 type NewSettings struct {
 	SerialPort           string                    `json:"serialPort"`
 	BaudRate             int                       `json:"baudRate"`

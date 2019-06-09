@@ -194,5 +194,7 @@ func (pm *PrinterService) parseLine(line string) {
 		case pm.resendSem <- lineNumber:
 		default:
 		}
+	} else if strings.HasPrefix(line, "X:") {
+		pm.app.ManualMovementService.ProcessPositionReportLine(line)
 	}
 }
