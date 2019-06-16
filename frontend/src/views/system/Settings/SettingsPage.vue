@@ -48,7 +48,7 @@ export default class SettingsPage extends mixins(LoadableMixin) {
 
   get pageData(): SettingsPageDescriptor {
     return settingsSchema.pages.find(
-      p => p.paramName === this.$route.params.pageName
+      (p: SettingsPageDescriptor) => p.paramName === this.$route.params.pageName
     );
   }
 
