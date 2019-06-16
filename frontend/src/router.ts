@@ -83,6 +83,7 @@ export const routerConfig: RouterOptions = {
               /* webpackChunkName: "settings" */ "./views/system/Settings.vue"
             ),
           children: [
+            { path: "/", redirect: "/system/settings/general" },
             {
               path: "search",
               name: "settings-search",
