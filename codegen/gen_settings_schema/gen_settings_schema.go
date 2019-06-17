@@ -82,6 +82,22 @@ func isTypeEnum(t *ast.Definition) bool {
 	return true
 }
 
+func isTypeObject(t *ast.Definition) bool {
+
+	if t == nil || t.Kind != ast.Object {
+		return false
+	}
+	return true
+}
+
+func getStringArgument(l ast.ArgumentList, name string) string {
+	arg := l.ForName(name)
+	if arg == nil {
+		return ""
+	}
+	return arg.Value.Raw
+}
+
 func processEnumType(schema *ast.Schema, result *SettingsSchema, enumName string) {
 	enumType := schema.Types[enumName]
 
@@ -111,17 +127,16 @@ func processEnumType(schema *ast.Schema, result *SettingsSchema, enumName string
 	result.Enums = append(result.Enums, settingsEnum)
 }
 
-func processFields(schema *ast.Schema, result *SettingsSchema) {
-	settingsType := schema.Types["Settings"]
+func processObjectType(schema *ast.Schema, result *SettingsSchema, keyPrefix string, typeName string) {
+	settingsType := schema.Types[typeName]
 	if settingsType == nil || settingsType.Kind != ast.Object {
-		panic("Settings must not be nil and must be an object")
+		panic("type must not be nil and must be an object")
 	}
-
-	fields := []*SettingsField{}
 
 	for _, field := range settingsType.Fields {
 		if directive := field.Directives.ForName("settingsField"); directive != nil {
 			typeName := field.Type.String()
+
 			var description string
 			pageNameArg := directive.Arguments.ForName("page")
 			if pageNameArg == nil {
@@ -147,10 +162,16 @@ func processFields(schema *ast.Schema, result *SettingsSchema) {
 				if isTypeEnum(schema.Types[field.Type.Name()]) {
 					editComponent = "EnumSelect"
 				}
+
+				if isTypeObject(schema.Types[field.Type.Name()]) {
+					processObjectType(schema, result, keyPrefix+field.Name+".", field.Type.Name())
+					continue
+				}
+
 			}
 			processEnumType(schema, result, field.Type.Name())
-			fields = append(fields, &SettingsField{
-				Key:           field.Name,
+			result.Fields = append(result.Fields, &SettingsField{
+				Key:           keyPrefix + field.Name,
 				ParamName:     strcase.ToKebab(field.Name),
 				PageEnumName:  pageNameArg.Value.Raw,
 				GraphQLType:   typeName,
@@ -158,11 +179,14 @@ func processFields(schema *ast.Schema, result *SettingsSchema) {
 				Description:   description,
 				EditComponent: editComponent,
 				EnumTypeName:  field.Type.Name(),
+				Unit:          getStringArgument(directive.Arguments, "unit"),
 			})
 		}
 	}
+}
 
-	result.Fields = fields
+func processFields(schema *ast.Schema, result *SettingsSchema) {
+	processObjectType(schema, result, "", "Settings")
 }
 
 func main() {
@@ -175,7 +199,9 @@ func main() {
 		log.Fatalf("failed to parse schema: %v", parseError.Message)
 	}
 
-	setSchema := &SettingsSchema{}
+	setSchema := &SettingsSchema{
+		Fields: []*SettingsField{},
+	}
 	processFields(schema, setSchema)
 	processPages(schema, setSchema)
 	data, _ := json.MarshalIndent(setSchema, "", "  ")

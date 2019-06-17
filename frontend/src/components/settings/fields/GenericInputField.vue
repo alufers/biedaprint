@@ -1,14 +1,21 @@
 <template>
-  <div>
-    <div class="field">
-      <label class="label">
-        <HighlightableText>{{fieldDescriptor.label}}</HighlightableText>
-      </label>
-      <input :type="inputType" class="input" :value="value" @input="onFieldInput">
-      <p class="help">
-        <HighlightableText>{{fieldDescriptor.description}}</HighlightableText>
-      </p>
+  <div class="field">
+    <label>
+      <HighlightableText>{{fieldDescriptor.label}}</HighlightableText>
+    </label>
+    <div class="field-body">
+      <div class="field" :class="{'has-addons': !!fieldDescriptor.unit}">
+        <div class="control is-expanded">
+          <input :type="inputType" class="input" :value="value" @input="onFieldInput">
+        </div>
+        <p class="control" v-if="!!fieldDescriptor.unit">
+          <a class="button is-static">{{fieldDescriptor.unit}}</a>
+        </p>
+      </div>
     </div>
+    <p class="help">
+      <HighlightableText>{{fieldDescriptor.description}}</HighlightableText>
+    </p>
   </div>
 </template>
 

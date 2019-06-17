@@ -29,4 +29,5 @@ frontend-graphql-codegen:
 	npm run graphql-codegen
 
 settings-schema-codegen:
+	GO111MODULE=on go run codegen/gen_cura_settings_graphql/*.go
 	GO111MODULE=on go run codegen/gen_settings_schema/*.go

@@ -8,3 +8,4 @@ frontend/src/assets/settings-schema.json
 biedaprint_data
 build/
 .DS_Store
+graphql/schema/cura_settings.graphql

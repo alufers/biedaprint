@@ -7,4 +7,5 @@ export default interface SettingsFieldDescriptor {
   label: string;
   description: string;
   enumTypeName: string;
+  unit: string;
 }

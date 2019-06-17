@@ -13,7 +13,7 @@ enum SettingsPage {
       name: "Serial port"
       description: "Serial port connection settings."
     )
-    
+
   TEMPERATURES
     @settingsPageDesc(
       name: "Temperatures"
@@ -76,7 +76,12 @@ type Settings {
       editComponent: "TemperaturePresetsTable"
     )
 
+  curaSettings: CuraSettings!
+   @settingsField(
+      label: "Cura"
+      page: CURA
     
+    )
 }
 
 input TemperaturePresetInput {

@@ -45,6 +45,7 @@ func processSetting(setting *CuraDefinitionSetting, settingKey string) {
 			"label":       makeStringLiteral(setting.Label),
 			"description": makeStringLiteral(setting.Description),
 			"page":        "CURA",
+			"unit":        makeStringLiteral(setting.Unit),
 		}) + "\n\n"
 	}
 	for key, child := range setting.Children {
