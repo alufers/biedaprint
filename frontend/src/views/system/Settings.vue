@@ -35,57 +35,5 @@ import SettingsMenu from "../../components/settings/SettingsMenu.vue";
   }
 })
 export default class SettingsPage extends mixins(LoadableMixin) {
-  readonly parities = ["NONE", "EVEN"];
-  readonly dataBits = [5, 7, 8];
-  readonly rates = [
-    300,
-    600,
-    1200,
-    2400,
-    4800,
-    9600,
-    14400,
-    19200,
-    28800,
-    38400,
-    57600,
-    115200,
-    2500000
-  ];
-  serialPorts: string[] = [];
-  settings: SettingsModel | null = null;
-  created() {
-    this.withLoader(async () => {
-      let { data } = await this.$apollo.query<GetSettingsAndSerialPortsQuery>({
-        query: getSettingsAndSerialPorts
-      });
-      delete data.settings.__typename;
-      data.settings.temperaturePresets.forEach(tp => delete tp.__typename);
-      this.settings = data.settings;
-      this.serialPorts = data.serialPorts;
-    });
-  }
-  save() {
-    this.withLoader(async () => {
-      await this.$apollo.mutate<UpdateSettingsMutation>({
-        mutation: updateSettings,
-        variables: <UpdateSettingsMutationVariables>{
-          newSettings: this.settings
-        }
-      });
-    });
-  }
-  deleteTemperaturePreset(i: number) {
-    this.settings.temperaturePresets = this.settings.temperaturePresets.filter(
-      (_, ix) => ix !== i
-    );
-  }
-  addTemperaturePreset() {
-    this.settings.temperaturePresets.push({
-      name: "New",
-      hotendTemperature: 0,
-      hotbedTemperature: 0
-    });
-  }
 }
 </script>
