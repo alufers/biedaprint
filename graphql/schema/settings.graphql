@@ -46,7 +46,7 @@ enum SerialParity {
   NONE @enumValueDesc(label: "None")
 }
 
-type Settings {
+type SerialPortSettings {
   # SERIAL PORT PAGE
   serialPort: String!
     @settingsField(
@@ -63,25 +63,29 @@ type Settings {
     )
   parity: SerialParity! @settingsField(label: "Parity", page: SERIAL_PORT)
   dataBits: Int! @settingsField(label: "Data bits", page: SERIAL_PORT)
+}
 
+type GeneralSettings {
   # GENERAL PAGE
   dataPath: String! @settingsField(label: "Data path", page: GENERAL)
   startupCommand: String!
     @settingsField(label: "Startup command", page: GENERAL)
+}
 
+type TemperaturesSettings {
   temperaturePresets: [TemperaturePreset!]!
     @settingsField(
       label: "Temperature presets"
       page: TEMPERATURES
       editComponent: "TemperaturePresetsTable"
     )
+}
 
-  curaSettings: CuraSettings!
-   @settingsField(
-      label: "Cura"
-      page: CURA
-    
-    )
+type Settings {
+  serialPort: SerialPortSettings!
+  general: GeneralSettings!
+  temperatures: TemperaturesSettings!
+  cura: CuraSettings! @settingsField(label: "Cura", page: CURA)
 }
 
 input TemperaturePresetInput {

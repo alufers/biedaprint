@@ -19,6 +19,7 @@ require (
 	github.com/iancoleman/strcase v0.0.0-20190422225806-e506e3ef7365
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
+	github.com/josharian/impl v0.0.0-20190706034337-76254c7a7314 // indirect
 	github.com/miekg/dns v1.1.12 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/shirou/gopsutil v2.18.12+incompatible
