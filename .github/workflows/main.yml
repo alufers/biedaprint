@@ -15,5 +15,5 @@ jobs:
            GO111MODULE=off go get -u github.com/gobuffalo/packr/v2/packr2
            cd frontend && npm i && cd ..
    - name: Build
-      run: |
-           make build-multiplatform
+     run: |
+          make build-multiplatform
