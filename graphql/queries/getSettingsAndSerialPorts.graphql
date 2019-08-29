@@ -1,17 +1,4 @@
 query getSettingsAndSerialPorts {
-  settings {
-    serialPort
-    baudRate
-    dataBits
-    parity
-    dataPath
-    startupCommand
-    scrollbackBufferSize
-    temperaturePresets {
-      name
-      hotendTemperature
-      hotbedTemperature
-    }
-  }
+  settings 
   serialPorts
 }

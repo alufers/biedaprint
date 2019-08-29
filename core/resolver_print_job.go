@@ -9,7 +9,7 @@ import (
 )
 
 func (r *mutationResolver) StartPrintJob(ctx context.Context, gcodeFilename string) (*bool, error) {
-	meta, err := loadGcodeFileMeta(filepath.Join(r.App.GetSettings().DataPath, "gcode_files/", gcodeFilename+".meta"))
+	meta, err := loadGcodeFileMeta(filepath.Join(r.App.GetDataPath(), "gcode_files/", gcodeFilename+".meta"))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to load gcode meta")
 	}

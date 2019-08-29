@@ -110,7 +110,7 @@ func (r *mutationResolver) DownloadUpdate(ctx context.Context, tagName string) (
 		return nil, errors.Wrap(err, "failed to find suitable executable in the release")
 	}
 
-	dataPath := r.App.GetSettings().DataPath
+	dataPath := r.App.GetDataPath()
 	out, err := os.Create(filepath.Join(dataPath, fmt.Sprintf("biedaprint-update-%v", tagName)))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create update temporary file")
@@ -130,7 +130,7 @@ func (r *mutationResolver) DownloadUpdate(ctx context.Context, tagName string) (
 }
 
 func (r *mutationResolver) PerformUpdate(ctx context.Context, tagName string) (*bool, error) {
-	dataPath := r.App.GetSettings().DataPath
+	dataPath := r.App.GetDataPath()
 	updateFilePath := filepath.Join(dataPath, fmt.Sprintf("biedaprint-update-%v", tagName))
 	if _, err := os.Stat(updateFilePath); os.IsNotExist(err) {
 		return nil, errors.New("update file for this tagName does not exist")

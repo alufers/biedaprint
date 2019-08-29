@@ -40,7 +40,7 @@ func (pj *PrintJobInternal) jobLines() (chan string, error) {
 	pj.abortSem = make(chan bool)
 	pj.lineResendBuffer = make(map[int]string)
 	var err error
-	pj.gcodeFile, err = os.Open(filepath.Join(pj.app.GetSettings().DataPath, "gcode_files/", pj.GcodeMeta.GcodeFileName))
+	pj.gcodeFile, err = os.Open(filepath.Join(pj.app.GetDataPath(), "gcode_files/", pj.GcodeMeta.GcodeFileName))
 	if err != nil {
 		return nil, err
 	}

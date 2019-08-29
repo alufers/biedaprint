@@ -2,6 +2,9 @@ package core
 
 import "time"
 
+/*
+TrackedValuesService holds the definitions of tracked values. And tracks their histories.
+*/
 type TrackedValuesService struct {
 	app           *App
 	TrackedValues map[string]*TrackedValueInternal
@@ -9,6 +12,9 @@ type TrackedValuesService struct {
 
 var zero = 0
 
+/*
+NewTrackedValuesService constructs a TrackedValuesService.
+*/
 func NewTrackedValuesService(app *App) *TrackedValuesService {
 	return &TrackedValuesService{
 		app: app,

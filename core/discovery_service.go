@@ -18,6 +18,7 @@ func NewDiscoveryService(app *App) *DiscoveryService {
 	}
 }
 
+//Init starts the service
 func (dm *DiscoveryService) Init() {
 	log.Printf("Starting Zeroconf DiscoveryService!")
 	_, err := zeroconf.Register("Biedaprint instance", "_biedaprint._tcp", "local.", 4444, []string{}, nil)

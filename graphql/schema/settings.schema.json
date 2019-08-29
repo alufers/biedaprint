@@ -1,0 +1,164 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://biedaprint.albert-koczy.com/settings.schema.json",
+  "type": "object",
+  "title": "The Biedaprint settings schema",
+  "required": ["__v", "serial", "general", "temperatures"],
+  "properties": {
+    "__v": {
+      "$id": "#/properties/__v",
+      "type": "integer",
+      "title": "The version of these settings. Allowed only to be set to 2 with this schema.",
+      "const": 2
+    },
+    "serial": {
+      "$id": "#/properties/serial",
+      "type": "object",
+      "title": "Serial",
+      "description": "Describes how the host should connect to the printer via serial.",
+      "required": [
+        "serialPort",
+        "baudRate",
+        "scrollbackBufferSize",
+        "parity",
+        "dataBits"
+      ],
+      "properties": {
+        "serialPort": {
+          "$id": "#/properties/serial/properties/serialPort",
+          "type": "string",
+          "title": "Serial port",
+          "description": "The name of the serial port to which the host should connect.",
+          "default": "<invalid>",
+          "examples": [
+            "/dev/ttyUSB0",
+            "/dev/ttyUSB1",
+            "/dev/ttyUSB2",
+            "/dev/ttyUSB3",
+            "/dev/ttyACM0",
+            "/dev/ttyACM1",
+            "/dev/ttyACM2",
+            "/dev/cu.wchusbserial14d10"
+          ],
+          "pattern": "^(.*)$"
+        },
+        "baudRate": {
+          "$id": "#/properties/serial/properties/baudRate",
+          "type": "integer",
+          "title": "Baudrate",
+          "description": "The baud rate at which the host should connect to the printer.",
+          "default": 250000,
+          "examples": [
+            250110,
+            300,
+            600,
+            1200,
+            2400,
+            4800,
+            9600,
+            14400,
+            19200,
+            38400,
+            57600,
+            115200,
+            128000000,
+            256000
+          ]
+        },
+        "scrollbackBufferSize": {
+          "$id": "#/properties/serial/properties/scrollbackBufferSize",
+          "type": "integer",
+          "title": "Scrollback buffer size",
+          "description": "How many bytes of data transmitted by the printer should be kept in-memory.",
+          "default": 0,
+          "examples": [10240]
+        },
+        "parity": {
+          "$id": "#/properties/serial/properties/parity",
+          "type": "string",
+          "title": "Parity",
+          "default": "EVEN",
+          "enum": ["NONE", "ODD", "EVEN"]
+        },
+        "dataBits": {
+          "$id": "#/properties/serial/properties/dataBits",
+          "type": "integer",
+          "title": "Data bits",
+          "default": 7,
+          "examples": [7]
+        }
+      }
+    },
+    "general": {
+      "$id": "#/properties/general",
+      "type": "object",
+      "title": "General",
+      "required": ["dataPath", "startupCommand"],
+      "properties": {
+        "dataPath": {
+          "$id": "#/properties/general/properties/dataPath",
+          "type": "string",
+          "title": "Data path",
+          "description": "The path to a folder where biedaprint stores its data (gcode files, updates etc.)",
+          "default": "./biedaprint_data",
+          "examples": ["./biedaprint_data"],
+          "pattern": "^(.*)$"
+        },
+        "startupCommand": {
+          "$id": "#/properties/general/properties/startupCommand",
+          "type": "string",
+          "title": "Startup command",
+          "description": "A command which will run when biedaprint starts",
+          "default": "",
+          "examples": [""],
+          "pattern": "^(.*)$"
+        }
+      }
+    },
+    "temperatures": {
+      "$id": "#/properties/temperatures",
+      "type": "object",
+      "title": "Temperatures",
+      "required": ["temperaturePresets"],
+      "properties": {
+        "temperaturePresets": {
+          "$id": "#/properties/temperatures/properties/temperaturePresets",
+          "type": "array",
+          "title": "Temperature presets",
+          "description": "Handy temperature presets shown in a dropdown when manually setting the temeperatures.",
+          "items": {
+            "$id": "#/properties/temperatures/properties/temperaturePresets/items",
+            "type": "object",
+            "title": "Presets",
+            "required": ["name", "hotendTemperature", "hotbedTemperature"],
+            "properties": {
+              "name": {
+                "$id": "#/properties/temperatures/properties/temperaturePresets/items/properties/name",
+                "type": "string",
+                "title": "Preset name",
+                "default": "",
+                "examples": ["PLA"],
+                "pattern": "^(.*)$"
+              },
+              "hotendTemperature": {
+                "$id": "#/properties/temperatures/properties/temperaturePresets/items/properties/hotendTemperature",
+                "type": "integer",
+                "title": "Hotend temperature",
+                "default": 0,
+                "examples": [200]
+              },
+              "hotbedTemperature": {
+                "$id": "#/properties/temperatures/properties/temperaturePresets/items/properties/hotbedTemperature",
+                "type": "integer",
+                "title": "Hotbed temperature",
+                "default": 0,
+                "examples": [60]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

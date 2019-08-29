@@ -42,11 +42,6 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	EnumValueDesc func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string) (res interface{}, err error)
-
-	SettingsField func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string, page *SettingsPage, editComponent *string, unit *string) (res interface{}, err error)
-
-	SettingsPageDesc func(ctx context.Context, obj interface{}, next graphql.Resolver, name *string, description *string) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -87,7 +82,7 @@ type ComplexityRoot struct {
 		SendConsoleCommand    func(childComplexity int, cmd string) int
 		SendGcode             func(childComplexity int, cmd string) int
 		StartPrintJob         func(childComplexity int, gcodeFilename string) int
-		UpdateSettings        func(childComplexity int, settings NewSettings) int
+		UpdateSettings        func(childComplexity int, settings interface{}) int
 		UploadGcode           func(childComplexity int, file graphql.Upload) int
 	}
 
@@ -109,27 +104,10 @@ type ComplexityRoot struct {
 		TrackedValues     func(childComplexity int) int
 	}
 
-	Settings struct {
-		BaudRate             func(childComplexity int) int
-		DataBits             func(childComplexity int) int
-		DataPath             func(childComplexity int) int
-		Parity               func(childComplexity int) int
-		ScrollbackBufferSize func(childComplexity int) int
-		SerialPort           func(childComplexity int) int
-		StartupCommand       func(childComplexity int) int
-		TemperaturePresets   func(childComplexity int) int
-	}
-
 	Subscription struct {
 		CurrentPrintJobUpdated func(childComplexity int) int
 		SerialConsoleData      func(childComplexity int) int
 		TrackedValueUpdated    func(childComplexity int, name string) int
-	}
-
-	TemperaturePreset struct {
-		HotbedTemperature func(childComplexity int) int
-		HotendTemperature func(childComplexity int) int
-		Name              func(childComplexity int) int
 	}
 
 	TrackedValue struct {
@@ -148,7 +126,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	UpdateSettings(ctx context.Context, settings NewSettings) (*Settings, error)
+	UpdateSettings(ctx context.Context, settings interface{}) (interface{}, error)
 	ConnectToSerial(ctx context.Context, void *bool) (*bool, error)
 	DisconnectFromSerial(ctx context.Context, void *bool) (*bool, error)
 	SendGcode(ctx context.Context, cmd string) (*bool, error)
@@ -163,7 +141,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	SerialPorts(ctx context.Context) ([]string, error)
-	Settings(ctx context.Context) (*Settings, error)
+	Settings(ctx context.Context) (interface{}, error)
 	TrackedValues(ctx context.Context) ([]*TrackedValue, error)
 	TrackedValue(ctx context.Context, name string) (*TrackedValue, error)
 	ScrollbackBuffer(ctx context.Context) (string, error)
@@ -443,7 +421,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateSettings(childComplexity, args["settings"].(NewSettings)), true
+		return e.complexity.Mutation.UpdateSettings(childComplexity, args["settings"].(interface{})), true
 
 	case "Mutation.uploadGcode":
 		if e.complexity.Mutation.UploadGcode == nil {
@@ -546,62 +524,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.TrackedValues(childComplexity), true
 
-	case "Settings.baudRate":
-		if e.complexity.Settings.BaudRate == nil {
-			break
-		}
-
-		return e.complexity.Settings.BaudRate(childComplexity), true
-
-	case "Settings.dataBits":
-		if e.complexity.Settings.DataBits == nil {
-			break
-		}
-
-		return e.complexity.Settings.DataBits(childComplexity), true
-
-	case "Settings.dataPath":
-		if e.complexity.Settings.DataPath == nil {
-			break
-		}
-
-		return e.complexity.Settings.DataPath(childComplexity), true
-
-	case "Settings.parity":
-		if e.complexity.Settings.Parity == nil {
-			break
-		}
-
-		return e.complexity.Settings.Parity(childComplexity), true
-
-	case "Settings.scrollbackBufferSize":
-		if e.complexity.Settings.ScrollbackBufferSize == nil {
-			break
-		}
-
-		return e.complexity.Settings.ScrollbackBufferSize(childComplexity), true
-
-	case "Settings.serialPort":
-		if e.complexity.Settings.SerialPort == nil {
-			break
-		}
-
-		return e.complexity.Settings.SerialPort(childComplexity), true
-
-	case "Settings.startupCommand":
-		if e.complexity.Settings.StartupCommand == nil {
-			break
-		}
-
-		return e.complexity.Settings.StartupCommand(childComplexity), true
-
-	case "Settings.temperaturePresets":
-		if e.complexity.Settings.TemperaturePresets == nil {
-			break
-		}
-
-		return e.complexity.Settings.TemperaturePresets(childComplexity), true
-
 	case "Subscription.currentPrintJobUpdated":
 		if e.complexity.Subscription.CurrentPrintJobUpdated == nil {
 			break
@@ -627,27 +549,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Subscription.TrackedValueUpdated(childComplexity, args["name"].(string)), true
-
-	case "TemperaturePreset.hotbedTemperature":
-		if e.complexity.TemperaturePreset.HotbedTemperature == nil {
-			break
-		}
-
-		return e.complexity.TemperaturePreset.HotbedTemperature(childComplexity), true
-
-	case "TemperaturePreset.hotendTemperature":
-		if e.complexity.TemperaturePreset.HotendTemperature == nil {
-			break
-		}
-
-		return e.complexity.TemperaturePreset.HotendTemperature(childComplexity), true
-
-	case "TemperaturePreset.name":
-		if e.complexity.TemperaturePreset.Name == nil {
-			break
-		}
-
-		return e.complexity.TemperaturePreset.Name(childComplexity), true
 
 	case "TrackedValue.displayType":
 		if e.complexity.TrackedValue.DisplayType == nil {
@@ -809,50 +710,6 @@ func (ec *executionContext) FieldMiddleware(ctx context.Context, obj interface{}
 			ret = nil
 		}
 	}()
-	rctx := graphql.GetResolverContext(ctx)
-	for _, d := range rctx.Field.Definition.Directives {
-		switch d.Name {
-		case "enumValueDesc":
-			if ec.directives.EnumValueDesc != nil {
-				rawArgs := d.ArgumentMap(ec.Variables)
-				args, err := ec.dir_enumValueDesc_args(ctx, rawArgs)
-				if err != nil {
-					ec.Error(ctx, err)
-					return nil
-				}
-				n := next
-				next = func(ctx context.Context) (interface{}, error) {
-					return ec.directives.EnumValueDesc(ctx, obj, n, args["label"].(*string))
-				}
-			}
-		case "settingsField":
-			if ec.directives.SettingsField != nil {
-				rawArgs := d.ArgumentMap(ec.Variables)
-				args, err := ec.dir_settingsField_args(ctx, rawArgs)
-				if err != nil {
-					ec.Error(ctx, err)
-					return nil
-				}
-				n := next
-				next = func(ctx context.Context) (interface{}, error) {
-					return ec.directives.SettingsField(ctx, obj, n, args["label"].(*string), args["description"].(*string), args["page"].(*SettingsPage), args["editComponent"].(*string), args["unit"].(*string))
-				}
-			}
-		case "settingsPageDesc":
-			if ec.directives.SettingsPageDesc != nil {
-				rawArgs := d.ArgumentMap(ec.Variables)
-				args, err := ec.dir_settingsPageDesc_args(ctx, rawArgs)
-				if err != nil {
-					ec.Error(ctx, err)
-					return nil
-				}
-				n := next
-				next = func(ctx context.Context) (interface{}, error) {
-					return ec.directives.SettingsPageDesc(ctx, obj, n, args["name"].(*string), args["description"].(*string))
-				}
-			}
-		}
-	}
 	res, err := ec.ResolverMiddleware(ctx, next)
 	if err != nil {
 		ec.Error(ctx, err)
@@ -943,7 +800,7 @@ type AvailableUpdate {
 
 type Query {
   serialPorts: [String!]!
-  settings: Settings!
+  settings: Any!
   trackedValues: [TrackedValue!]!
   trackedValue(name: String!): TrackedValue!
   scrollbackBuffer: String!
@@ -962,7 +819,7 @@ input ManualMovementPositionVector {
 }
 
 type Mutation {
-  updateSettings(settings: NewSettings!): Settings! # update the system settings
+  updateSettings(settings: Any!): Any! # update the system settings
   connectToSerial(void: Boolean): Boolean
   disconnectFromSerial(void: Boolean): Boolean
   sendGcode(cmd: String!): Boolean # send gcode to the printer without saving it in recent commands, used by all the manual control buttons
@@ -982,191 +839,11 @@ type Subscription {
   serialConsoleData: String!
 }
 `},
-	&ast.Source{Name: "graphql/schema/settings.graphql", Input: `directive @settingsPageDesc(name: String, description: String) on ENUM_VALUE
-directive @enumValueDesc(label: String) on ENUM_VALUE
-
-enum SettingsPage {
-  GENERAL
-    @settingsPageDesc(
-      name: "General"
-      description: "General biedaprint settings."
-    )
-
-  SERIAL_PORT
-    @settingsPageDesc(
-      name: "Serial port"
-      description: "Serial port connection settings."
-    )
-    
-  TEMPERATURES
-    @settingsPageDesc(
-      name: "Temperatures"
-      description: "Temperature control settings (material presets etc.)."
-    )
-
-  CURA
-    @settingsPageDesc(
-      name: "Cura"
-      description: "Controls the configuration of the cura slicer."
-    )
-}
-
-directive @settingsField(
-  label: String
-  description: String
-  page: SettingsPage
-  editComponent: String
-  unit: String
-) on FIELD_DEFINITION
-
-type TemperaturePreset {
-  name: String!
-  hotendTemperature: Float!
-  hotbedTemperature: Float!
-}
-
-enum SerialParity {
-  EVEN @enumValueDesc(label: "Even")
-  NONE @enumValueDesc(label: "None")
-}
-
-type Settings {
-  # SERIAL PORT PAGE
-  serialPort: String!
-    @settingsField(
-      label: "Serial port"
-      description: "The serial port to connect to the printer"
-      page: SERIAL_PORT
-    )
-  baudRate: Int! @settingsField(label: "Baud rate", page: SERIAL_PORT)
-  scrollbackBufferSize: Int!
-    @settingsField(
-      label: "Scrollback buffer size"
-      description: "The number of bytes of the printer's output that should be stored in-memory."
-      page: SERIAL_PORT
-    )
-  parity: SerialParity! @settingsField(label: "Parity", page: SERIAL_PORT)
-  dataBits: Int! @settingsField(label: "Data bits", page: SERIAL_PORT)
-
-  # GENERAL PAGE
-  dataPath: String! @settingsField(label: "Data path", page: GENERAL)
-  startupCommand: String!
-    @settingsField(label: "Startup command", page: GENERAL)
-
-  temperaturePresets: [TemperaturePreset!]!
-    @settingsField(
-      label: "Temperature presets"
-      page: TEMPERATURES
-      editComponent: "TemperaturePresetsTable"
-    )
-
-    
-}
-
-input TemperaturePresetInput {
-  name: String!
-  hotendTemperature: Float!
-  hotbedTemperature: Float!
-}
-
-input NewSettings {
-  serialPort: String!
-  baudRate: Int!
-  parity: SerialParity!
-  dataBits: Int!
-  scrollbackBufferSize: Int!
-  dataPath: String!
-  startupCommand: String!
-  temperaturePresets: [TemperaturePresetInput!]!
-}
-`},
 )
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
-
-func (ec *executionContext) dir_enumValueDesc_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["label"]; ok {
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["label"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) dir_settingsField_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["label"]; ok {
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["label"] = arg0
-	var arg1 *string
-	if tmp, ok := rawArgs["description"]; ok {
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["description"] = arg1
-	var arg2 *SettingsPage
-	if tmp, ok := rawArgs["page"]; ok {
-		arg2, err = ec.unmarshalOSettingsPage2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["page"] = arg2
-	var arg3 *string
-	if tmp, ok := rawArgs["editComponent"]; ok {
-		arg3, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["editComponent"] = arg3
-	var arg4 *string
-	if tmp, ok := rawArgs["unit"]; ok {
-		arg4, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["unit"] = arg4
-	return args, nil
-}
-
-func (ec *executionContext) dir_settingsPageDesc_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["name"]; ok {
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["name"] = arg0
-	var arg1 *string
-	if tmp, ok := rawArgs["description"]; ok {
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["description"] = arg1
-	return args, nil
-}
 
 func (ec *executionContext) field_Mutation_abortPrintJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1311,9 +988,9 @@ func (ec *executionContext) field_Mutation_startPrintJob_args(ctx context.Contex
 func (ec *executionContext) field_Mutation_updateSettings_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 NewSettings
+	var arg0 interface{}
 	if tmp, ok := rawArgs["settings"]; ok {
-		arg0, err = ec.unmarshalNNewSettings2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐNewSettings(ctx, tmp)
+		arg0, err = ec.unmarshalNAny2interface(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1889,7 +1566,7 @@ func (ec *executionContext) _Mutation_updateSettings(ctx context.Context, field 
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateSettings(rctx, args["settings"].(NewSettings))
+		return ec.resolvers.Mutation().UpdateSettings(rctx, args["settings"].(interface{}))
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -1897,10 +1574,10 @@ func (ec *executionContext) _Mutation_updateSettings(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Settings)
+	res := resTmp.(interface{})
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNSettings2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettings(ctx, field.Selections, res)
+	return ec.marshalNAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_connectToSerial(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -2346,10 +2023,10 @@ func (ec *executionContext) _Query_settings(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Settings)
+	res := resTmp.(interface{})
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNSettings2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettings(ctx, field.Selections, res)
+	return ec.marshalNAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_trackedValues(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -2624,222 +2301,6 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Settings_serialPort(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "Settings",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SerialPort, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Settings_baudRate(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "Settings",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.BaudRate, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Settings_scrollbackBufferSize(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "Settings",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ScrollbackBufferSize, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Settings_parity(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "Settings",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Parity, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(SerialParity)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSerialParity(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Settings_dataBits(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "Settings",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DataBits, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Settings_dataPath(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "Settings",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DataPath, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Settings_startupCommand(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "Settings",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.StartupCommand, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Settings_temperaturePresets(ctx context.Context, field graphql.CollectedField, obj *Settings) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "Settings",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TemperaturePresets, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*TemperaturePreset)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTemperaturePreset2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePreset(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Subscription_trackedValueUpdated(ctx context.Context, field graphql.CollectedField) func() graphql.Marshaler {
 	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
 		Field: field,
@@ -2928,87 +2389,6 @@ func (ec *executionContext) _Subscription_serialConsoleData(ctx context.Context,
 			w.Write([]byte{'}'})
 		})
 	}
-}
-
-func (ec *executionContext) _TemperaturePreset_name(ctx context.Context, field graphql.CollectedField, obj *TemperaturePreset) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "TemperaturePreset",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _TemperaturePreset_hotendTemperature(ctx context.Context, field graphql.CollectedField, obj *TemperaturePreset) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "TemperaturePreset",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.HotendTemperature, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _TemperaturePreset_hotbedTemperature(ctx context.Context, field graphql.CollectedField, obj *TemperaturePreset) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "TemperaturePreset",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.HotbedTemperature, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _TrackedValue_name(ctx context.Context, field graphql.CollectedField, obj *TrackedValue) graphql.Marshaler {
@@ -4169,96 +3549,6 @@ func (ec *executionContext) unmarshalInputManualMovementPositionVector(ctx conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNewSettings(ctx context.Context, v interface{}) (NewSettings, error) {
-	var it NewSettings
-	var asMap = v.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "serialPort":
-			var err error
-			it.SerialPort, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "baudRate":
-			var err error
-			it.BaudRate, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "parity":
-			var err error
-			it.Parity, err = ec.unmarshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSerialParity(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "dataBits":
-			var err error
-			it.DataBits, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "scrollbackBufferSize":
-			var err error
-			it.ScrollbackBufferSize, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "dataPath":
-			var err error
-			it.DataPath, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "startupCommand":
-			var err error
-			it.StartupCommand, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "temperaturePresets":
-			var err error
-			it.TemperaturePresets, err = ec.unmarshalNTemperaturePresetInput2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputTemperaturePresetInput(ctx context.Context, v interface{}) (TemperaturePresetInput, error) {
-	var it TemperaturePresetInput
-	var asMap = v.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "name":
-			var err error
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "hotendTemperature":
-			var err error
-			it.HotendTemperature, err = ec.unmarshalNFloat2float64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "hotbedTemperature":
-			var err error
-			it.HotbedTemperature, err = ec.unmarshalNFloat2float64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4667,68 +3957,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var settingsImplementors = []string{"Settings"}
-
-func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet, obj *Settings) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.RequestContext, sel, settingsImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Settings")
-		case "serialPort":
-			out.Values[i] = ec._Settings_serialPort(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "baudRate":
-			out.Values[i] = ec._Settings_baudRate(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "scrollbackBufferSize":
-			out.Values[i] = ec._Settings_scrollbackBufferSize(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "parity":
-			out.Values[i] = ec._Settings_parity(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "dataBits":
-			out.Values[i] = ec._Settings_dataBits(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "dataPath":
-			out.Values[i] = ec._Settings_dataPath(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "startupCommand":
-			out.Values[i] = ec._Settings_startupCommand(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "temperaturePresets":
-			out.Values[i] = ec._Settings_temperaturePresets(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var subscriptionImplementors = []string{"Subscription"}
 
 func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func() graphql.Marshaler {
@@ -4751,43 +3979,6 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
-}
-
-var temperaturePresetImplementors = []string{"TemperaturePreset"}
-
-func (ec *executionContext) _TemperaturePreset(ctx context.Context, sel ast.SelectionSet, obj *TemperaturePreset) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.RequestContext, sel, temperaturePresetImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TemperaturePreset")
-		case "name":
-			out.Values[i] = ec._TemperaturePreset_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "hotendTemperature":
-			out.Values[i] = ec._TemperaturePreset_hotendTemperature(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "hotbedTemperature":
-			out.Values[i] = ec._TemperaturePreset_hotbedTemperature(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
 }
 
 var trackedValueImplementors = []string{"TrackedValue"}
@@ -5386,33 +4577,6 @@ func (ec *executionContext) unmarshalNManualMovementPositionVector2githubᚗcom�
 	return ec.unmarshalInputManualMovementPositionVector(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNNewSettings2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐNewSettings(ctx context.Context, v interface{}) (NewSettings, error) {
-	return ec.unmarshalInputNewSettings(ctx, v)
-}
-
-func (ec *executionContext) unmarshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSerialParity(ctx context.Context, v interface{}) (SerialParity, error) {
-	var res SerialParity
-	return res, res.UnmarshalGQL(v)
-}
-
-func (ec *executionContext) marshalNSerialParity2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSerialParity(ctx context.Context, sel ast.SelectionSet, v SerialParity) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) marshalNSettings2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettings(ctx context.Context, sel ast.SelectionSet, v Settings) graphql.Marshaler {
-	return ec._Settings(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettings(ctx context.Context, sel ast.SelectionSet, v *Settings) graphql.Marshaler {
-	if v == nil {
-		if !ec.HasError(graphql.GetResolverContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Settings(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalString(v)
 }
@@ -5454,89 +4618,6 @@ func (ec *executionContext) marshalNString2ᚕstring(ctx context.Context, sel as
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNTemperaturePreset2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePreset(ctx context.Context, sel ast.SelectionSet, v TemperaturePreset) graphql.Marshaler {
-	return ec._TemperaturePreset(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTemperaturePreset2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePreset(ctx context.Context, sel ast.SelectionSet, v []*TemperaturePreset) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		rctx := &graphql.ResolverContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTemperaturePreset2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePreset(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalNTemperaturePreset2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePreset(ctx context.Context, sel ast.SelectionSet, v *TemperaturePreset) graphql.Marshaler {
-	if v == nil {
-		if !ec.HasError(graphql.GetResolverContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._TemperaturePreset(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNTemperaturePresetInput2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx context.Context, v interface{}) (TemperaturePresetInput, error) {
-	return ec.unmarshalInputTemperaturePresetInput(ctx, v)
-}
-
-func (ec *executionContext) unmarshalNTemperaturePresetInput2ᚕᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx context.Context, v interface{}) ([]*TemperaturePresetInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*TemperaturePresetInput, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalNTemperaturePresetInput2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNTemperaturePresetInput2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx context.Context, v interface{}) (*TemperaturePresetInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNTemperaturePresetInput2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐTemperaturePresetInput(ctx, v)
-	return &res, err
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
@@ -5925,30 +5006,6 @@ func (ec *executionContext) marshalOPrintJob2ᚖgithubᚗcomᚋalufersᚋbiedapr
 		return graphql.Null
 	}
 	return ec._PrintJob(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOSettingsPage2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx context.Context, v interface{}) (SettingsPage, error) {
-	var res SettingsPage
-	return res, res.UnmarshalGQL(v)
-}
-
-func (ec *executionContext) marshalOSettingsPage2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx context.Context, sel ast.SelectionSet, v SettingsPage) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) unmarshalOSettingsPage2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx context.Context, v interface{}) (*SettingsPage, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalOSettingsPage2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) marshalOSettingsPage2ᚖgithubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐSettingsPage(ctx context.Context, sel ast.SelectionSet, v *SettingsPage) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

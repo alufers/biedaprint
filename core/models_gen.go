@@ -42,43 +42,9 @@ type ManualMovementPositionVector struct {
 	E float64 `json:"E"`
 }
 
-type NewSettings struct {
-	SerialPort           string                    `json:"serialPort"`
-	BaudRate             int                       `json:"baudRate"`
-	Parity               SerialParity              `json:"parity"`
-	DataBits             int                       `json:"dataBits"`
-	ScrollbackBufferSize int                       `json:"scrollbackBufferSize"`
-	DataPath             string                    `json:"dataPath"`
-	StartupCommand       string                    `json:"startupCommand"`
-	TemperaturePresets   []*TemperaturePresetInput `json:"temperaturePresets"`
-}
-
 type PrintJob struct {
 	GcodeMeta   *GcodeFileMeta `json:"gcodeMeta"`
 	StartedTime time.Time      `json:"startedTime"`
-}
-
-type Settings struct {
-	SerialPort           string               `json:"serialPort"`
-	BaudRate             int                  `json:"baudRate"`
-	ScrollbackBufferSize int                  `json:"scrollbackBufferSize"`
-	Parity               SerialParity         `json:"parity"`
-	DataBits             int                  `json:"dataBits"`
-	DataPath             string               `json:"dataPath"`
-	StartupCommand       string               `json:"startupCommand"`
-	TemperaturePresets   []*TemperaturePreset `json:"temperaturePresets"`
-}
-
-type TemperaturePreset struct {
-	Name              string  `json:"name"`
-	HotendTemperature float64 `json:"hotendTemperature"`
-	HotbedTemperature float64 `json:"hotbedTemperature"`
-}
-
-type TemperaturePresetInput struct {
-	Name              string  `json:"name"`
-	HotendTemperature float64 `json:"hotendTemperature"`
-	HotbedTemperature float64 `json:"hotbedTemperature"`
 }
 
 type TrackedValue struct {
@@ -93,92 +59,6 @@ type TrackedValue struct {
 	MinUpdateInterval int                     `json:"minUpdateInterval"`
 	History           []interface{}           `json:"history"`
 	MaxHistoryLength  int                     `json:"maxHistoryLength"`
-}
-
-type SerialParity string
-
-const (
-	SerialParityEven SerialParity = "EVEN"
-	SerialParityNone SerialParity = "NONE"
-)
-
-var AllSerialParity = []SerialParity{
-	SerialParityEven,
-	SerialParityNone,
-}
-
-func (e SerialParity) IsValid() bool {
-	switch e {
-	case SerialParityEven, SerialParityNone:
-		return true
-	}
-	return false
-}
-
-func (e SerialParity) String() string {
-	return string(e)
-}
-
-func (e *SerialParity) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = SerialParity(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SerialParity", str)
-	}
-	return nil
-}
-
-func (e SerialParity) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type SettingsPage string
-
-const (
-	SettingsPageGeneral      SettingsPage = "GENERAL"
-	SettingsPageSerialPort   SettingsPage = "SERIAL_PORT"
-	SettingsPageTemperatures SettingsPage = "TEMPERATURES"
-	SettingsPageCura         SettingsPage = "CURA"
-)
-
-var AllSettingsPage = []SettingsPage{
-	SettingsPageGeneral,
-	SettingsPageSerialPort,
-	SettingsPageTemperatures,
-	SettingsPageCura,
-}
-
-func (e SettingsPage) IsValid() bool {
-	switch e {
-	case SettingsPageGeneral, SettingsPageSerialPort, SettingsPageTemperatures, SettingsPageCura:
-		return true
-	}
-	return false
-}
-
-func (e SettingsPage) String() string {
-	return string(e)
-}
-
-func (e *SettingsPage) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = SettingsPage(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SettingsPage", str)
-	}
-	return nil
-}
-
-func (e SettingsPage) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type TrackedValueDisplayType string

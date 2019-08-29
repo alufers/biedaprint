@@ -13,7 +13,7 @@ import (
 )
 
 func (r *mutationResolver) UploadGcode(ctx context.Context, file graphql.Upload) (*GcodeFileMeta, error) {
-	dataPath := r.App.GetSettings().DataPath
+	dataPath := r.App.GetDataPath()
 	gcodeFilename := RandStringRunes(8) + ".gcode"
 	// copy example
 	f, err := os.OpenFile(filepath.Join(dataPath, "gcode_files/"+gcodeFilename), os.O_WRONLY|os.O_CREATE, 0666)
@@ -42,7 +42,7 @@ func (r *mutationResolver) UploadGcode(ctx context.Context, file graphql.Upload)
 }
 
 func (r *mutationResolver) DeleteGcodeFile(ctx context.Context, gcodeFilename string) (*bool, error) {
-	dataPath := r.App.GetSettings().DataPath
+	dataPath := r.App.GetDataPath()
 	gcodeName := filepath.Join(dataPath, "gcode_files/", gcodeFilename)
 	gcodeMetaName := filepath.Join(dataPath, "gcode_files/", gcodeFilename+".meta")
 	err := os.Remove(gcodeName)
@@ -58,7 +58,7 @@ func (r *mutationResolver) DeleteGcodeFile(ctx context.Context, gcodeFilename st
 
 func (r *queryResolver) GcodeFileMetas(ctx context.Context) ([]*GcodeFileMeta, error) {
 	metas := []*GcodeFileMeta{}
-	metafilePaths, _ := filepath.Glob(filepath.Join(r.App.GetSettings().DataPath, "gcode_files/", "*.gcode.meta"))
+	metafilePaths, _ := filepath.Glob(filepath.Join(r.App.GetDataPath(), "gcode_files/", "*.gcode.meta"))
 	for _, fp := range metafilePaths {
 		meta, err := loadGcodeFileMeta(fp)
 		if err != nil {

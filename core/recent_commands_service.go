@@ -25,7 +25,7 @@ func (rcm *RecentCommandsService) AddRecentCommand(cmd string) error {
 	rcm.recentCommandsMutex.Lock()
 	defer rcm.recentCommandsMutex.Unlock()
 	rcm.recentCommands = append(rcm.recentCommands, cmd)
-	f, err := os.OpenFile(filepath.Join(rcm.app.GetSettings().DataPath, "recent_commands.meta"), os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile(filepath.Join(rcm.app.GetDataPath(), "recent_commands.meta"), os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func (rcm *RecentCommandsService) AddRecentCommand(cmd string) error {
 func (rcm *RecentCommandsService) LoadRecentCommands() error {
 	rcm.recentCommandsMutex.Lock()
 	defer rcm.recentCommandsMutex.Unlock()
-	f, err := os.Open(filepath.Join(rcm.app.GetSettings().DataPath, "recent_commands.meta"))
+	f, err := os.Open(filepath.Join(rcm.app.GetDataPath(), "recent_commands.meta"))
 	if err != nil {
 		return err
 	}

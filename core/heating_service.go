@@ -45,7 +45,7 @@ func (hs *HeatingService) Init() {
 }
 
 func (hs *HeatingService) temperatureTimingsFilePath() string {
-	dataPath := hs.app.GetSettings().DataPath
+	dataPath := hs.app.GetDataPath()
 	return filepath.Join(dataPath, "temperature_timings.meta")
 }
 

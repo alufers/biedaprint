@@ -9,4 +9,5 @@ var AppReleaseExecutableName = "biedaprint-linux-amd64"
 //AppReleasesEndpoint the endpoint from where to download new versions of the app
 var AppReleasesEndpoint = "https://api.github.com/repos/alufers/biedaprint/releases"
 
+//AppSingleReleaseEndpoint is the url where metadata about a specific release tag can be optained
 var AppSingleReleaseEndpoint = "https://api.github.com/repos/alufers/biedaprint/releases/tags/%s"

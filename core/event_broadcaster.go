@@ -10,6 +10,7 @@ type EventBroadcaster struct {
 	subscribersMutex *sync.RWMutex
 }
 
+//NewEventBroadcaster constructs an EventBroadcaster
 func NewEventBroadcaster() *EventBroadcaster {
 	return &EventBroadcaster{
 		subscribers:      []chan interface{}{},
@@ -17,6 +18,7 @@ func NewEventBroadcaster() *EventBroadcaster {
 	}
 }
 
+//Subscribe returns a channel  which can be read from and a cancel func which stops the notifications
 func (eb *EventBroadcaster) Subscribe() (eventChannel chan interface{}, cancel func()) {
 	eventChannel = make(chan interface{})
 
@@ -44,6 +46,7 @@ func (eb *EventBroadcaster) Subscribe() (eventChannel chan interface{}, cancel f
 	return
 }
 
+//Broadcast broadcasts a message to the subscribers
 func (eb *EventBroadcaster) Broadcast(ev interface{}) {
 	eb.subscribersMutex.RLock()
 	defer eb.subscribersMutex.RUnlock()

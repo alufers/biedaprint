@@ -9,6 +9,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+/*
+RunHTTPServer starts the http server using the router. It should be called in a spearate goroutine,
+*/
 func (app *App) RunHTTPServer() {
 	// Setting up Gin
 	app.router = gin.Default()

@@ -55,8 +55,7 @@ func (pm *PrinterService) ConnectToSerial() error {
 	defer pm.serialConnectMutex.Unlock()
 	pm.lineBuf = make([]byte, 0)
 
-	settings := pm.app.GetSettings()
-	pm.printerLink.(*SerialPrinterLink).SetConfig(SerialPrinterLinkConfigFromSettings(&settings))
+	pm.printerLink.(*SerialPrinterLink).SetConfig(SerialPrinterLinkConfigFromSettings(pm.app))
 
 	err := pm.printerLink.Connect()
 	if err != nil {
@@ -65,7 +64,11 @@ func (pm *PrinterService) ConnectToSerial() error {
 
 	pm.scrollbackBufferMutex.Lock()
 	defer pm.scrollbackBufferMutex.Unlock()
-	pm.scrollbackBuffer, err = circbuf.NewBuffer(int64(settings.ScrollbackBufferSize))
+	scrollbackBufferSize, err := pm.app.SettingsService.GetInt64("serial.scrollbackBufferSize")
+	if err != nil {
+		return errors.Wrap(err, "failed to create circbuf")
+	}
+	pm.scrollbackBuffer, err = circbuf.NewBuffer(scrollbackBufferSize)
 	if err != nil {
 		return errors.Wrap(err, "failed to create circbuf")
 	}

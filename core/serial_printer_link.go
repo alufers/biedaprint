@@ -14,18 +14,39 @@ type SerialPrinterLinkConfig struct {
 	SerialMode *serial.OpenOptions
 }
 
-func SerialPrinterLinkConfigFromSettings(settings *Settings) *SerialPrinterLinkConfig {
-	parity := serial.PARITY_EVEN
-	if settings.Parity == SerialParityNone {
+func SerialPrinterLinkConfigFromSettings(app *App) *SerialPrinterLinkConfig {
+	var parity serial.ParityMode
+	paritySetting, err := app.SettingsService.GetString("serial.parity")
+	if err != nil {
+		panic(err)
+	}
+	if paritySetting == "NONE" {
 		parity = serial.PARITY_NONE
+	} else if paritySetting == "EVEN" {
+		parity = serial.PARITY_EVEN
+	} else if paritySetting == "EVEN" {
+		parity = serial.PARITY_EVEN
+	}
+
+	serialPort, err := app.SettingsService.GetString("serial.serialPort")
+	if err != nil {
+		panic(err)
+	}
+	baudRate, err := app.SettingsService.GetUint("serial.baudRate")
+	if err != nil {
+		panic(err)
+	}
+	dataBits, err := app.SettingsService.GetUint("serial.dataBits")
+	if err != nil {
+		panic(err)
 	}
 	return &SerialPrinterLinkConfig{
-		SerialPort: settings.SerialPort,
+		SerialPort: serialPort,
 		SerialMode: &serial.OpenOptions{
-			PortName:        settings.SerialPort,
-			BaudRate:        uint(settings.BaudRate),
+			PortName:        serialPort,
+			BaudRate:        baudRate,
 			ParityMode:      parity,
-			DataBits:        uint(settings.DataBits),
+			DataBits:        dataBits,
 			StopBits:        1,
 			MinimumReadSize: 1,
 		},
