@@ -65,7 +65,7 @@ type AvailableUpdate {
 
 type Query {
   serialPorts: [String!]!
-  settings: Any!
+  settings(path: String): Any!
   trackedValues: [TrackedValue!]!
   trackedValue(name: String!): TrackedValue!
   scrollbackBuffer: String!

@@ -1,5 +1,3 @@
-mutation updateSettings($newSettings: NewSettings!) {
-  updateSettings(settings: $newSettings) {
-    serialPort @include(if: false)  # shitty hack not to return anything [shrug]
-  }
+mutation updateSettings($newSettings: Any!) {
+  updateSettings(settings: $newSettings)
 }

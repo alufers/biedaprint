@@ -173,10 +173,14 @@ func (serv *SettingsService) GetValue(path string) (ret interface{}, err error) 
 }
 
 func (serv *SettingsService) getValue(path string) interface{} {
+	if path == "" {
+		return serv.GetAllSettings()
+	}
 	serv.mutex.RLock()
 	defer serv.mutex.RUnlock()
 	segments := strings.Split(path, ".")
 	accumulator := serv.settings
+
 	for index, segment := range segments {
 		switch v := accumulator.(type) {
 		case map[string]interface{}:

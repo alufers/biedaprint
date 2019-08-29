@@ -24,10 +24,6 @@ build-frontend: frontend-graphql-codegen
 	cd frontend; \
 	VUE_APP_GRAPHQL_HTTP=/query VUE_APP_GRAPHQL_WS_AUTO_RELATIVE=true node_modules/.bin/vue-cli-service build --dest ../static 
 
-frontend-graphql-codegen: settings-schema-codegen
+frontend-graphql-codegen:
 	cd frontend; \
 	npm run graphql-codegen
-
-settings-schema-codegen:
-	GO111MODULE=on go run codegen/gen_cura_settings_graphql/*.go > graphql/schema/cura_settings.graphql
-	GO111MODULE=on go run codegen/gen_settings_schema/*.go

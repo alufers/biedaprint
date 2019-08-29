@@ -1,9 +1,3 @@
 query getTemperaturePresets {
-  settings {
-    temperaturePresets {
-      name
-      hotendTemperature
-      hotbedTemperature
-    }
-  }
+  settings(path: "temperatures.temperaturePresets")
 }
