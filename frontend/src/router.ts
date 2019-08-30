@@ -83,22 +83,22 @@ export const routerConfig: RouterOptions = {
               /* webpackChunkName: "settings" */ "./views/system/Settings.vue"
             ),
           children: [
-            { path: "/", redirect: "/system/settings/general" },
-            {
-              path: "search",
-              name: "settings-search",
-              component: () =>
-                import(
-                  /* webpackChunkName: "settingssearch" */ "./views/system/Settings/Search.vue"
-                )
-            },
-            {
-              path: ":pageName",
-              component: () =>
-                import(
-                  /* webpackChunkName: "settings" */ "./views/system/Settings/SettingsPage.vue"
-                )
-            }
+            // { path: "/", redirect: "/system/settings/general" },
+            // {
+            //   path: "search",
+            //   name: "settings-search",
+            //   component: () =>
+            //     import(
+            //       /* webpackChunkName: "settingssearch" */ "./views/system/Settings/Search.vue"
+            //     )
+            // },
+            // {
+            //   path: ":pageName",
+            //   component: () =>
+            //     import(
+            //       /* webpackChunkName: "settings" */ "./views/system/Settings/SettingsPage.vue"
+            //     )
+            // }
           ]
         },
         {

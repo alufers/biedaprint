@@ -9,7 +9,8 @@
     "__v": {
       "$id": "#/properties/__v",
       "type": "integer",
-      "title": "The version of these settings. Allowed only to be set to 2 with this schema.",
+      "title": "Version",
+      "description": "The version of these settings. Allowed only to be set to 2 with this schema.",
       "const": 2
     },
     "serial": {
@@ -17,6 +18,7 @@
       "type": "object",
       "title": "Serial",
       "description": "Describes how the host should connect to the printer via serial.",
+      "isSettingsPage": true,
       "required": [
         "serialPort",
         "baudRate",
@@ -94,6 +96,7 @@
       "$id": "#/properties/general",
       "type": "object",
       "title": "General",
+      "isSettingsPage": true,
       "required": ["dataPath", "startupCommand"],
       "properties": {
         "dataPath": {
@@ -120,6 +123,7 @@
       "$id": "#/properties/temperatures",
       "type": "object",
       "title": "Temperatures",
+      "isSettingsPage": true,
       "required": ["temperaturePresets"],
       "properties": {
         "temperaturePresets": {

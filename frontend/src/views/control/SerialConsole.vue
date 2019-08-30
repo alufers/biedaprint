@@ -48,7 +48,7 @@ import {
   GetScrollbackBufferAndRecentCommandsQuery
 } from "../../graphql-models-gen";
 import gql from "graphql-tag";
-import { QueryResult } from "vue-apollo/types/vue-apollo";
+// import { QueryResult } from "vue-apollo/types/vue-apollo";
 
 @Component({
   components: {
@@ -73,7 +73,7 @@ export default class SerialConsole extends mixins(LoadableMixin) {
       this.scrollToBottom();
 
       let obs = this.$apollo.subscribe<
-        QueryResult<SerialConsoleDataSubscriptionSubscription>
+        any // QueryResult<SerialConsoleDataSubscriptionSubscription>
       >({
         query: serialConsoleDataSubscription
       });

@@ -16,7 +16,7 @@ import settingsSchema from "../../../assets/settings-schema.json";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
 import SettingsPageDescriptor from "../../../types/SettingsPageDescriptor";
 import {
-  Settings,
+  // Settings,
   GetSettingsQuery,
   UpdateSettingsMutationVariables
 } from "../../../graphql-models-gen";
@@ -25,6 +25,8 @@ import LoaderGuard from "../../../components/LoaderGuard.vue";
 import HighlightableTextZone from "../../../components/HighlightableTextZone.vue";
 import FieldsList from "../../../components/settings/FieldsList.vue";
 import Fuse from "fuse.js";
+
+type Settings = any
 
 @Component({
   components: {

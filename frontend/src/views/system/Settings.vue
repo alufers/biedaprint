@@ -4,10 +4,10 @@
     <progress class="progress is-large is-primary" max="100" v-if="loading">15%</progress>
     <div class="columns">
       <div class="column is-one-fifth">
-        <SettingsMenu/>
+        <!-- <SettingsMenu/> -->
       </div>
       <div class="column box">
-        <router-view/>
+        <!-- <router-view/> -->
       </div>
     </div>
   </LoaderGuard>
@@ -19,12 +19,6 @@ import LoadableMixin from "../../LoadableMixin";
 import gql from "graphql-tag";
 import getSettingsAndSerialPorts from "../../../../graphql/queries/getSettingsAndSerialPorts.graphql";
 import updateSettings from "../../../../graphql/queries/updateSettings.graphql";
-import {
-  GetSettingsAndSerialPortsQuery,
-  UpdateSettingsMutation,
-  UpdateSettingsMutationVariables,
-  Settings as SettingsModel
-} from "../../graphql-models-gen";
 import LoaderGuard from "../../components/LoaderGuard.vue";
 import SettingsMenu from "../../components/settings/SettingsMenu.vue";
 
@@ -34,6 +28,5 @@ import SettingsMenu from "../../components/settings/SettingsMenu.vue";
     SettingsMenu
   }
 })
-export default class SettingsPage extends mixins(LoadableMixin) {
-}
+export default class SettingsPage extends mixins(LoadableMixin) {}
 </script>

@@ -133,11 +133,12 @@ func (serv *SettingsService) GetUint(path string) (u uint, err error) {
 	if err != nil {
 		return
 	}
-	u, ok := val.(uint)
+	f, ok := val.(float64)
 	if !ok {
-		err = fmt.Errorf("The settings value at %v is not an uint. It is a %T", path, val)
+		err = fmt.Errorf("The settings value at %v is not an float64. It is a %T", path, val)
 		return
 	}
+	u = uint(f)
 	return
 }
 
@@ -150,11 +151,12 @@ func (serv *SettingsService) GetInt64(path string) (i int64, err error) {
 	if err != nil {
 		return
 	}
-	i, ok := val.(int64)
+	f, ok := val.(float64)
 	if !ok {
 		err = fmt.Errorf("The settings value at %v is not an uint. It is a %T", path, val)
 		return
 	}
+	i = int64(f)
 	return
 }
 
@@ -228,5 +230,4 @@ func (serv *SettingsService) copyValue(i interface{}) interface{} {
 		return newArr
 	}
 	panic(errors.New("unsupported type to copy"))
-	return nil
 }

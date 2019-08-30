@@ -28,7 +28,7 @@ It supports reading temperature presets from the settings as well as entering cu
                   @keyup.enter="setTarget"
                   @focus="showPresetsDropdown = true"
                   @blur="hidePresetsDropdown"
-                >
+                />
                 <span class="icon is-small" @click="$refs.temperatureInput.focus()">
                   <i class="fas fa-angle-down" aria-hidden="true"></i>
                 </span>
@@ -73,13 +73,12 @@ import { sendGcode } from "../../../graphql/queries/sendGcode.graphql";
 import {
   SendGcodeMutation,
   SendGcodeMutationVariables,
-  GetTemperaturePresetsQuery,
-  TemperaturePreset,
-  Settings
+  GetTemperaturePresetsQuery
 } from "../graphql-models-gen";
 import ApolloQuery from "../decorators/ApolloQuery";
 import { getTemperaturePresets } from "../../../graphql/queries/getTemperaturePresets.graphql";
 import { setTimeout } from "timers";
+import { Presets } from "../types/settings";
 
 @Component({})
 export default class HeaterControl extends mixins(LoadableMixin) {
@@ -92,9 +91,9 @@ export default class HeaterControl extends mixins(LoadableMixin) {
   @Prop({ type: String })
   temperatureGcode!: string;
   @Prop({ type: String })
-  temperaturePresetKey: keyof TemperaturePreset;
+  temperaturePresetKey: keyof Presets;
 
-  temperaturePresetsRaw: TemperaturePreset[] = null;
+  temperaturePresetsRaw: Presets[] = null;
 
   showPresetsDropdown = false;
 
@@ -114,7 +113,7 @@ export default class HeaterControl extends mixins(LoadableMixin) {
       let { data } = await this.$apollo.query<GetTemperaturePresetsQuery>({
         query: getTemperaturePresets
       });
-      this.temperaturePresetsRaw = data.settings.temperaturePresets;
+      this.temperaturePresetsRaw = data.settings;
     });
   }
 

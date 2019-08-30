@@ -57,7 +57,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Emit, Watch } from "vue-property-decorator";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
-import { TemperaturePreset } from "../../../graphql-models-gen";
+import { Presets as TemperaturePreset } from "../../../types/settings";
 import HighlightableText from "../../HighlightableText";
 
 @Component({

@@ -6,7 +6,7 @@ import {
   SubscribeToTrackedValueUpdatedByNameSubscription,
   SubscribeToTrackedValueUpdatedByNameSubscriptionVariables
 } from "../graphql-models-gen";
-import { QueryResult } from "vue-apollo/types/vue-apollo";
+// import { QueryResult } from "vue-apollo/types/vue-apollo";
 
 /**
  * TrackedValueSubscription is a decorator which binds to a vue instance property that will be updated every time the tracked value changes and an update event is sent via the subscription.
@@ -49,7 +49,7 @@ export default function TrackedValueSubscription(
 
           // create the real subscription
           let observable = this.$apollo.subscribe<
-            QueryResult<SubscribeToTrackedValueUpdatedByNameSubscription>
+            any // QueryResult<SubscribeToTrackedValueUpdatedByNameSubscription>
           >({
             variables: <
               SubscribeToTrackedValueUpdatedByNameSubscriptionVariables

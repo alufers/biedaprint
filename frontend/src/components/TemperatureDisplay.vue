@@ -25,7 +25,7 @@ import {
   SubscribeToTrackedValueUpdatedByNameSubscriptionVariables
 } from "../graphql-models-gen";
 import getTrackedValueByNameWithMeta from "../../../graphql/queries/getTrackedValueByNameWithMeta.graphql";
-import { QueryResult } from "vue-apollo/types/vue-apollo";
+// import { QueryResult } from "vue-apollo/types/vue-apollo";
 import gql from "graphql-tag";
 
 @Component({
@@ -55,7 +55,8 @@ export default class TemperatureDisplay extends mixins(LoadableMixin) {
         });
         tvMetas[valueToShow] = data.trackedValue;
         let observable = this.$apollo.subscribe<
-          QueryResult<SubscribeToTrackedValueUpdatedByNameSubscription>
+          // QueryResult<SubscribeToTrackedValueUpdatedByNameSubscription>
+          any
         >({
           variables: <
             SubscribeToTrackedValueUpdatedByNameSubscriptionVariables

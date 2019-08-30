@@ -24,7 +24,7 @@ import GenericInputField from "./fields/GenericInputField.vue";
 import EnumSelect from "./fields/EnumSelect.vue";
 import TemperaturePresetsTable from "./fields/TemperaturePresetsTable.vue";
 import {
-  Settings,
+  // Settings,
   GetSettingsQuery,
   UpdateSettingsMutationVariables
 } from "../../graphql-models-gen";
@@ -35,6 +35,8 @@ import { getSettings } from "../../../../graphql/queries/getSettings.graphql";
 import { updateSettings } from "../../../../graphql/queries/updateSettings.graphql";
 import omitTypename from "../../util/omitTypename";
 import { Prop } from "vue-property-decorator";
+
+type Settings = any
 
 @Component({
   components: {

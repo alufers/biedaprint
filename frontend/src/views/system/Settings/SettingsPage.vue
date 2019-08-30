@@ -18,7 +18,7 @@ import settingsSchema from "../../../assets/settings-schema.json";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
 import SettingsPageDescriptor from "../../../types/SettingsPageDescriptor";
 import {
-  Settings,
+  // Settings,
   GetSettingsQuery,
   UpdateSettingsMutationVariables
 } from "../../../graphql-models-gen";
@@ -29,6 +29,8 @@ import LoaderGuard from "../../../components/LoaderGuard.vue";
 import { updateSettings } from "../../../../../graphql/queries/updateSettings.graphql";
 import omitTypename from "../../../util/omitTypename";
 import FieldsList from "../../../components/settings/FieldsList.vue";
+
+type Settings = any
 
 @Component({
   components: {
