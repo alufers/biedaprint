@@ -5,7 +5,7 @@ PACKR2_PATH ?= packr2
 
 
 ifeq ($(TRAVIS_TAG),)
-GITHUB_REF := $(FILE:refs/tags/%=%)
+TRAVIS_TAG := $(GITHUB_REF:refs/tags/%=%)
 endif
 
 ifeq ($(TRAVIS_TAG),)
