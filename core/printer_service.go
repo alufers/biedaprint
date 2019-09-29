@@ -164,6 +164,9 @@ func (pm *PrinterService) handleJob(job *PrintJobInternal) {
 			log.Printf("Resending line %v", num)
 			<-pm.okSem
 			sendAndMaybeResend(job.getLineForResend(num))
+		case <-pm.abortPrintSem:
+			job.abort()
+			return
 		}
 	}
 	for line := range lineChan {
