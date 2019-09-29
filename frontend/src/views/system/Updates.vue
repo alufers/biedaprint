@@ -65,6 +65,7 @@ import {
 } from "../../graphql-models-gen";
 import LoaderGuard from "../../components/LoaderGuard.vue";
 import { Watch } from "vue-property-decorator";
+import sleep from "../../util/sleep";
 
 @Component({
   components: { LoaderGuard }
@@ -103,6 +104,7 @@ export default class Updates extends mixins(LoadableMixin) {
         }
       });
       this.updateStatus = "Refreshing...";
+      await sleep(5000);
       (<any>document.location) = "/system/system-info?_rnd=" + Math.random();
     });
     this.showProgressModal = false;
