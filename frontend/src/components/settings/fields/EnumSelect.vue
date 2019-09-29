@@ -2,7 +2,7 @@
   <div>
     <div class="field">
       <label class="label">
-        <HighlightableText>{{fieldDescriptor.label}}</HighlightableText>
+        <HighlightableText>{{fieldDescriptor.title}}</HighlightableText>
       </label>
       <div class="control">
         <div class="select">
@@ -22,9 +22,8 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Emit } from "vue-property-decorator";
-import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
-import settingsSchema from "../../../assets/settings-schema.json";
 import HighlightableText from "../../HighlightableText";
+import { JsonSchema } from "../../../util/settingsSchema";
 
 @Component({
   components: {
@@ -36,7 +35,7 @@ export default class EnumSelect extends Vue {
     required: true,
     type: Object
   })
-  fieldDescriptor: SettingsFieldDescriptor;
+  fieldDescriptor: JsonSchema;
 
   @Prop({
     type: String
@@ -49,9 +48,7 @@ export default class EnumSelect extends Vue {
   }
 
   get options() {
-    return settingsSchema.enums.find(
-      (e: any) => e.name === this.fieldDescriptor.enumTypeName
-    ).values as any;
+    return this.fieldDescriptor.enum.map(e => ({ value: e, label: e }));
   }
 }
 </script>

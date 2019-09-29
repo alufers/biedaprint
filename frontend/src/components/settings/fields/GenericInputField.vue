@@ -1,7 +1,7 @@
 <template>
   <div class="field">
     <label>
-      <HighlightableText>{{fieldDescriptor.label}}</HighlightableText>
+      <HighlightableText>{{fieldDescriptor.title}}</HighlightableText>
     </label>
     <div class="field-body">
       <div class="field" :class="{'has-addons': !!fieldDescriptor.unit}">
@@ -25,6 +25,7 @@ import Component from "vue-class-component";
 import { Prop, Emit } from "vue-property-decorator";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
 import HighlightableText from "../../HighlightableText";
+import { JsonSchema } from "../../../util/settingsSchema";
 
 @Component({
   components: {
@@ -36,7 +37,7 @@ export default class TextField extends Vue {
     required: true,
     type: Object
   })
-  fieldDescriptor: SettingsFieldDescriptor;
+  fieldDescriptor: JsonSchema;
 
   @Prop({})
   value: any;
@@ -44,19 +45,19 @@ export default class TextField extends Vue {
   @Emit("input")
   onFieldInput(e: Event) {
     let rawValue = (<HTMLInputElement>e.target).value;
-    if (this.fieldDescriptor.editComponent === "IntField") {
+    if (this.fieldDescriptor.type === "integer") {
       return parseInt(rawValue);
     }
-    if (this.fieldDescriptor.editComponent === "FloatField") {
+    if (this.fieldDescriptor.type === "float") {
       return parseFloat(rawValue);
     }
     return rawValue;
   }
 
   get inputType() {
-    switch (this.fieldDescriptor.editComponent) {
-      case "IntField":
-      case "FloatField":
+    switch (this.fieldDescriptor.type) {
+      case "float":
+      case "integer":
         return "number";
       default:
         return "text";

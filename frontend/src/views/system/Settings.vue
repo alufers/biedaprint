@@ -4,10 +4,10 @@
     <progress class="progress is-large is-primary" max="100" v-if="loading">15%</progress>
     <div class="columns">
       <div class="column is-one-fifth">
-        <!-- <SettingsMenu/> -->
+        <SettingsMenu />
       </div>
       <div class="column box">
-        <!-- <router-view/> -->
+        <router-view />
       </div>
     </div>
   </LoaderGuard>

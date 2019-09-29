@@ -11,7 +11,7 @@ SettingsMenu geneartes a settings menu from the settings schema.
           placeholder="Search settings"
           :value="searchQuery"
           @input="onSearched"
-        >
+        />
 
         <span class="icon is-small is-right">
           <i class="fas fa-search"></i>
@@ -20,8 +20,8 @@ SettingsMenu geneartes a settings menu from the settings schema.
     </div>
     <p class="menu-label">Pages</p>
     <ul class="menu-list">
-      <li v-for="page in settingsSchema.pages" :key="page.enumName">
-        <router-link :to="linkToPage(page)" :title="page.description">{{page.name}}</router-link>
+      <li v-for="page in pages" :key="page.enumName">
+        <router-link :to="linkToPage(page)" :title="page.description">{{page.title}}</router-link>
       </li>
     </ul>
   </aside>
@@ -30,14 +30,16 @@ SettingsMenu geneartes a settings menu from the settings schema.
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import settingsSchema from "../../assets/settings-schema.json";
+// @ts-ignore
+import settingsSchema from "../../../../graphql/schema/settings.schema.json";
+import { JsonSchema, pages } from "../../util/settingsSchema";
 
 @Component({})
 export default class SettingsMenu extends Vue {
   settingsSchema = settingsSchema;
-
-  linkToPage(page: any) {
-    return `/system/settings/${page.paramName}`;
+  pages = pages;
+  linkToPage(page: JsonSchema) {
+    return `/system/settings/${page.urlParamName}`;
   }
   get searchQuery() {
     let matched = this.$route.matched[this.$route.matched.length - 1];

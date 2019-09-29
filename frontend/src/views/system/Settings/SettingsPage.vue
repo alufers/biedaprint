@@ -1,11 +1,11 @@
 <template>
   <div v-if="this.pageData">
-    <h3 class="subtitle">{{pageData.name}}</h3>
+    <h3 class="subtitle">{{pageData.title}}</h3>
     <p class="has-text-grey-light">{{pageData.description}}</p>
-    <br>
+    <br />
 
     <LoaderGuard>
-      <FieldsList :fields="fields"/>
+      <FieldsList :fields="fields" />
       <button class="button is-primary" @click="saveSettings">Save</button>
     </LoaderGuard>
   </div>
@@ -14,7 +14,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
-import settingsSchema from "../../../assets/settings-schema.json";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
 import SettingsPageDescriptor from "../../../types/SettingsPageDescriptor";
 import {
@@ -29,8 +28,13 @@ import LoaderGuard from "../../../components/LoaderGuard.vue";
 import { updateSettings } from "../../../../../graphql/queries/updateSettings.graphql";
 import omitTypename from "../../../util/omitTypename";
 import FieldsList from "../../../components/settings/FieldsList.vue";
+import {
+  pages,
+  getNormalizedFields,
+  JsonSchema
+} from "../../../util/settingsSchema";
 
-type Settings = any
+type Settings = any;
 
 @Component({
   components: {
@@ -39,19 +43,12 @@ type Settings = any
   }
 })
 export default class SettingsPage extends mixins(LoadableMixin) {
-  get fields(): SettingsFieldDescriptor[] {
-    if (!this.pageData) {
-      return [];
-    }
-    return settingsSchema.fields.filter(
-      (f: SettingsFieldDescriptor) => f.pageEnumName === this.pageData.enumName
-    );
+  get fields(): JsonSchema[] {
+    return getNormalizedFields(this.pageData, this.pageData.fullPath);
   }
 
-  get pageData(): SettingsPageDescriptor {
-    return settingsSchema.pages.find(
-      (p: SettingsPageDescriptor) => p.paramName === this.$route.params.pageName
-    );
+  get pageData() {
+    return pages.find(p => p.urlParamName === this.$route.params.pageName);
   }
 
   saveSettings() {

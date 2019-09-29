@@ -1,5 +1,5 @@
 <!--
-FieldsList renders field editComponents based on a list of field descriptors. It provides them with the data from the settings and handles the input events.
+FieldsList renders field editComponents based on a list of field schemas. It provides them with the data from the settings and handles the input events.
  -->
 <template>
   <LoaderGuard>
@@ -17,9 +17,6 @@ FieldsList renders field editComponents based on a list of field descriptors. It
 <script lang="ts">
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
-import settingsSchema from "../../assets/settings-schema.json";
-import SettingsFieldDescriptor from "../../types/SettingsFieldDescriptor";
-import SettingsPageDescriptor from "../../types/SettingsPageDescriptor";
 import GenericInputField from "./fields/GenericInputField.vue";
 import EnumSelect from "./fields/EnumSelect.vue";
 import TemperaturePresetsTable from "./fields/TemperaturePresetsTable.vue";
@@ -35,8 +32,8 @@ import { getSettings } from "../../../../graphql/queries/getSettings.graphql";
 import { updateSettings } from "../../../../graphql/queries/updateSettings.graphql";
 import omitTypename from "../../util/omitTypename";
 import { Prop } from "vue-property-decorator";
-
-type Settings = any
+import { JsonSchema } from "../../util/settingsSchema";
+import { get, set } from "lodash-es";
 
 @Component({
   components: {
@@ -47,35 +44,37 @@ export default class FieldsList extends mixins(LoadableMixin) {
   @ApolloQuery<GetSettingsQuery>({
     query: getSettings
   })
-  settings: Settings = null;
+  settings: any = null;
 
   @Prop({ type: Array })
-  fields: SettingsFieldDescriptor[];
+  fields: JsonSchema[];
 
-  fieldComponent(field: SettingsFieldDescriptor) {
-    switch (field.editComponent) {
-      case "EnumSelect":
-        return EnumSelect;
+  fieldComponent(field: JsonSchema) {
+    if (field.enum) {
+      return EnumSelect;
+    }
+    switch (field.settingsField || field.type) {
       case "TemperaturePresetsTable":
         return TemperaturePresetsTable;
-      case "TextField":
-      case "IntField":
+
+      case "string":
+      case "integer":
       default:
         return GenericInputField;
     }
   }
 
-  fieldValue(field: SettingsFieldDescriptor) {
-    return (this.settings as any)[field.key];
+  fieldValue(field: JsonSchema) {
+    return get(this.settings, field.fullPath);
   }
 
-  onFieldInputEvent(field: SettingsFieldDescriptor, newValue: any) {
+  onFieldInputEvent(field: JsonSchema, newValue: any) {
     let cache = this.$apollo.provider.defaultClient.cache;
     let { settings } = cache.readQuery<GetSettingsQuery>({
       query: getSettings
     });
 
-    (settings as any)[field.key] = newValue;
+    set(settings, field.fullPath, newValue);
     cache.writeQuery<GetSettingsQuery>({
       query: getSettings,
       data: { settings }

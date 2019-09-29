@@ -11,7 +11,8 @@
       "type": "integer",
       "title": "Version",
       "description": "The version of these settings. Allowed only to be set to 2 with this schema.",
-      "const": 2
+      "const": 2,
+      "settingsField": false
     },
     "serial": {
       "$id": "#/properties/serial",
@@ -19,6 +20,7 @@
       "title": "Serial",
       "description": "Describes how the host should connect to the printer via serial.",
       "isSettingsPage": true,
+      "urlParamName": "serial",
       "required": [
         "serialPort",
         "baudRate",
@@ -97,6 +99,7 @@
       "type": "object",
       "title": "General",
       "isSettingsPage": true,
+      "urlParamName": "general",
       "required": ["dataPath", "startupCommand"],
       "properties": {
         "dataPath": {
@@ -124,6 +127,7 @@
       "type": "object",
       "title": "Temperatures",
       "isSettingsPage": true,
+      "urlParamName": "temperatures",
       "required": ["temperaturePresets"],
       "properties": {
         "temperaturePresets": {
@@ -131,6 +135,7 @@
           "type": "array",
           "title": "Temperature presets",
           "description": "Handy temperature presets shown in a dropdown when manually setting the temeperatures.",
+          "settingsField": "TemperaturePresetsTable",
           "items": {
             "$id": "#/properties/temperatures/properties/temperaturePresets/items",
             "type": "object",

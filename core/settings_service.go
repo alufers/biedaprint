@@ -216,6 +216,8 @@ func (serv *SettingsService) copyValue(i interface{}) interface{} {
 		return v
 	case bool:
 		return v
+	case json.Number:
+		return v
 	case map[string]interface{}:
 		newMap := map[string]interface{}{}
 		for k, val := range v {
@@ -229,5 +231,5 @@ func (serv *SettingsService) copyValue(i interface{}) interface{} {
 		}
 		return newArr
 	}
-	panic(errors.New("unsupported type to copy"))
+	panic(errors.Errorf("unsupported type to copy: %T", i))
 }

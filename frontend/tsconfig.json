@@ -28,7 +28,8 @@
     "tests/**/*.ts",
     "tests/**/*.tsx",
     "../graphql/queries/*.graphql",
-    "types/**/*.ts"
+    "types/**/*.ts",
+    "../graphql/schema/settings.schema.json"
   ],
   "exclude": ["node_modules"]
 }

@@ -2,7 +2,7 @@
   <div>
     <div class="field">
       <label class="label">
-        <HighlightableText>{{fieldDescriptor.label}}</HighlightableText>
+        <HighlightableText>{{fieldDescriptor.title}}</HighlightableText>
       </label>
 
       <table class="table">
@@ -59,18 +59,19 @@ import { Prop, Emit, Watch } from "vue-property-decorator";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
 import { Presets as TemperaturePreset } from "../../../types/settings";
 import HighlightableText from "../../HighlightableText";
+import { JsonSchema } from "../../../util/settingsSchema";
 
 @Component({
   components: {
     HighlightableText
   }
 })
-export default class TextField extends Vue {
+export default class TemperaturePresetsTable extends Vue {
   @Prop({
     required: true,
     type: Object
   })
-  fieldDescriptor: SettingsFieldDescriptor;
+  fieldDescriptor: JsonSchema;
 
   @Prop({
     type: Array

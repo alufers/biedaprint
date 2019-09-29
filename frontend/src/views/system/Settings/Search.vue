@@ -3,7 +3,7 @@
     <h3 class="subtitle">Settings search</h3>
     <LoaderGuard>
       <HighlightableTextZone :highlights="highlightTokens">
-        <FieldsList :fields="fields"/>
+        <FieldsList :fields="fields" />
       </HighlightableTextZone>
     </LoaderGuard>
   </div>
@@ -12,7 +12,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
-import settingsSchema from "../../../assets/settings-schema.json";
 import SettingsFieldDescriptor from "../../../types/SettingsFieldDescriptor";
 import SettingsPageDescriptor from "../../../types/SettingsPageDescriptor";
 import {
@@ -25,8 +24,13 @@ import LoaderGuard from "../../../components/LoaderGuard.vue";
 import HighlightableTextZone from "../../../components/HighlightableTextZone.vue";
 import FieldsList from "../../../components/settings/FieldsList.vue";
 import Fuse from "fuse.js";
+import {
+  getNormalizedFields,
+  settingsSchema,
+  JsonSchema
+} from "../../../util/settingsSchema";
 
-type Settings = any
+type Settings = any;
 
 @Component({
   components: {
@@ -36,8 +40,8 @@ type Settings = any
   }
 })
 export default class SettingsPage extends mixins(LoadableMixin) {
-  fuse: Fuse<SettingsFieldDescriptor> = new Fuse(settingsSchema.fields, {
-    keys: ["label", "description"],
+  fuse: Fuse<JsonSchema> = new Fuse(getNormalizedFields(settingsSchema), {
+    keys: ["title", "description"],
     caseSensitive: false,
     tokenize: true,
     treshold: 0.3
@@ -45,7 +49,7 @@ export default class SettingsPage extends mixins(LoadableMixin) {
   get query() {
     return this.$route.query["query"] as string;
   }
-  get fields(): SettingsFieldDescriptor[] {
+  get fields(): JsonSchema[] {
     return this.fuse.search(this.query, {
       limit: 10
     });
