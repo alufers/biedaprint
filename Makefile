@@ -3,6 +3,11 @@ MAKEFLAGS += -j2
 
 PACKR2_PATH ?= packr2
 
+
+ifeq ($(TRAVIS_TAG),)
+GITHUB_REF := $(FILE:refs/tags/%=%)
+endif
+
 ifeq ($(TRAVIS_TAG),)
 TRAVIS_TAG := "development"
 endif

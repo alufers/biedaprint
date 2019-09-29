@@ -19,7 +19,7 @@ jobs:
       - name: Build
         env:
           PACKR2_PATH: /tmp/packr2
-          TRAVIS_TAG: ${{ github.ref }}
+          GITHUB_REF: ${{ github.ref }}
         run: |
           cd frontend && npm i && cd ..
           make build-multiplatform
