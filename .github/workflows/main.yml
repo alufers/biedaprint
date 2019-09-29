@@ -15,7 +15,5 @@ jobs:
       #     cd frontend && npm i && cd ..
       - name: Build
         run: |
-          GO111MODULE=off go get -u github.com/99designs/gqlgen
-          GO111MODULE=off go get -u github.com/gobuffalo/packr/v2/packr2
           cd frontend && npm i && cd ..
           make build-multiplatform
