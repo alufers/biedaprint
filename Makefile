@@ -1,15 +1,17 @@
 
 MAKEFLAGS += -j2
 
+PACKR2_PATH ?= packr2
+
 ifeq ($(TRAVIS_TAG),)
 TRAVIS_TAG := "development"
 endif
 
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-build_with_out = GO111MODULE=on go run github.com/gobuffalo/packr/v2/packr2 build -tags frontend_packr -ldflags="-s -w -X github.com/alufers/biedaprint/core.AppVersion=$(TRAVIS_TAG) -X github.com/alufers/biedaprint/core.AppReleaseExecutableName=$(1)" -o $(ROOT_DIR)/build/$(1) server/server.go
+build_with_out = $(PACKR2_PATH) build -tags frontend_packr -ldflags="-s -w -X github.com/alufers/biedaprint/core.AppVersion=$(TRAVIS_TAG) -X github.com/alufers/biedaprint/core.AppReleaseExecutableName=$(1)" -o $(ROOT_DIR)/build/$(1) server/server.go
 
 build-backend: build-frontend backend-graphql-codegen
-	go run github.com/gobuffalo/packr/v2/packr2 build -tags frontend_packr -ldflags="-s -w" -o $(ROOT_DIR)/build/biedaprint server/server.go
+	$(PACKR2_PATH) build -tags frontend_packr -ldflags="-s -w" -o $(ROOT_DIR)/build/biedaprint server/server.go
 
 build-multiplatform: build-frontend backend-graphql-codegen
 	GOOS=linux GOARCH=arm GOARM=7 $(call build_with_out,biedaprint-linux-armv7)

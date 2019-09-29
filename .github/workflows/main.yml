@@ -13,7 +13,12 @@ jobs:
       #     GO111MODULE=off go get -u github.com/99designs/gqlgen
       #     GO111MODULE=off go get -u github.com/gobuffalo/packr/v2/packr2
       #     cd frontend && npm i && cd ..
+      - name: Install packr2
+        run: |
+          go build github.com/gobuffalo/packr/v2/packr2 -o /tmp/packr2
       - name: Build
+        env:
+          PACKR2_PATH: /tmp/packr2
         run: |
           cd frontend && npm i && cd ..
           make build-multiplatform
