@@ -15,7 +15,7 @@ jobs:
       #     cd frontend && npm i && cd ..
       - name: Install packr2
         run: |
-          go build github.com/gobuffalo/packr/v2/packr2 -o /tmp/packr2
+          GO111MODULE=off go build github.com/gobuffalo/packr/v2/packr2 -o /tmp/packr2
       - name: Build
         env:
           PACKR2_PATH: /tmp/packr2
