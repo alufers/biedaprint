@@ -31,9 +31,36 @@ NewSettingsService constructs a SettingsService
 */
 func NewSettingsService(app *App) *SettingsService {
 	return &SettingsService{
-		app:      app,
-		mutex:    &sync.RWMutex{},
-		settings: nil,
+		app:   app,
+		mutex: &sync.RWMutex{},
+		settings: map[string]interface{}{ // default settings
+			"__v": 2,
+			"general": map[string]interface{}{
+				"dataPath":       "./biedaprint_data",
+				"startupCommand": "",
+			},
+			"serial": map[string]interface{}{
+				"baudRate":             250000,
+				"dataBits":             7,
+				"parity":               "EVEN",
+				"scrollbackBufferSize": 10240,
+				"serialPort":           "<invalid>",
+			},
+			"temperatures": map[string]interface{}{
+				"temperaturePresets": []interface{}{
+					map[string]interface{}{
+						"hotbedTemperature": 60,
+						"hotendTemperature": 200,
+						"name":              "PLA",
+					},
+					map[string]interface{}{
+						"hotbedTemperature": 95,
+						"hotendTemperature": 230,
+						"name":              "ABS",
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -76,7 +103,7 @@ func (serv *SettingsService) loadSettings() {
 func (serv *SettingsService) saveSettings() error {
 	serv.mutex.RLock()
 	defer serv.mutex.RUnlock()
-	settingsJSON, err := json.Marshal(serv.settings)
+	settingsJSON, err := json.MarshalIndent(serv.settings, "", "  ")
 	if err != nil {
 		log.Printf("Failed to stringify settings %v", err)
 		return err
