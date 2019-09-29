@@ -22,3 +22,10 @@ jobs:
         run: |
           cd frontend && npm i && cd ..
           make build-multiplatform
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
