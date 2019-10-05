@@ -3,8 +3,20 @@
     <h2 class="title">Serial console</h2>
     <div class="columns">
       <div class="column is-9">
-        <div class="box is-family-code console" ref="console">
-          <div v-for="(l, i) in lines" :key="i">{{l}}</div>
+        <div class="console-wrapper">
+          <button
+            class="button is-primary is-rounded follow-log"
+            :class="{'hidden': isScrolledToBottom}"
+            @click="scrollToBottom"
+          >
+            <span class="icon is-small">
+              <i class="fas fa-arrow-down"></i>
+            </span>
+            <span>Scroll to bottom</span>
+          </button>
+          <div class="box is-family-code console" ref="console" @scroll="updateScrolledToBottom">
+            <div v-for="(l, i) in lines" :key="i">{{l}}</div>
+          </div>
         </div>
         <div class="is-flex">
           <input
@@ -17,7 +29,7 @@
             @keyup.up="previousRecentCommand"
             @keyup.down="nextRecentCommand"
             ref="commandInput"
-          >
+          />
           &nbsp;
           <button
             class="button is-primary"
@@ -27,7 +39,7 @@
         </div>
       </div>
       <div class="column is-4">
-        <GcodeDocs @useGcode="useGcodeFromDocs" :currentCommand="currentCommand"/>
+        <GcodeDocs @useGcode="useGcodeFromDocs" :currentCommand="currentCommand" />
       </div>
     </div>
   </div>
@@ -60,6 +72,7 @@ export default class SerialConsole extends mixins(LoadableMixin) {
   currentCommand = "";
   recentCommands: string[] = [];
   currentRecentCommand = 0;
+  isScrolledToBottom = true;
   created() {
     this.withLoader(async () => {
       let { data } = await this.$apollo.query<
@@ -78,10 +91,21 @@ export default class SerialConsole extends mixins(LoadableMixin) {
         query: serialConsoleDataSubscription
       });
       obs.subscribe(val => {
+        let shouldScroll = false;
+        const consoleDiv = this.$refs.console as HTMLDivElement;
+        if (
+          consoleDiv.scrollTop ===
+          consoleDiv.scrollHeight - consoleDiv.offsetHeight
+        ) {
+          shouldScroll = true;
+        }
         this.scrollback += val.data.serialConsoleData;
-        this.scrollToBottom();
+        if (shouldScroll) {
+          this.scrollToBottom();
+        }
       });
     });
+    this.updateScrolledToBottom();
   }
   async sendCommand() {
     if (this.loading) return;
@@ -130,11 +154,19 @@ export default class SerialConsole extends mixins(LoadableMixin) {
   get lines() {
     return this.scrollback.split("\n");
   }
+  updateScrolledToBottom() {
+    const consoleDiv = this.$refs.console as HTMLDivElement;
+    if (!consoleDiv) return;
+    this.isScrolledToBottom =
+      consoleDiv.scrollTop ===
+      consoleDiv.scrollHeight - consoleDiv.offsetHeight;
+  }
   scrollToBottom() {
     this.$nextTick(() => {
       (this.$refs.console as HTMLDivElement).scrollTop = (this.$refs
         .console as HTMLDivElement).scrollHeight;
     });
+    this.updateScrolledToBottom();
   }
 }
 </script>
@@ -144,5 +176,21 @@ export default class SerialConsole extends mixins(LoadableMixin) {
   min-height: 500px;
   max-height: 500px;
   overflow-y: scroll;
+}
+.console-wrapper {
+  position: relative;
+  margin-bottom: 10px;
+}
+.follow-log {
+  position: absolute;
+  top: 10px;
+  right: 25px;
+  opacity: 1;
+  transform: scale(1);
+  transition: 100ms ease-in-out;
+}
+.hidden {
+  opacity: 0;
+  transform: scale(0) translateY(-30px);
 }
 </style>

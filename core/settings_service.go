@@ -160,12 +160,21 @@ func (serv *SettingsService) GetUint(path string) (u uint, err error) {
 	if err != nil {
 		return
 	}
-	f, ok := val.(float64)
-	if !ok {
-		err = fmt.Errorf("The settings value at %v is not an float64. It is a %T", path, val)
+	switch f := val.(type) {
+	case float64:
+		u = uint(f)
+	case json.Number:
+		i64, conversionError := f.Int64()
+		if conversionError != nil {
+			err = errors.Wrap(conversionError, "failed to convert json.Number to Int64")
+			return
+		}
+		u = uint(i64)
+	default:
+		err = fmt.Errorf("The settings value at %v is not an float64 or json.Number. It is a %T", path, val)
 		return
 	}
-	u = uint(f)
+
 	return
 }
 
@@ -178,12 +187,21 @@ func (serv *SettingsService) GetInt64(path string) (i int64, err error) {
 	if err != nil {
 		return
 	}
-	f, ok := val.(float64)
-	if !ok {
-		err = fmt.Errorf("The settings value at %v is not an uint. It is a %T", path, val)
+	switch f := val.(type) {
+	case float64:
+		i = int64(f)
+	case json.Number:
+		var conversionError error
+		i, conversionError = f.Int64()
+		if conversionError != nil {
+			err = errors.Wrap(conversionError, "failed to convert json.Number to Int64")
+			return
+		}
+	default:
+		err = fmt.Errorf("The settings value at %v is not an float64 or json.Number. It is a %T", path, val)
 		return
 	}
-	i = int64(f)
+
 	return
 }
 
