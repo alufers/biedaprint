@@ -57,7 +57,6 @@
               :class="isLoadingClass"
               class="button is-danger is-centered"
               @click="moveXPositive"
-              title
             >X+</button>
           </td>
           <td></td>
@@ -66,7 +65,6 @@
               :class="isLoadingClass"
               class="button is-primary is-centered"
               @click="moveZPositive"
-              title
             >Z+</button>
           </td>
         </tr>
@@ -76,7 +74,6 @@
               :class="isLoadingClass"
               class="button is-success is-centered"
               @click="moveYNegative"
-              title
             >Y-</button>
           </td>
           <td>
@@ -84,7 +81,6 @@
               :class="isLoadingClass"
               class="button is-centered is-outlined"
               @click="centerXY"
-              title
             >
               <i class="fas fa-crosshairs"></i>
             </button>
@@ -94,7 +90,6 @@
               :class="isLoadingClass"
               class="button is-success is-centered"
               @click="moveYPositive"
-              title
             >Y+</button>
           </td>
           <td></td>
@@ -106,7 +101,6 @@
               :class="isLoadingClass"
               class="button is-danger is-centered"
               @click="moveXNegative"
-              title
             >X-</button>
           </td>
           <td></td>
@@ -115,8 +109,23 @@
               :class="isLoadingClass"
               class="button is-primary is-centered"
               @click="moveZNegative"
-              title
             >Z-</button>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <button
+              :class="isLoadingClass"
+              class="button wide is-primary is-centered"
+              @click="extrude"
+            >Extrude</button>
+          </td>
+          <td colspan="2">
+            <button
+              :class="isLoadingClass"
+              class="button wide is-primary is-centered"
+              @click="retract"
+            >Retract</button>
           </td>
         </tr>
       </tbody>
@@ -198,7 +207,12 @@ export default class Manual extends mixins(LoadableMixin) {
   moveZNegative() {
     this.performManualMovement({ Z: -this.movementAmount });
   }
-  centerXY() {}
+  extrude() {
+    this.performManualMovement({ E: this.movementAmount });
+  }
+  retract() {
+    this.performManualMovement({ E: -this.movementAmount });
+  }
 }
 </script>
 <style scoped>
@@ -208,6 +222,9 @@ td {
 button {
   width: 50px;
   height: 50px;
+}
+button.wide {
+  width: 110px;
 }
 table .button {
   margin: 5px;
