@@ -137,7 +137,7 @@
           :key="opt"
           :class="opt === movementAmount && 'is-active'"
         >
-          <a @click.prevent="movementAmount = opt">{{opt}}</a>
+          <a @click.prevent="setMovementAmount(opt)">{{opt}}</a>
         </li>
       </ul>
     </div>
@@ -161,7 +161,9 @@ import { performManualMovement } from "../../../../graphql/queries/performManual
 export default class Manual extends mixins(LoadableMixin) {
   allowedMovementAmounts = [0.1, 1, 10, 100];
   movementAmount = 10;
-
+  setMovementAmount(opt: number) {
+    this.movementAmount = opt;
+  }
   sendGCODE(gcode: string) {
     this.withLoader(async () => {
       await this.$apollo.mutate<SendGcodeMutation>({
@@ -207,6 +209,7 @@ export default class Manual extends mixins(LoadableMixin) {
   moveZNegative() {
     this.performManualMovement({ Z: -this.movementAmount });
   }
+  centerXY() {}
   extrude() {
     this.performManualMovement({ E: this.movementAmount });
   }
