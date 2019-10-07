@@ -1,9 +1,9 @@
 import Component, { createDecorator } from "vue-class-component";
 import Vue from "vue";
-import { VueApolloQueryOptions } from "vue-apollo/types/options";
+import { VueApolloQueryDefinition } from "vue-apollo/types/options";
 
 export default function ApolloQuery<R = any>(
-  opts: VueApolloQueryOptions<R, Vue>
+  opts: VueApolloQueryDefinition<R, Vue>
 ) {
   return createDecorator((options, key) => {
     @Component
