@@ -3,7 +3,10 @@ package core
 import (
 	"io"
 	"log"
+	"os"
 	"sync"
+
+	errorsNative "errors"
 
 	"github.com/jacobsa/go-serial/serial"
 	"github.com/pkg/errors"
@@ -74,6 +77,9 @@ func (spl *SerialPrinterLink) SetConfig(config *SerialPrinterLinkConfig) {
 	spl.config = config
 }
 
+/*
+Connect connects to the priter using the configuration stored in the struct.
+*/
 func (spl *SerialPrinterLink) Connect() error {
 	var err error
 	log.Printf("connecting with serial %#v", spl.config.SerialMode)
@@ -86,6 +92,9 @@ func (spl *SerialPrinterLink) Connect() error {
 	return nil
 }
 
+/*
+Disconnect disconnects from the printer.
+*/
 func (spl *SerialPrinterLink) Disconnect() error {
 	err := spl.connection.Close()
 	if err != nil {
@@ -110,6 +119,9 @@ func (spl *SerialPrinterLink) readerRoutine() {
 		if err != nil {
 
 			log.Printf("SerialPrinterLink.readerRoutine error: %v", err)
+			if spl.status == StatusDisconnected && errorsNative.Is(err, os.ErrClosed) {
+				return // we don't want to report an error if the connection was closed by the user.
+			}
 			spl.updateStatus(StatusError)
 			return
 		}
