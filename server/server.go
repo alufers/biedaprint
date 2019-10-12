@@ -28,5 +28,5 @@ func main() {
 	}
 	app := core.NewApp()
 	app.Init()
-	app.RunHTTPServer()
+	app.HTTPService.RunHTTPServer()
 }

@@ -1,9 +1,5 @@
 package core
 
-import (
-	"github.com/gin-gonic/gin"
-)
-
 /*
 App is the root object holding all the diffrent services.
 */
@@ -15,7 +11,7 @@ type App struct {
 	DiscoveryService      *DiscoveryService
 	HeatingService        *HeatingService
 	ManualMovementService *ManualMovementService
-	router                *gin.Engine
+	HTTPService           *HTTPService
 }
 
 /*
@@ -30,9 +26,13 @@ func NewApp() *App {
 	app.DiscoveryService = NewDiscoveryService(app)
 	app.HeatingService = NewHeatingService(app)
 	app.ManualMovementService = NewManualMovementService(app)
+	app.HTTPService = NewHTTPService(app)
 	return app
 }
 
+/*
+Init initializes the app
+*/
 func (app *App) Init() {
 	app.SettingsService.Init()
 	app.runStartupCommand()

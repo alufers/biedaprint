@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (app *App) frontendHandler() gin.HandlerFunc {
+func (hs *HTTPService) frontendHandler() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
