@@ -10,6 +10,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+/*
+PrinterService handl;es communication with the printer using a PrinterLink.
+It manages sending various commands to the printer, recieving messages from the printer and dispatching them to various parts of the application.
+*/
 type PrinterService struct {
 	app         *App
 	printerLink PrinterLink
@@ -50,6 +54,9 @@ func (pm *PrinterService) Init() {
 	go pm.serialWriterGoroutine()
 }
 
+/*
+ConnectToSerial connects to the printer using the PrinterLink.
+*/
 func (pm *PrinterService) ConnectToSerial() error {
 	pm.serialConnectMutex.Lock()
 	defer pm.serialConnectMutex.Unlock()
@@ -75,6 +82,9 @@ func (pm *PrinterService) ConnectToSerial() error {
 	return nil
 }
 
+/*
+DisconnectFromSerial disconnects from the printer.
+*/
 func (pm *PrinterService) DisconnectFromSerial() error {
 	pm.serialConnectMutex.Lock()
 	defer pm.serialConnectMutex.Unlock()
@@ -85,6 +95,9 @@ func (pm *PrinterService) DisconnectFromSerial() error {
 	return nil
 }
 
+/*
+WaitForSerialReady blocks until the app connects to the printer.
+*/
 func (pm *PrinterService) WaitForSerialReady() {
 	if pm.printerLink.CurrentStatus() == StatusConnected {
 		return
@@ -98,6 +111,9 @@ func (pm *PrinterService) WaitForSerialReady() {
 	}
 }
 
+/*
+eventLoop subscribes to broadcasts from the printer service and handles them
+*/
 func (pm *PrinterService) eventLoop() {
 	statusEvent, _ := pm.printerLink.Status().Subscribe()
 	dataEvent, _ := pm.printerLink.Data().Subscribe()
@@ -183,6 +199,9 @@ func (pm *PrinterService) handleJob(job *PrintJobInternal) {
 	}
 }
 
+/*
+parseLine processes lines incoming from the printer's firmware and dispatches them.
+*/
 func (pm *PrinterService) parseLine(line string) {
 	line = strings.TrimSpace(line)
 	//log.Println("GOT LINE: ", line)
