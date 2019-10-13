@@ -7,12 +7,18 @@ import (
 	"sync"
 )
 
+/*
+RecentCommandsService handles saving the commands entered by the user in the serial console window for later use by pressing the up arrow just like in a normal shell.
+*/
 type RecentCommandsService struct {
 	app                 *App
 	recentCommands      []string
 	recentCommandsMutex *sync.RWMutex
 }
 
+/*
+NewRecentCommandsService constructs a RecentCommandsService.
+*/
 func NewRecentCommandsService(app *App) *RecentCommandsService {
 	return &RecentCommandsService{
 		app:                 app,
@@ -21,6 +27,9 @@ func NewRecentCommandsService(app *App) *RecentCommandsService {
 	}
 }
 
+/*
+AddRecentCommand saves a new command in the recent commands file.
+*/
 func (rcm *RecentCommandsService) AddRecentCommand(cmd string) error {
 	rcm.recentCommandsMutex.Lock()
 	defer rcm.recentCommandsMutex.Unlock()
@@ -38,6 +47,9 @@ func (rcm *RecentCommandsService) AddRecentCommand(cmd string) error {
 	return nil
 }
 
+/*
+LoadRecentCommands should be run on start, to load the recently used commands.
+*/
 func (rcm *RecentCommandsService) LoadRecentCommands() error {
 	rcm.recentCommandsMutex.Lock()
 	defer rcm.recentCommandsMutex.Unlock()
@@ -55,6 +67,9 @@ func (rcm *RecentCommandsService) LoadRecentCommands() error {
 	return nil
 }
 
+/*
+GetRecentCommands retunrs the recent commands.
+*/
 func (rcm *RecentCommandsService) GetRecentCommands() []string {
 	rcm.recentCommandsMutex.RLock()
 	defer rcm.recentCommandsMutex.RUnlock()
