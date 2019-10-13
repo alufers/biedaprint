@@ -12,11 +12,17 @@ import (
 	"github.com/pkg/errors"
 )
 
+/*
+SerialPrinterLinkConfig holds the data required to connect to the printer.
+*/
 type SerialPrinterLinkConfig struct {
 	SerialPort string
 	SerialMode *serial.OpenOptions
 }
 
+/*
+SerialPrinterLinkConfigFromSettings reads the settings from the app and creates a SerialPrinterLinkConfig from it.
+*/
 func SerialPrinterLinkConfigFromSettings(app *App) *SerialPrinterLinkConfig {
 	var parity serial.ParityMode
 	paritySetting, err := app.SettingsService.GetString("serial.parity")
@@ -56,6 +62,9 @@ func SerialPrinterLinkConfigFromSettings(app *App) *SerialPrinterLinkConfig {
 	}
 }
 
+/*
+SerialPrinterLink manages communication with the printer using a serial port. It broadcasts the incoming data using an EventBroadcaster.
+*/
 type SerialPrinterLink struct {
 	config            *SerialPrinterLinkConfig
 	connection        io.ReadWriteCloser
@@ -65,6 +74,9 @@ type SerialPrinterLink struct {
 	dataBroadcaster   *EventBroadcaster
 }
 
+/*
+NewSerialPrinterLink constructs a SerialPrinterLink.
+*/
 func NewSerialPrinterLink() *SerialPrinterLink {
 	return &SerialPrinterLink{
 		statusBroadcaster: NewEventBroadcaster(),
@@ -73,6 +85,9 @@ func NewSerialPrinterLink() *SerialPrinterLink {
 	}
 }
 
+/*
+SetConfig sets the Link's configuration.
+*/
 func (spl *SerialPrinterLink) SetConfig(config *SerialPrinterLinkConfig) {
 	spl.config = config
 }
@@ -138,14 +153,25 @@ func (spl *SerialPrinterLink) Write(data []byte) error {
 	return nil
 }
 
+/*
+Data returns the EventBroadcaster that is fired everytime some data is recieved from the printer.
+*/
 func (spl *SerialPrinterLink) Data() *EventBroadcaster {
 	return spl.dataBroadcaster
 }
+
+/*
+CurrentStatus returns the status of the link. It is safe to be used by many goroutines.
+*/
 func (spl *SerialPrinterLink) CurrentStatus() PrinterLinkStatus {
 	spl.statusMutex.RLock()
 	defer spl.statusMutex.RUnlock()
 	return spl.status
 }
+
+/*
+Status returns an EventBroadcaster that is fired everytime the status of the printer changes.
+*/
 func (spl *SerialPrinterLink) Status() *EventBroadcaster {
 	return spl.statusBroadcaster
 }
