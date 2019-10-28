@@ -33,6 +33,9 @@ type PrinterService struct {
 	consoleBroadcaster    *EventBroadcaster
 }
 
+/*
+NewPrinterService constructs a PrinterService.
+*/
 func NewPrinterService(app *App) *PrinterService {
 	return &PrinterService{
 		printerLink:           NewSerialPrinterLink(),
@@ -49,9 +52,13 @@ func NewPrinterService(app *App) *PrinterService {
 	}
 }
 
-func (pm *PrinterService) Init() {
+/*
+Init initializes the printer service by starting all the necessary goroutines.
+*/
+func (pm *PrinterService) Init() error {
 	go pm.eventLoop()
 	go pm.serialWriterGoroutine()
+	return nil
 }
 
 /*

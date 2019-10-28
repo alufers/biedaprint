@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/gob"
+	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -25,6 +26,17 @@ func NewRecentCommandsService(app *App) *RecentCommandsService {
 		recentCommands:      []string{},
 		recentCommandsMutex: &sync.RWMutex{},
 	}
+}
+
+/*
+Init initializes the recent commands service.
+*/
+func (rcm *RecentCommandsService) Init() error {
+	err := rcm.LoadRecentCommands()
+	if err != nil {
+		log.Print(err)
+	}
+	return nil
 }
 
 /*

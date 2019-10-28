@@ -26,7 +26,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6 // indirect
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/google/pprof v0.0.0-20190723021845-34ac40c74b70 // indirect
-	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/gorilla/websocket v1.4.1
 	github.com/grandcat/zeroconf v0.0.0-20190424104450-85eadb44205c
@@ -34,6 +33,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
+	github.com/jinzhu/gorm v1.9.11
 	github.com/kisielk/errcheck v1.2.0 // indirect
 	github.com/kr/pty v1.1.8 // indirect
 	github.com/magiconair/properties v1.8.1 // indirect

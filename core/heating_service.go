@@ -23,7 +23,7 @@ type HeatingService struct {
 	hotendHeatingStart    *time.Time
 	lastHotbedTarget      float64
 	hotbedHeatingStart    *time.Time
-	HotendTimings         map[float64]time.Duration // a map which holds the time rquired to heat up the element to a given key temperature
+	HotendTimings         map[float64]time.Duration // a map which holds the time required to heat up the element to a given key temperature
 	HotbedTimings         map[float64]time.Duration
 }
 
@@ -36,12 +36,13 @@ func NewHeatingService(app *App) *HeatingService {
 	}
 }
 
-func (hs *HeatingService) Init() {
+func (hs *HeatingService) Init() error {
 	err := hs.loadTemperatureTimings()
 	if err != nil {
 		log.Printf("failed to load temperature timings: %v", err)
 	}
 	go hs.communicateWithPrinter()
+	return nil
 }
 
 func (hs *HeatingService) temperatureTimingsFilePath() string {

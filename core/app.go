@@ -1,5 +1,7 @@
 package core
 
+import "log"
+
 /*
 App is the root object holding all the diffrent services.
 */
@@ -12,6 +14,9 @@ type App struct {
 	HeatingService        *HeatingService
 	ManualMovementService *ManualMovementService
 	HTTPService           *HTTPService
+	DBService             *DBService
+	StartupCommandService *StartupCommandService
+	DataDirectoryService  *DataDirectoryService
 }
 
 /*
@@ -27,6 +32,9 @@ func NewApp() *App {
 	app.HeatingService = NewHeatingService(app)
 	app.ManualMovementService = NewManualMovementService(app)
 	app.HTTPService = NewHTTPService(app)
+	app.DBService = NewDBService(app)
+	app.StartupCommandService = NewStartupCommandService(app)
+	app.DataDirectoryService = NewDataDirectoryService(app)
 	return app
 }
 
@@ -35,11 +43,17 @@ Init initializes the app
 */
 func (app *App) Init() {
 	app.SettingsService.Init()
-	app.runStartupCommand()
-
-	app.RecentCommandsService.LoadRecentCommands()
-
-	app.DiscoveryService.Init()
-	app.PrinterService.Init()
-	app.HeatingService.Init()
+	err := InitMany(
+		app.SettingsService,
+		app.StartupCommandService,
+		app.DataDirectoryService,
+		app.RecentCommandsService,
+		app.DiscoveryService,
+		app.PrinterService,
+		app.HeatingService,
+		app.DBService,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

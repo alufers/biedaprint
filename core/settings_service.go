@@ -67,14 +67,14 @@ func NewSettingsService(app *App) *SettingsService {
 /*
 Init prepares the service.
 */
-func (serv *SettingsService) Init() {
-	serv.loadSettings()
+func (serv *SettingsService) Init() error {
+	return serv.loadSettings()
 }
 
 /*
 loadSettings loads the settings from a json file
 */
-func (serv *SettingsService) loadSettings() {
+func (serv *SettingsService) loadSettings() error {
 	serv.mutex.Lock()
 	defer serv.mutex.Unlock()
 	file, err := ioutil.ReadFile(SettingsPath)
@@ -84,20 +84,20 @@ func (serv *SettingsService) loadSettings() {
 		err = serv.saveSettings()
 		serv.mutex.Lock()
 		if err != nil {
-			log.Fatalf("Failed to save default settings: %v", err)
-			return
+			return fmt.Errorf("failed to save default settings: %w", err)
 		}
 		file, err = ioutil.ReadFile(SettingsPath)
 		if err != nil {
-			log.Fatalf("Failed to load default settings after saving: %v", err)
+			return fmt.Errorf("failed to load default settings after saving: %w", err)
 		}
 	}
 
 	err = json.Unmarshal([]byte(file), &serv.settings)
 	if err != nil {
-		log.Fatalf("Failed to parse %v. Check your syntax. %v", SettingsPath, err)
+		return fmt.Errorf("failed to parse %v: %w", SettingsPath, err)
 	}
 	log.Printf("Loaded %v", SettingsPath)
+	return nil
 }
 
 func (serv *SettingsService) saveSettings() error {
@@ -105,12 +105,11 @@ func (serv *SettingsService) saveSettings() error {
 	defer serv.mutex.RUnlock()
 	settingsJSON, err := json.MarshalIndent(serv.settings, "", "  ")
 	if err != nil {
-		log.Printf("Failed to stringify settings %v", err)
-		return err
+		return fmt.Errorf("failed to stringify settings: %w", err)
 	}
 	err = ioutil.WriteFile(SettingsPath, settingsJSON, 0644)
 	if err != nil {
-		log.Printf("Failed to save settings %v", err)
+		return fmt.Errorf("failed to write settings: %w", err)
 	}
 	return err
 }
