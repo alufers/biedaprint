@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.44.3 // indirect
-	github.com/99designs/gqlgen v0.9.3
+	github.com/99designs/gqlgen v0.10.1
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/agnivade/levenshtein v1.0.2 // indirect
 	github.com/armon/circbuf v0.0.0-20190214190532-5111143e8da2

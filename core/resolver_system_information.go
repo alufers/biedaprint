@@ -9,7 +9,7 @@ import (
 	"github.com/shirou/gopsutil/mem"
 )
 
-func (r *queryResolver) SystemInformation(ctx context.Context) (*map[string]interface{}, error) {
+func (r *queryResolver) SystemInformation(ctx context.Context) (map[string]interface{}, error) {
 	resp := map[string]interface{}{}
 	v, _ := mem.VirtualMemory()
 	resp["AppName"] = "Biedaprint"
@@ -26,5 +26,5 @@ func (r *queryResolver) SystemInformation(ctx context.Context) (*map[string]inte
 	resp["GCCPUFractionPercent"] = fmt.Sprintf("%4.2f%%", m.GCCPUFraction*100)
 	resp["AppVersion"] = AppVersion
 	resp["AppReleaseExecutableName"] = AppReleaseExecutableName
-	return &resp, nil
+	return resp, nil
 }
