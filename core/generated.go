@@ -59,6 +59,7 @@ type ComplexityRoot struct {
 		GcodeFileName     func(childComplexity int) int
 		HotbedTemperature func(childComplexity int) int
 		HotendTemperature func(childComplexity int) int
+		ID                func(childComplexity int) int
 		LayerIndexes      func(childComplexity int) int
 		OriginalName      func(childComplexity int) int
 		PrintTime         func(childComplexity int) int
@@ -148,7 +149,7 @@ type QueryResolver interface {
 	RecentCommands(ctx context.Context) ([]string, error)
 	GcodeFileMetas(ctx context.Context) ([]*GcodeFileMeta, error)
 	CurrentPrintJob(ctx context.Context) (*PrintJob, error)
-	SystemInformation(ctx context.Context) (*map[string]interface{}, error)
+	SystemInformation(ctx context.Context) (map[string]interface{}, error)
 	AvailableUpdates(ctx context.Context) ([]*AvailableUpdate, error)
 }
 type SubscriptionResolver interface {
@@ -241,6 +242,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GcodeFileMeta.HotendTemperature(childComplexity), true
+
+	case "GcodeFileMeta.id":
+		if e.complexity.GcodeFileMeta.ID == nil {
+			break
+		}
+
+		return e.complexity.GcodeFileMeta.ID(childComplexity), true
 
 	case "GcodeFileMeta.layerIndexes":
 		if e.complexity.GcodeFileMeta.LayerIndexes == nil {
@@ -727,6 +735,16 @@ var parsedSchema = gqlparser.MustLoadSchema(
 #
 # https://gqlgen.com/getting-started/
 
+directive @goModel(
+  model: String
+  models: [String!]
+) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+
+directive @goField(
+  forceResolver: Boolean
+  name: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
 scalar Any
 scalar Time
 scalar Map
@@ -760,7 +778,8 @@ type GcodeLayerIndex {
   layerNumber: Int!
 }
 
-type GcodeFileMeta {
+type GcodeFileMeta @goModel(model: "github.com/alufers/biedaprint/core.GcodeFileMeta") {
+  id: Int!
   originalName: String!
   gcodeFileName: String!
   uploadDate: Time!
@@ -1315,6 +1334,43 @@ func (ec *executionContext) _AvailableUpdate_size(ctx context.Context, field gra
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GcodeFileMeta_id(ctx context.Context, field graphql.CollectedField, obj *GcodeFileMeta) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "GcodeFileMeta",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GcodeFileMeta_originalName(ctx context.Context, field graphql.CollectedField, obj *GcodeFileMeta) (ret graphql.Marshaler) {
@@ -2628,10 +2684,10 @@ func (ec *executionContext) _Query_systemInformation(ctx context.Context, field 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*map[string]interface{})
+	res := resTmp.(map[string]interface{})
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOMap2ᚖmap(ctx, field.Selections, res)
+	return ec.marshalOMap2map(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_availableUpdates(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2746,27 +2802,46 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Subscription_trackedValueUpdated(ctx context.Context, field graphql.CollectedField) func() graphql.Marshaler {
-	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
-		Field: field,
-		Args:  nil,
-	})
+func (ec *executionContext) _Subscription_trackedValueUpdated(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Subscription",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
 	rawArgs := field.ArgumentMap(ec.Variables)
 	args, err := ec.field_Subscription_trackedValueUpdated_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return nil
 	}
-	// FIXME: subscriptions are missing request middleware stack https://github.com/99designs/gqlgen/issues/259
-	//          and Tracer stack
-	rctx := ctx
-	results, err := ec.resolvers.Subscription().TrackedValueUpdated(rctx, args["name"].(string))
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().TrackedValueUpdated(rctx, args["name"].(string))
+	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return nil
 	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
 	return func() graphql.Marshaler {
-		res, ok := <-results
+		res, ok := <-resTmp.(<-chan interface{})
 		if !ok {
 			return nil
 		}
@@ -2780,21 +2855,36 @@ func (ec *executionContext) _Subscription_trackedValueUpdated(ctx context.Contex
 	}
 }
 
-func (ec *executionContext) _Subscription_currentPrintJobUpdated(ctx context.Context, field graphql.CollectedField) func() graphql.Marshaler {
-	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
-		Field: field,
-		Args:  nil,
+func (ec *executionContext) _Subscription_currentPrintJobUpdated(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Subscription",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().CurrentPrintJobUpdated(rctx)
 	})
-	// FIXME: subscriptions are missing request middleware stack https://github.com/99designs/gqlgen/issues/259
-	//          and Tracer stack
-	rctx := ctx
-	results, err := ec.resolvers.Subscription().CurrentPrintJobUpdated(rctx)
 	if err != nil {
 		ec.Error(ctx, err)
 		return nil
 	}
+	if resTmp == nil {
+		return nil
+	}
 	return func() graphql.Marshaler {
-		res, ok := <-results
+		res, ok := <-resTmp.(<-chan *PrintJob)
 		if !ok {
 			return nil
 		}
@@ -2808,21 +2898,39 @@ func (ec *executionContext) _Subscription_currentPrintJobUpdated(ctx context.Con
 	}
 }
 
-func (ec *executionContext) _Subscription_serialConsoleData(ctx context.Context, field graphql.CollectedField) func() graphql.Marshaler {
-	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
-		Field: field,
-		Args:  nil,
+func (ec *executionContext) _Subscription_serialConsoleData(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Subscription",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().SerialConsoleData(rctx)
 	})
-	// FIXME: subscriptions are missing request middleware stack https://github.com/99designs/gqlgen/issues/259
-	//          and Tracer stack
-	rctx := ctx
-	results, err := ec.resolvers.Subscription().SerialConsoleData(rctx)
 	if err != nil {
 		ec.Error(ctx, err)
 		return nil
 	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
 	return func() graphql.Marshaler {
-		res, ok := <-results
+		res, ok := <-resTmp.(<-chan string)
 		if !ok {
 			return nil
 		}
@@ -4495,6 +4603,11 @@ func (ec *executionContext) _GcodeFileMeta(ctx context.Context, sel ast.Selectio
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("GcodeFileMeta")
+		case "id":
+			out.Values[i] = ec._GcodeFileMeta_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "originalName":
 			out.Values[i] = ec._GcodeFileMeta_originalName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -5857,21 +5970,6 @@ func (ec *executionContext) marshalOMap2map(ctx context.Context, sel ast.Selecti
 	return graphql.MarshalMap(v)
 }
 
-func (ec *executionContext) unmarshalOMap2ᚖmap(ctx context.Context, v interface{}) (*map[string]interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalOMap2map(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) marshalOMap2ᚖmap(ctx context.Context, sel ast.SelectionSet, v *map[string]interface{}) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec.marshalOMap2map(ctx, sel, *v)
-}
-
 func (ec *executionContext) marshalOPrintJob2githubᚗcomᚋalufersᚋbiedaprintᚋcoreᚐPrintJob(ctx context.Context, sel ast.SelectionSet, v PrintJob) graphql.Marshaler {
 	return ec._PrintJob(ctx, sel, &v)
 }
@@ -5889,6 +5987,38 @@ func (ec *executionContext) unmarshalOString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	return graphql.MarshalString(v)
+}
+
+func (ec *executionContext) unmarshalOString2ᚕstring(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕstring(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

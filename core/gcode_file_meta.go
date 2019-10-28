@@ -17,6 +17,20 @@ func init() {
 	gob.Register(GcodeLayerIndex{})
 }
 
+//GcodeFileMeta stores information about a gcode file
+type GcodeFileMeta struct {
+	Model
+	OriginalName      string             `json:"originalName"`
+	GcodeFileName     string             `json:"gcodeFileName"`
+	UploadDate        time.Time          `json:"uploadDate"`
+	TotalLines        int                `json:"totalLines"`
+	PrintTime         float64            `json:"printTime"`
+	FilamentUsedMm    float64            `json:"filamentUsedMm"`
+	LayerIndexes      []*GcodeLayerIndex `json:"layerIndexes"`
+	HotendTemperature float64            `json:"hotendTemperature"`
+	HotbedTemperature float64            `json:"hotbedTemperature"`
+}
+
 func loadGcodeFileMeta(path string) (*GcodeFileMeta, error) {
 	f, err := os.Open(path)
 	if err != nil {
