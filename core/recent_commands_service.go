@@ -2,18 +2,13 @@ package core
 
 import (
 	"fmt"
-	"sync"
-
-	"github.com/jinzhu/gorm"
 )
 
 /*
 RecentCommandsService handles saving the commands entered by the user in the serial console window for later use by pressing the up arrow just like in a normal shell.
 */
 type RecentCommandsService struct {
-	app                 *App
-	recentCommands      []string
-	recentCommandsMutex *sync.RWMutex
+	app *App
 }
 
 /*
@@ -21,9 +16,7 @@ NewRecentCommandsService constructs a RecentCommandsService.
 */
 func NewRecentCommandsService(app *App) *RecentCommandsService {
 	return &RecentCommandsService{
-		app:                 app,
-		recentCommands:      []string{},
-		recentCommandsMutex: &sync.RWMutex{},
+		app: app,
 	}
 }
 
@@ -69,6 +62,6 @@ func (rcm *RecentCommandsService) GetRecentCommands() (ret []string, err error) 
 
 //RecentCommand represents a record stored in the databse anout a recent command
 type RecentCommand struct {
-	gorm.Model
+	Model
 	Command string
 }
