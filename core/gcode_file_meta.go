@@ -23,6 +23,9 @@ type GcodeFileMeta struct {
 	HotbedTemperature float64            `json:"hotbedTemperature"`
 }
 
+/*
+AnalyzeGcodeFile extracts useful information from the gcode file such as temperatures, duration of the print and the length in lines of the file.
+*/
 func (gfm *GcodeFileMeta) AnalyzeGcodeFile(dataPath string) error {
 	f, err := os.Open(filepath.Join(dataPath, "gcode_files/", gfm.GcodeFileName))
 	if err != nil {
