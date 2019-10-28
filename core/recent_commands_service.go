@@ -1,11 +1,10 @@
 package core
 
 import (
-	"encoding/gob"
-	"log"
-	"os"
-	"path/filepath"
+	"fmt"
 	"sync"
+
+	"github.com/jinzhu/gorm"
 )
 
 /*
@@ -32,9 +31,9 @@ func NewRecentCommandsService(app *App) *RecentCommandsService {
 Init initializes the recent commands service.
 */
 func (rcm *RecentCommandsService) Init() error {
-	err := rcm.LoadRecentCommands()
+	err := rcm.app.DBService.DB.AutoMigrate(&RecentCommand{}).Error
 	if err != nil {
-		log.Print(err)
+		return fmt.Errorf("failed to migrate RecentCommand: %w", err)
 	}
 	return nil
 }
@@ -43,38 +42,11 @@ func (rcm *RecentCommandsService) Init() error {
 AddRecentCommand saves a new command in the recent commands file.
 */
 func (rcm *RecentCommandsService) AddRecentCommand(cmd string) error {
-	rcm.recentCommandsMutex.Lock()
-	defer rcm.recentCommandsMutex.Unlock()
-	rcm.recentCommands = append(rcm.recentCommands, cmd)
-	f, err := os.OpenFile(filepath.Join(rcm.app.GetDataPath(), "recent_commands.meta"), os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		return err
+	record := &RecentCommand{
+		Command: cmd,
 	}
-	defer f.Close()
-	enc := gob.NewEncoder(f)
-	err = enc.Encode(rcm.recentCommands)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-/*
-LoadRecentCommands should be run on start, to load the recently used commands.
-*/
-func (rcm *RecentCommandsService) LoadRecentCommands() error {
-	rcm.recentCommandsMutex.Lock()
-	defer rcm.recentCommandsMutex.Unlock()
-	f, err := os.Open(filepath.Join(rcm.app.GetDataPath(), "recent_commands.meta"))
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	deco := gob.NewDecoder(f)
-	err = deco.Decode(&rcm.recentCommands)
-	if err != nil {
-		return err
+	if err := rcm.app.DBService.DB.Save(record).Error; err != nil {
+		return fmt.Errorf("failed to insert recent command: %v", err)
 	}
 	return nil
 }
@@ -82,8 +54,21 @@ func (rcm *RecentCommandsService) LoadRecentCommands() error {
 /*
 GetRecentCommands retunrs the recent commands.
 */
-func (rcm *RecentCommandsService) GetRecentCommands() []string {
-	rcm.recentCommandsMutex.RLock()
-	defer rcm.recentCommandsMutex.RUnlock()
-	return rcm.recentCommands
+func (rcm *RecentCommandsService) GetRecentCommands() (ret []string, err error) {
+	var rows []*RecentCommand
+	if dbErr := rcm.app.DBService.DB.Find(&rows).Error; dbErr != nil {
+		err = fmt.Errorf("failed to query recent commands: %v", dbErr)
+		return
+	}
+	ret = make([]string, len(rows))
+	for i, r := range rows {
+		ret[i] = r.Command
+	}
+	return
+}
+
+//RecentCommand represents a record stored in the databse anout a recent command
+type RecentCommand struct {
+	gorm.Model
+	Command string
 }

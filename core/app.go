@@ -47,11 +47,11 @@ func (app *App) Init() {
 		app.SettingsService,
 		app.StartupCommandService,
 		app.DataDirectoryService,
+		app.DBService,
 		app.RecentCommandsService,
 		app.DiscoveryService,
 		app.PrinterService,
 		app.HeatingService,
-		app.DBService,
 	)
 	if err != nil {
 		log.Fatal(err)

@@ -36,7 +36,7 @@ func (r *subscriptionResolver) SerialConsoleData(ctx context.Context) (<-chan st
 }
 
 func (r *queryResolver) RecentCommands(ctx context.Context) ([]string, error) {
-	return r.App.RecentCommandsService.GetRecentCommands(), nil
+	return r.App.RecentCommandsService.GetRecentCommands()
 }
 
 func (r *mutationResolver) SendGcode(ctx context.Context, cmd string) (*bool, error) {
