@@ -75,14 +75,14 @@ type ComplexityRoot struct {
 	Mutation struct {
 		AbortPrintJob         func(childComplexity int, void *bool) int
 		ConnectToSerial       func(childComplexity int, void *bool) int
-		DeleteGcodeFile       func(childComplexity int, gcodeFilename string) int
+		DeleteGcodeFile       func(childComplexity int, id int) int
 		DisconnectFromSerial  func(childComplexity int, void *bool) int
 		DownloadUpdate        func(childComplexity int, tagName string) int
 		PerformManualMovement func(childComplexity int, vec ManualMovementPositionVector) int
 		PerformUpdate         func(childComplexity int, tagName string) int
 		SendConsoleCommand    func(childComplexity int, cmd string) int
 		SendGcode             func(childComplexity int, cmd string) int
-		StartPrintJob         func(childComplexity int, gcodeFilename string) int
+		StartPrintJob         func(childComplexity int, id int) int
 		UpdateSettings        func(childComplexity int, settings interface{}) int
 		UploadGcode           func(childComplexity int, file graphql.Upload) int
 	}
@@ -133,8 +133,8 @@ type MutationResolver interface {
 	SendGcode(ctx context.Context, cmd string) (*bool, error)
 	SendConsoleCommand(ctx context.Context, cmd string) (*bool, error)
 	UploadGcode(ctx context.Context, file graphql.Upload) (*GcodeFileMeta, error)
-	DeleteGcodeFile(ctx context.Context, gcodeFilename string) (*bool, error)
-	StartPrintJob(ctx context.Context, gcodeFilename string) (*bool, error)
+	DeleteGcodeFile(ctx context.Context, id int) (*bool, error)
+	StartPrintJob(ctx context.Context, id int) (*bool, error)
 	AbortPrintJob(ctx context.Context, void *bool) (*bool, error)
 	DownloadUpdate(ctx context.Context, tagName string) (*bool, error)
 	PerformUpdate(ctx context.Context, tagName string) (*bool, error)
@@ -333,7 +333,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteGcodeFile(childComplexity, args["gcodeFilename"].(string)), true
+		return e.complexity.Mutation.DeleteGcodeFile(childComplexity, args["id"].(int)), true
 
 	case "Mutation.disconnectFromSerial":
 		if e.complexity.Mutation.DisconnectFromSerial == nil {
@@ -417,7 +417,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.StartPrintJob(childComplexity, args["gcodeFilename"].(string)), true
+		return e.complexity.Mutation.StartPrintJob(childComplexity, args["id"].(int)), true
 
 	case "Mutation.updateSettings":
 		if e.complexity.Mutation.UpdateSettings == nil {
@@ -834,8 +834,8 @@ type Mutation {
   sendGcode(cmd: String!): Boolean # send gcode to the printer without saving it in recent commands, used by all the manual control buttons
   sendConsoleCommand(cmd: String!): Boolean # send command from the serial console input
   uploadGcode(file: Upload!): GcodeFileMeta
-  deleteGcodeFile(gcodeFilename: String!): Boolean
-  startPrintJob(gcodeFilename: String!): Boolean
+  deleteGcodeFile(id: Int!): Boolean
+  startPrintJob(id: Int!): Boolean
   abortPrintJob(void: Boolean): Boolean
   downloadUpdate(tagName: String!): Boolean # download an updated binary from github by tag name
   performUpdate(tagName: String!): Boolean # replace the current binary with a previously downloaded one
@@ -885,14 +885,14 @@ func (ec *executionContext) field_Mutation_connectToSerial_args(ctx context.Cont
 func (ec *executionContext) field_Mutation_deleteGcodeFile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["gcodeFilename"]; ok {
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["gcodeFilename"] = arg0
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -983,14 +983,14 @@ func (ec *executionContext) field_Mutation_sendGcode_args(ctx context.Context, r
 func (ec *executionContext) field_Mutation_startPrintJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["gcodeFilename"]; ok {
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["gcodeFilename"] = arg0
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -2055,7 +2055,7 @@ func (ec *executionContext) _Mutation_deleteGcodeFile(ctx context.Context, field
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteGcodeFile(rctx, args["gcodeFilename"].(string))
+		return ec.resolvers.Mutation().DeleteGcodeFile(rctx, args["id"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2096,7 +2096,7 @@ func (ec *executionContext) _Mutation_startPrintJob(ctx context.Context, field g
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().StartPrintJob(rctx, args["gcodeFilename"].(string))
+		return ec.resolvers.Mutation().StartPrintJob(rctx, args["id"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

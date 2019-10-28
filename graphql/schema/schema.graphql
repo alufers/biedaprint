@@ -101,8 +101,8 @@ type Mutation {
   sendGcode(cmd: String!): Boolean # send gcode to the printer without saving it in recent commands, used by all the manual control buttons
   sendConsoleCommand(cmd: String!): Boolean # send command from the serial console input
   uploadGcode(file: Upload!): GcodeFileMeta
-  deleteGcodeFile(gcodeFilename: String!): Boolean
-  startPrintJob(gcodeFilename: String!): Boolean
+  deleteGcodeFile(id: Int!): Boolean
+  startPrintJob(id: Int!): Boolean
   abortPrintJob(void: Boolean): Boolean
   downloadUpdate(tagName: String!): Boolean # download an updated binary from github by tag name
   performUpdate(tagName: String!): Boolean # replace the current binary with a previously downloaded one

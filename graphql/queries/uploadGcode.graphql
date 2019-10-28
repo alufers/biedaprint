@@ -1,5 +1,6 @@
 mutation uploadGcode($file: Upload!) {
   uploadGcode(file: $file) {
+    id
     originalName
     gcodeFileName
     uploadDate

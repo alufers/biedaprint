@@ -2,10 +2,10 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"sort"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -34,41 +34,34 @@ func (r *mutationResolver) UploadGcode(ctx context.Context, file graphql.Upload)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to analyze gcode file")
 	}
-	err = meta.Save(dataPath)
+	err = r.App.GcodeFileMetaRepositoryService.Save(meta)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to save gcode file meta")
+		return nil, fmt.Errorf("failed to save gcode file meta: %w", err)
 	}
 	return meta, nil
 }
 
-func (r *mutationResolver) DeleteGcodeFile(ctx context.Context, gcodeFilename string) (*bool, error) {
-	dataPath := r.App.GetDataPath()
-	gcodeName := filepath.Join(dataPath, "gcode_files/", gcodeFilename)
-	gcodeMetaName := filepath.Join(dataPath, "gcode_files/", gcodeFilename+".meta")
-	err := os.Remove(gcodeName)
+func (r *mutationResolver) DeleteGcodeFile(ctx context.Context, id int) (*bool, error) {
+	file, err := r.App.GcodeFileMetaRepositoryService.GetOneByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if file == nil {
+		return nil, fmt.Errorf("gcode file meta not found")
+	}
+	gcodeName := filepath.Join(r.App.GetDataPath(), "gcode_files/", file.GcodeFileName)
+
+	err = os.Remove(gcodeName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to remove gcode file")
 	}
-	err = os.Remove(gcodeMetaName)
+	err = r.App.GcodeFileMetaRepositoryService.Delete(file)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to remove gcode file meta")
+		return nil, err
 	}
 	return nil, nil
 }
 
 func (r *queryResolver) GcodeFileMetas(ctx context.Context) ([]*GcodeFileMeta, error) {
-	metas := []*GcodeFileMeta{}
-	metafilePaths, _ := filepath.Glob(filepath.Join(r.App.GetDataPath(), "gcode_files/", "*.gcode.meta"))
-	for _, fp := range metafilePaths {
-		meta, err := loadGcodeFileMeta(fp)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to read gcode file meta")
-		}
-		metas = append(metas, meta)
-
-	}
-	sort.Slice(metas, func(i int, j int) bool {
-		return !metas[i].UploadDate.Before(metas[j].UploadDate)
-	})
-	return metas, nil
+	return r.App.GcodeFileMetaRepositoryService.GetAll()
 }

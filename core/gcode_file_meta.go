@@ -8,8 +8,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 func init() {
@@ -17,7 +15,7 @@ func init() {
 	gob.Register(GcodeLayerIndex{})
 }
 
-//GcodeFileMeta stores information about a gcode file
+//GcodeFileMeta stores information about a gcode file. The real file is stored in a directory, because it can be big.
 type GcodeFileMeta struct {
 	Model
 	OriginalName      string             `json:"originalName"`
@@ -29,36 +27,6 @@ type GcodeFileMeta struct {
 	LayerIndexes      []*GcodeLayerIndex `json:"layerIndexes"`
 	HotendTemperature float64            `json:"hotendTemperature"`
 	HotbedTemperature float64            `json:"hotbedTemperature"`
-}
-
-func loadGcodeFileMeta(path string) (*GcodeFileMeta, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	deco := gob.NewDecoder(f)
-	var out *GcodeFileMeta
-	err = deco.Decode(&out)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (gfm *GcodeFileMeta) Save(dataPath string) error {
-	f, err := os.OpenFile(filepath.Join(dataPath, "gcode_files/", gfm.GcodeFileName+".meta"), os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		return errors.Wrap(err, "failed to open gcode meta file for writing")
-	}
-	defer f.Close()
-	enc := gob.NewEncoder(f)
-	err = enc.Encode(gfm)
-	if err != nil {
-		return errors.Wrap(err, "failed to encode gcode meta file")
-	}
-	return nil
 }
 
 func (gfm *GcodeFileMeta) AnalyzeGcodeFile(dataPath string) error {

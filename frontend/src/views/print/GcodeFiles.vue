@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 class="title">Gcode files</h2>
-    <GcodeUploadZone/>
+    <GcodeUploadZone />
     <table class="table is-fullwidth is-hoverable" v-if="!!gcodeFileMetas">
       <thead>
         <tr>
@@ -25,7 +25,7 @@
           <td>
             <div class="field has-addons">
               <p class="control">
-                <button class="button is-primary" @click="startPrintJob(f.gcodeFileName)">
+                <button class="button is-primary" @click="startPrintJob(f.id)">
                   <span class="icon is-small">
                     <i class="fas fa-print"></i>
                   </span>
@@ -60,10 +60,7 @@
         </section>
         <footer class="modal-card-foot">
           <button class="button" @click="gcodeFileToDelete = null">Cancel</button>
-          <button
-            class="button is-danger"
-            @click="deleteGcodeFile(gcodeFileToDelete.gcodeFileName)"
-          >
+          <button class="button is-danger" @click="deleteGcodeFile(gcodeFileToDelete.id)">
             <span class="icon">
               <i class="fas fa-trash"></i>
             </span>
@@ -134,23 +131,35 @@ export default class GcodeFiles extends mixins(LoadableMixin) {
   gcodeFileMetas: GcodeFileMeta[] | null = null;
   gcodeFileToDelete: GcodeFileMeta | null = null; // used to show the confirm modal
 
-  deleteGcodeFile(gcodeFilename: string) {
+  deleteGcodeFile(id: number) {
     this.gcodeFileToDelete = null;
     this.withLoader(async () => {
       await this.$apollo.mutate<DeleteGcodeFileMutation>({
         mutation: deleteGcodeFile,
         variables: <DeleteGcodeFileMutationVariables>{
-          gcodeFilename
+          id
+        },
+        update(store, q) {
+          const data = store.readQuery<GetGcodeFileMetasQuery>({
+            query: getGcodeFileMetas
+          });
+          data.gcodeFileMetas = data.gcodeFileMetas.filter(
+            meta => meta.id !== id
+          );
+          store.writeQuery<GetGcodeFileMetasQuery>({
+            query: getGcodeFileMetas,
+            data
+          });
         }
       });
     });
   }
-  startPrintJob(gcodeFilename: string) {
+  startPrintJob(id: number) {
     this.withLoader(async () => {
       await this.$apollo.mutate<StartPrintJobMutation>({
         mutation: startPrintJob,
         variables: <StartPrintJobMutationVariables>{
-          gcodeFilename
+          id
         }
       });
       this.$router.push("/"); // redirect to main page

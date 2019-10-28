@@ -6,17 +6,18 @@ import "log"
 App is the root object holding all the diffrent services.
 */
 type App struct {
-	SettingsService       *SettingsService
-	PrinterService        *PrinterService
-	RecentCommandsService *RecentCommandsService
-	TrackedValuesService  *TrackedValuesService
-	DiscoveryService      *DiscoveryService
-	HeatingService        *HeatingService
-	ManualMovementService *ManualMovementService
-	HTTPService           *HTTPService
-	DBService             *DBService
-	StartupCommandService *StartupCommandService
-	DataDirectoryService  *DataDirectoryService
+	SettingsService                *SettingsService
+	PrinterService                 *PrinterService
+	RecentCommandsService          *RecentCommandsService
+	TrackedValuesService           *TrackedValuesService
+	DiscoveryService               *DiscoveryService
+	HeatingService                 *HeatingService
+	ManualMovementService          *ManualMovementService
+	HTTPService                    *HTTPService
+	DBService                      *DBService
+	StartupCommandService          *StartupCommandService
+	DataDirectoryService           *DataDirectoryService
+	GcodeFileMetaRepositoryService *GcodeFileMetaRepositoryService
 }
 
 /*
@@ -35,6 +36,7 @@ func NewApp() *App {
 	app.DBService = NewDBService(app)
 	app.StartupCommandService = NewStartupCommandService(app)
 	app.DataDirectoryService = NewDataDirectoryService(app)
+	app.GcodeFileMetaRepositoryService = NewGcodeFileMetaRepositoryService(app)
 	return app
 }
 
@@ -48,6 +50,7 @@ func (app *App) Init() {
 		app.StartupCommandService,
 		app.DataDirectoryService,
 		app.DBService,
+		app.GcodeFileMetaRepositoryService,
 		app.RecentCommandsService,
 		app.DiscoveryService,
 		app.PrinterService,

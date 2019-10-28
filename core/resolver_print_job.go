@@ -2,16 +2,16 @@ package core
 
 import (
 	"context"
-	"path/filepath"
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
 )
 
-func (r *mutationResolver) StartPrintJob(ctx context.Context, gcodeFilename string) (*bool, error) {
-	meta, err := loadGcodeFileMeta(filepath.Join(r.App.GetDataPath(), "gcode_files/", gcodeFilename+".meta"))
+func (r *mutationResolver) StartPrintJob(ctx context.Context, id int) (*bool, error) {
+	meta, err := r.App.GcodeFileMetaRepositoryService.GetOneByID(id)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load gcode meta")
+		return nil, fmt.Errorf("failed to load gcode meta: %w", err)
 	}
 	job := &PrintJobInternal{
 		app: r.App,
