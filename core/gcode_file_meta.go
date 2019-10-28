@@ -2,18 +2,12 @@ package core
 
 import (
 	"bufio"
-	"encoding/gob"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
 	"time"
 )
-
-func init() {
-	gob.Register(GcodeFileMeta{})
-	gob.Register(GcodeLayerIndex{})
-}
 
 //GcodeFileMeta stores information about a gcode file. The real file is stored in a directory, because it can be big.
 type GcodeFileMeta struct {
