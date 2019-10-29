@@ -25,7 +25,7 @@ jobs:
           GITHUB_REF: ${{ github.ref }}
         run: |
           cd frontend && npm i && cd ..
-          sudo apt install gcc-arm-linux-gnueabi
+          sudo apt install gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu
           make build-multiplatform
       - name: Release
         uses: softprops/action-gh-release@v1
