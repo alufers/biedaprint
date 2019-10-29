@@ -19,7 +19,7 @@ build-backend: build-frontend backend-graphql-codegen
 	$(PACKR2_PATH) build -tags frontend_packr -ldflags="-s -w" -o $(ROOT_DIR)/build/biedaprint server/server.go
 
 build-multiplatform: backend-graphql-codegen embed-assets
-	GOOS=linux GOARCH=arm GOARM=7 $(call build_with_out,biedaprint-linux-armv7)
+	GOOS=linux GOARCH=arm GOARM=7 CC=arm-linux-gnueabi-gcc $(call build_with_out,biedaprint-linux-armv7)
 	GOOS=linux GOARCH=arm64 $(call build_with_out,biedaprint-linux-arm64)
 	GOOS=linux GOARCH=amd64 $(call build_with_out,biedaprint-linux-amd64)
 	GOOS=darwin GOARCH=amd64 $(call build_with_out,biedaprint-macos-amd64)
