@@ -35,7 +35,8 @@ backend-graphql-codegen:
 
 build-frontend: frontend-graphql-codegen
 	cd frontend; \
-	VUE_APP_GRAPHQL_HTTP=/query VUE_APP_GRAPHQL_WS_AUTO_RELATIVE=true node_modules/.bin/vue-cli-service build --dest ../static 
+	VUE_APP_GRAPHQL_HTTP=/query VUE_APP_GRAPHQL_WS_AUTO_RELATIVE=true node_modules/.bin/vue-cli-service build --dest ../static; \
+	rm -rf ../static/**/*.map
 
 frontend-graphql-codegen:
 	cd frontend; \
