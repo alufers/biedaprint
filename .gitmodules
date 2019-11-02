@@ -1,0 +1,3 @@
+[submodule "curaslicer/CuraEngine"]
+	path = curaslicer/CuraEngine
+	url = git@github.com:Ultimaker/CuraEngine.git
