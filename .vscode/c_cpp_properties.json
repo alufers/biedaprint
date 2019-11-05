@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/curaslicer/CuraEngine/libs/clipper",
+                "${workspaceFolder}/curaslicer/CuraEngine/src"
+            ]
+        }
+    ],
+    "version": 4
+}
