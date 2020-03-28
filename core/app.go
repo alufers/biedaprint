@@ -44,7 +44,6 @@ func NewApp() *App {
 Init initializes the app
 */
 func (app *App) Init() {
-	app.SettingsService.Init()
 	err := InitMany(
 		app.SettingsService,
 		app.StartupCommandService,
