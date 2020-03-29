@@ -23,7 +23,7 @@ import LoadableMixin from "../../../LoadableMixin";
 import LoaderGuard from "../../../components/LoaderGuard.vue";
 import HighlightableTextZone from "../../../components/HighlightableTextZone.vue";
 import FieldsList from "../../../components/settings/FieldsList.vue";
-import Fuse from "fuse.js";
+import Fuse, { FuseOptions } from "fuse.js";
 import {
   getNormalizedFields,
   settingsSchema,
@@ -40,7 +40,7 @@ type Settings = any;
   }
 })
 export default class SettingsPage extends mixins(LoadableMixin) {
-  fuse: Fuse<JsonSchema> = new Fuse(getNormalizedFields(settingsSchema), {
+  fuse: Fuse<JsonSchema, FuseOptions<JsonSchema>> = new Fuse(getNormalizedFields(settingsSchema), {
     keys: ["title", "description"],
     caseSensitive: false,
     tokenize: true,
@@ -52,7 +52,7 @@ export default class SettingsPage extends mixins(LoadableMixin) {
   get fields(): JsonSchema[] {
     return this.fuse.search(this.query, {
       limit: 10
-    });
+    }) as JsonSchema[];
   }
   get highlightTokens() {
     return this.query
