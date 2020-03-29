@@ -9,7 +9,12 @@ This component communicates with the SerialConsole component using props and eve
       <!-- The search header with the input -->
       <div class="panel-block">
         <p class="control has-icons-left">
-          <input class="input is-small" type="text" placeholder="Search" v-model="searchQuery">
+          <input
+            class="input is-small"
+            type="text"
+            placeholder="Search"
+            v-model="searchQuery"
+          />
           <span class="icon is-small is-left">
             <i class="fas fa-search" aria-hidden="true"></i>
           </span>
@@ -22,14 +27,15 @@ This component communicates with the SerialConsole component using props and eve
             <div>
               <code
                 class="tag code-margin"
-                :class="{'has-background-grey-lighter':code.startsWith('M')}"
+                :class="{ 'has-background-grey-lighter': code.startsWith('M') }"
                 v-for="code in doc.codes"
                 :key="code"
-              >{{code}}</code>
-              <HighlightableText>{{doc.title}}</HighlightableText>
+                >{{ code }}</code
+              >
+              <HighlightableText>{{ doc.title }}</HighlightableText>
             </div>
             <p class="has-text-grey">
-              <HighlightableText>{{doc.brief}}</HighlightableText>
+              <HighlightableText>{{ doc.brief }}</HighlightableText>
             </p>
             <!-- Show the parameters of the gcode command when there are only two or less results left to conserve space -->
             <div v-if="filteredDocs.length <= 2" class="params-list">
@@ -37,21 +43,32 @@ This component communicates with the SerialConsole component using props and eve
                 <p class="menu-label">Parameters</p>
                 <ul class="menu-list">
                   <li v-for="(param, i) in doc.parameters" :key="i">
-                    <span class="tag code-margin optional-mark" v-if="param.optional">Optional</span>
+                    <span
+                      class="tag code-margin optional-mark"
+                      v-if="param.optional"
+                      >Optional</span
+                    >
                     <div class="tags has-addons">
                       <!-- This is needed due to YAML interpreting 'Y' as a true boolean value. -->
-                      <code class="tag is-primary">{{param.tag === true ? 'Y' : param.tag}}</code>
+                      <code class="tag is-primary">{{
+                        param.tag === true ? "Y" : param.tag
+                      }}</code>
                       <template v-if="param.values">
                         <code
                           class="tag"
-                          v-for="(v, k) in param.values.filter(pv => pv.type !=='bool')"
+                          v-for="(v, k) in param.values.filter(
+                            pv => pv.type !== 'bool'
+                          )"
                           :key="k"
-                        >&lt;{{v.tag || v.type}}&gt;</code>
+                          >&lt;{{ v.tag || v.type }}&gt;</code
+                        >
                       </template>
                     </div>
                     <div class="clearfix"></div>
                     <p class="has-text-grey is-size-7 param-desc">
-                      <HighlightableText>{{param.description}}</HighlightableText>
+                      <HighlightableText>{{
+                        param.description
+                      }}</HighlightableText>
                     </p>
                   </li>
                 </ul>
@@ -63,13 +80,16 @@ This component communicates with the SerialConsole component using props and eve
                 title="Put this command in the serial console input."
                 class="button is-primary is-outlined is-small"
                 @click="$emit('useGcode', doc.codes[0])"
-              >Use</button>
+              >
+                Use
+              </button>
               <a
                 class="button is-text is-small"
                 :href="'http://marlinfw.org/docs/gcode/' + doc.base + '.html'"
                 target="_blank"
                 title="Go to the online Marlin documentation with more information about this command."
-              >More...</a>
+                >More...</a
+              >
             </div>
           </div>
         </div>
@@ -107,7 +127,7 @@ export default class GcodeDocs extends Vue {
   searchQuery = "";
   dataKeys = Object.keys(gcodeDocsData);
   forceLocalSearch = false;
-  fuse: Fuse<FuseData> = null;
+  fuse: Fuse<FuseData, Fuse.FuseOptions<FuseData>> = null;
   created() {
     this.fuse = new Fuse<FuseData, Fuse.FuseOptions<FuseData>>(
       this.dataForFuse,
