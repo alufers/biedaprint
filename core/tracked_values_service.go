@@ -20,7 +20,7 @@ func NewTrackedValuesService(app *App) *TrackedValuesService {
 		app: app,
 		TrackedValues: map[string]*TrackedValueInternal{
 			"hotendTemperature": NewTrackedValueInternal(&TrackedValue{
-				PlotColor:        "hsl(348, 100%, 61%)",
+				PlotColor:        "#ff3860",
 				PlotDash:         []float64{},
 				Name:             "hotendTemperature",
 				Unit:             "°C",
@@ -30,7 +30,7 @@ func NewTrackedValuesService(app *App) *TrackedValuesService {
 				History:          []interface{}{},
 			}),
 			"targetHotendTemperature": NewTrackedValueInternal(&TrackedValue{
-				PlotColor:        "hsl(348, 100%, 61%)",
+				PlotColor:        "#ff3860",
 				PlotDash:         []float64{5, 5},
 				Name:             "targetHotendTemperature",
 				Unit:             "°C",
@@ -40,7 +40,7 @@ func NewTrackedValuesService(app *App) *TrackedValuesService {
 				History:          []interface{}{},
 			}),
 			"hotbedTemperature": NewTrackedValueInternal(&TrackedValue{
-				PlotColor:        "hsl(271, 100%, 71%)",
+				PlotColor:        "#b86bff",
 				PlotDash:         []float64{},
 				Name:             "hotbedTemperature",
 				Unit:             "°C",
@@ -50,7 +50,7 @@ func NewTrackedValuesService(app *App) *TrackedValuesService {
 				History:          []interface{}{},
 			}),
 			"targetHotbedTemperature": NewTrackedValueInternal(&TrackedValue{
-				PlotColor:        "hsl(271, 100%, 71%)",
+				PlotColor:        "#b86bff",
 				PlotDash:         []float64{5, 5},
 				Name:             "targetHotbedTemperature",
 				Unit:             "°C",
