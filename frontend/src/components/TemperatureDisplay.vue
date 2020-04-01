@@ -20,8 +20,9 @@ Uses trackedValues to update it using subscriptions.
 <script lang="ts">
 import Vue from "vue";
 import Component, { mixins } from "vue-class-component";
-import ApexChart from "vue-apexcharts";
+import ApexChartClass from "apexcharts";
 import { ApexOptions } from "apexcharts";
+import ApexChart from "vue-apexcharts";
 import LoadableMixin from "../LoadableMixin";
 import LoaderGuard from "./LoaderGuard.vue";
 import {
@@ -34,6 +35,7 @@ import {
 import getTrackedValueByNameWithMeta from "../../../graphql/queries/getTrackedValueByNameWithMeta.graphql";
 // import { QueryResult } from "vue-apollo/types/vue-apollo";
 import gql from "graphql-tag";
+import { Watch } from "vue-property-decorator";
 
 @Component({
   components: { LoaderGuard, ApexChart }
@@ -77,6 +79,7 @@ export default class TemperatureDisplay extends mixins(LoadableMixin) {
     },
     xaxis: {
       type: "numeric",
+      min: 0,
       range: 300
     },
     yaxis: {
@@ -103,7 +106,6 @@ export default class TemperatureDisplay extends mixins(LoadableMixin) {
           fetchPolicy: "network-only"
         });
         tvMetas[valueToShow] = data.trackedValue;
-        console.log(data.trackedValue.plotColor);
         this.chartOptions.stroke.colors.push(data.trackedValue.plotColor);
         (<number[]>this.chartOptions.stroke.dashArray).push(
           data.trackedValue.plotDash.length > 0 ? 5 : 0
@@ -136,7 +138,6 @@ export default class TemperatureDisplay extends mixins(LoadableMixin) {
           const series = this.chartData.find(t => t.name === valueToShow);
 
           if (!series) return; // bad update
-
           series.data.push(value);
           if (series.data.length > tvMetas[series.name].maxHistoryLength) {
             series.data = series.data.slice(1);
@@ -144,6 +145,13 @@ export default class TemperatureDisplay extends mixins(LoadableMixin) {
         });
       }
     });
+  }
+  @Watch("chartData", { deep: true })
+  onChartDataChanged() {
+    if (!this.$refs.chart) return;
+    ((this.$refs.chart as any) as ApexChartClass).updateSeries([
+      ...this.chartData
+    ]);
   }
 }
 </script>
