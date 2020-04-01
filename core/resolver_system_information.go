@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"os"
 	"runtime"
 	"time"
 
@@ -26,5 +27,7 @@ func (r *queryResolver) SystemInformation(ctx context.Context) (map[string]inter
 	resp["GCCPUFractionPercent"] = fmt.Sprintf("%4.2f%%", m.GCCPUFraction*100)
 	resp["AppVersion"] = AppVersion
 	resp["AppReleaseExecutableName"] = AppReleaseExecutableName
+	hostname, _ := os.Hostname()
+	resp["Hostname"] = hostname
 	return resp, nil
 }
