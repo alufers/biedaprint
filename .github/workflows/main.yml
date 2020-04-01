@@ -30,6 +30,7 @@ jobs:
           cd frontend && npm i && cd ..
       - name: Install cross-compilers
         run: |
+           sudo apt-get update
            sudo apt-get install gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu
       - name: Build
         env:
