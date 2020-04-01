@@ -36,6 +36,7 @@ jobs:
         env:
           PACKR2_PATH: /tmp/packr2
           GITHUB_REF: ${{ github.ref }}
+          GOPATH: /home/runner/go
         run: |
           make build-multiplatform
       - uses: actions/upload-artifact@v1
