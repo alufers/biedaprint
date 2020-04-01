@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="box">
     <h3 class="title">Manual control</h3>
     <label class="label">Homing</label>
     <div class="field has-addons">
@@ -57,7 +57,9 @@
               :class="isLoadingClass"
               class="button is-danger is-centered"
               @click="moveXPositive"
-            >X+</button>
+            >
+              X+
+            </button>
           </td>
           <td></td>
           <td>
@@ -65,7 +67,9 @@
               :class="isLoadingClass"
               class="button is-primary is-centered"
               @click="moveZPositive"
-            >Z+</button>
+            >
+              Z+
+            </button>
           </td>
         </tr>
         <tr>
@@ -74,7 +78,9 @@
               :class="isLoadingClass"
               class="button is-success is-centered"
               @click="moveYNegative"
-            >Y-</button>
+            >
+              Y-
+            </button>
           </td>
           <td>
             <button
@@ -90,7 +96,9 @@
               :class="isLoadingClass"
               class="button is-success is-centered"
               @click="moveYPositive"
-            >Y+</button>
+            >
+              Y+
+            </button>
           </td>
           <td></td>
         </tr>
@@ -101,7 +109,9 @@
               :class="isLoadingClass"
               class="button is-danger is-centered"
               @click="moveXNegative"
-            >X-</button>
+            >
+              X-
+            </button>
           </td>
           <td></td>
           <td>
@@ -109,7 +119,9 @@
               :class="isLoadingClass"
               class="button is-primary is-centered"
               @click="moveZNegative"
-            >Z-</button>
+            >
+              Z-
+            </button>
           </td>
         </tr>
         <tr>
@@ -118,18 +130,23 @@
               :class="isLoadingClass"
               class="button wide is-primary is-centered"
               @click="extrude"
-            >Extrude</button>
+            >
+              Extrude
+            </button>
           </td>
           <td colspan="2">
             <button
               :class="isLoadingClass"
               class="button wide is-primary is-centered"
               @click="retract"
-            >Retract</button>
+            >
+              Retract
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
+    <strong>Movement amount (mm):</strong>
     <div class="tabs is-toggle">
       <ul>
         <li
@@ -137,7 +154,7 @@
           :key="opt"
           :class="opt === movementAmount && 'is-active'"
         >
-          <a @click.prevent="setMovementAmount(opt)">{{opt}}</a>
+          <a @click.prevent="setMovementAmount(opt)">{{ opt }}</a>
         </li>
       </ul>
     </div>
