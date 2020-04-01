@@ -178,7 +178,7 @@ export default class HeaterControl extends mixins(LoadableMixin) {
   width: auto;
 }
 
-.is-danger + .temperature-input {
+.is-danger .temperature-input {
   color: white;
 }
 
