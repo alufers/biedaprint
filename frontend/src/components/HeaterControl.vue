@@ -3,20 +3,28 @@ HeaterControl is the UI element which shows the current temperature of a heater 
 It supports reading temperature presets from the settings as well as entering custom temps.
 -->
 <template>
-  <div>
+  <LoaderGuard>
     <div class="field">
-      <label class="label">{{name}}</label>
+      <label class="label"> {{ name }}</label>
 
       <div class="print-stat">
         <div class="controls tags has-addons are-medium">
-          <span class="tag tag-label">Actual</span>
-          <span class="tag temp-value">{{temperature.toFixed(2)}}</span>
+          <span class="tag tag-label">
+            <span
+              class="orb"
+              :style="{
+                background: trackedValueMeta && trackedValueMeta.plotColor
+              }"
+            ></span>
+            Actual</span
+          >
+          <span class="tag temp-value">{{ temperature.toFixed(2) }}</span>
         </div>
 
         <div class="controls tags has-addons are-medium">
           <span class="tag tag-label">Target</span>
-          <span class="tag" :class="{'is-danger': target > 0,}">
-            <div class="dropdown" :class="{'is-active': showPresetsDropdown}">
+          <span class="tag" :class="{ 'is-danger': target > 0 }">
+            <div class="dropdown" :class="{ 'is-active': showPresetsDropdown }">
               <div class="dropdown-trigger">
                 <input
                   ref="temperatureInput"
@@ -29,7 +37,10 @@ It supports reading temperature presets from the settings as well as entering cu
                   @focus="showPresetsDropdown = true"
                   @blur="hidePresetsDropdown"
                 />
-                <span class="icon is-small" @click="$refs.temperatureInput.focus()">
+                <span
+                  class="icon is-small"
+                  @click="$refs.temperatureInput.focus()"
+                >
                   <i class="fas fa-angle-down" aria-hidden="true"></i>
                 </span>
               </div>
@@ -41,7 +52,8 @@ It supports reading temperature presets from the settings as well as entering cu
                     v-for="(tp, i) in temperaturePresets"
                     :key="i"
                     @click.prevent="selectPreset(i)"
-                  >{{tp.name}} ({{tp.value}} °C)</a>
+                    >{{ tp.name }} ({{ tp.value }} °C)</a
+                  >
                 </div>
               </div>
             </div>
@@ -52,8 +64,12 @@ It supports reading temperature presets from the settings as well as entering cu
             <a
               class="button"
               @click="setTarget"
-              :class="{'is-primary': targetEdit !== target, ...isLoadingClass}"
-            >SET</a>
+              :class="{
+                'is-primary': targetEdit !== target,
+                ...isLoadingClass
+              }"
+              >SET</a
+            >
           </p>
           <p class="control">
             <a class="button" @click="heaterOff" :class="isLoadingClass">OFF</a>
@@ -61,7 +77,7 @@ It supports reading temperature presets from the settings as well as entering cu
         </div>
       </div>
     </div>
-  </div>
+  </LoaderGuard>
 </template>
 <script lang="ts">
 import Vue from "vue";
@@ -73,14 +89,21 @@ import { sendGcode } from "../../../graphql/queries/sendGcode.graphql";
 import {
   SendGcodeMutation,
   SendGcodeMutationVariables,
-  GetTemperaturePresetsQuery
+  GetTemperaturePresetsQuery,
+  TrackedValue
 } from "../graphql-models-gen";
 import ApolloQuery from "../decorators/ApolloQuery";
 import { getTemperaturePresets } from "../../../graphql/queries/getTemperaturePresets.graphql";
 import { setTimeout } from "timers";
 import { Presets } from "../types/settings";
+import TrackedValueMeta from "../decorators/TrackedValueMeta";
+import LoaderGuard from "./LoaderGuard.vue";
 
-@Component({})
+@Component({
+  components: {
+    LoaderGuard
+  }
+})
 export default class HeaterControl extends mixins(LoadableMixin) {
   @Prop({ type: String })
   name!: string;
@@ -105,6 +128,11 @@ export default class HeaterControl extends mixins(LoadableMixin) {
     return this.temperatureTrackedValueName;
   })
   temperature = 0;
+
+  @TrackedValueMeta(function(this: HeaterControl) {
+    return this.temperatureTrackedValueName;
+  })
+  trackedValueMeta: TrackedValue = null;
 
   targetEdit = 0;
 
@@ -167,7 +195,6 @@ export default class HeaterControl extends mixins(LoadableMixin) {
 }
 </script>
 
-
 <style scoped>
 .temperature-input {
   font-size: 1rem;
@@ -189,6 +216,7 @@ export default class HeaterControl extends mixins(LoadableMixin) {
   align-content: center;
   justify-content: flex-start;
 }
+
 .print-stat .value {
   font-weight: bold;
 }
@@ -210,7 +238,15 @@ export default class HeaterControl extends mixins(LoadableMixin) {
 .label {
   margin-top: 10px;
 }
+
 .preset-field {
   margin-right: 8px;
+}
+
+.orb {
+  width: 10px;
+  height: 10px;
+  border-radius: 1000px;
+  margin-right: 5px;
 }
 </style>
