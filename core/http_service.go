@@ -2,8 +2,11 @@ package core
 
 import (
 	"net/http"
+	"time"
 
-	"github.com/99designs/gqlgen/handler"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -41,23 +44,33 @@ func (hs *HTTPService) RunHTTPServer() {
 }
 
 func (hs *HTTPService) graphqlQueryHandler() gin.HandlerFunc {
-	h := handler.GraphQL(NewExecutableSchema(Config{Resolvers: &Resolver{
-		App: hs.app,
-	}}), handler.WebsocketUpgrader(websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}))
 
+	srv := handler.New(NewExecutableSchema(Config{Resolvers: &Resolver{
+		App: hs.app,
+	}}))
+	srv.AddTransport(transport.Options{})
+	srv.AddTransport(transport.GET{})
+	srv.AddTransport(transport.POST{})
+	srv.AddTransport(transport.MultipartForm{})
+	srv.AddTransport(&transport.Websocket{
+		KeepAlivePingInterval: time.Second * 10,
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+		},
+	})
 	return func(c *gin.Context) {
 
-		h.ServeHTTP(c.Writer, c.Request)
+		srv.ServeHTTP(c.Writer, c.Request)
 	}
 }
 
 // Defining the Playground handler
 func (hs *HTTPService) graphqlPlaygroundHandler() gin.HandlerFunc {
-	h := handler.Playground("GraphQL", "/query")
+	h := playground.Handler("GraphQL", "/query")
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
