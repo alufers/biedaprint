@@ -3,7 +3,11 @@
     <div v-if="isPrinting">
       <div class="print-stat">
         <h2 class="subtitle">Print status</h2>
-        <button class="button is-danger" @click="abortJob" :class="isLoadingClass">
+        <button
+          class="button is-danger"
+          @click="abortJob"
+          :class="isLoadingClass"
+        >
           <span class="icon">
             <i class="fas fa-stop"></i>
           </span>
@@ -11,31 +15,43 @@
         </button>
       </div>
       <div>
-        <progress class="progress is-primary" :value="printProgress" max="100">{{printProgress}}</progress>
+        <progress
+          class="progress is-primary"
+          :value="printProgress"
+          max="100"
+          >{{ printProgress }}</progress
+        >
         <div class="print-stat">
           <div>Print name</div>
-          <div class="value">{{printOriginalName}}</div>
+          <div class="value">{{ printOriginalName }}</div>
         </div>
         <div class="print-stat">
           <div>Print progress (lines)</div>
-          <div class="value">{{printProgress.toFixed(2)}}%</div>
+          <div class="value">{{ printProgress.toFixed(2) }}%</div>
         </div>
         <div class="print-stat">
           <div>Print start time</div>
-          <div class="value">{{printStartTime | formatDate}}</div>
+          <div class="value">{{ printStartTime | formatDate }}</div>
         </div>
         <div class="print-stat">
           <div>Layer</div>
-          <div class="value">{{printCurrentLayer}}/{{printTotalLayers}}</div>
+          <div class="value">
+            {{ printCurrentLayer }}/{{ printTotalLayers }}
+          </div>
         </div>
       </div>
     </div>
     <div class v-else>
       <div class="msg-noprint">
-        <p>Nothing is being printed at the moment. You can select or upload a file to be printed.</p>
-        <br>
-        <br>
-        <router-link to="/print/gcode-files" class="button is-primary">View gcode files</router-link>
+        <p>
+          Nothing is being printed at the moment. You can select or upload a
+          file to be printed.
+        </p>
+        <br />
+        <br />
+        <router-link to="/print/gcode-files" class="button is-primary"
+          >View gcode files</router-link
+        >
       </div>
     </div>
   </div>
@@ -47,6 +63,7 @@ import { DateTime } from "luxon";
 import TrackedValueSubscription from "../decorators/TrackedValueSubscription";
 import LoadableMixin from "../LoadableMixin";
 import { abortPrintJob } from "../../../graphql/queries/abortPrintJob.graphql";
+import { Watch } from "vue-property-decorator";
 
 @Component({
   filters: {
@@ -56,7 +73,7 @@ import { abortPrintJob } from "../../../graphql/queries/abortPrintJob.graphql";
       return dt.toISODate() + " " + dt.toLocaleString(DateTime.TIME_24_SIMPLE);
     }
   }
-})
+} as any)
 export default class CurrentPrintWidget extends mixins(LoadableMixin) {
   @TrackedValueSubscription("isPrinting")
   isPrinting = false;
@@ -78,9 +95,18 @@ export default class CurrentPrintWidget extends mixins(LoadableMixin) {
       });
     });
   }
+  @Watch("isPrinting")
+  watchIsPrinting() {
+    if (!this.isPrinting) {
+      document.title = "Biedaprint";
+    }
+  }
+  @Watch("printProgress")
+  watchPrintProgress() {
+    document.title = this.printProgress.toFixed(0) + "% | Biedaprint";
+  }
 }
 </script>
-
 
 <style scoped>
 .msg-noprint {
