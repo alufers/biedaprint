@@ -3,6 +3,8 @@ package core
 import (
 	"fmt"
 	"log"
+	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -160,7 +162,7 @@ func (pm *PrinterService) serialWriterGoroutine() {
 			select {
 			case c := <-pm.consoleWriteSem:
 				log.Print("Serial writer: serialConsoleWrite", c)
-				err := pm.printerLink.Write([]byte(c))
+				err := pm.sendLineAndSniff(c)
 				if err != nil {
 					log.Printf("error while writing from serial console to serial: %v", err)
 				}
@@ -180,7 +182,7 @@ func (pm *PrinterService) handleJob(job *PrintJobInternal) {
 	}
 	var sendAndMaybeResend func(string)
 	sendAndMaybeResend = func(l string) {
-		pm.printerLink.Write([]byte(l))
+		pm.sendLineAndSniff(l)
 		select {
 		case <-pm.okSem:
 		case num := <-pm.resendSem:
@@ -204,6 +206,20 @@ func (pm *PrinterService) handleJob(job *PrintJobInternal) {
 		}
 		sendAndMaybeResend(line)
 	}
+}
+
+func (pm *PrinterService) sendLineAndSniff(line string) error {
+	fanSpeedRegex := regexp.MustCompile("(L[0-9\\ ]+)?M106 S([0-9]*)")
+	matches := fanSpeedRegex.FindSubmatch([]byte(line))
+	log.Printf("%v, len(matches) = %v", line, len(matches))
+	if len(matches) == 3 {
+		log.Printf("FOUDN FANCTL")
+		numValue, err := strconv.Atoi(string(matches[2]))
+		if err == nil {
+			pm.app.TrackedValuesService.TrackedValues["fanSpeed"].UpdateValue(float64(numValue))
+		}
+	}
+	return pm.printerLink.Write([]byte(line))
 }
 
 /*

@@ -49,6 +49,16 @@ func NewTrackedValuesService(app *App) *TrackedValuesService {
 				MaxHistoryLength: 300,
 				History:          []interface{}{},
 			}),
+			"fanSpeed": NewTrackedValueInternal(&TrackedValue{
+				PlotColor:        "#a9a9a9",
+				PlotDash:         []float64{},
+				Name:             "fanSpeed",
+				Unit:             "",
+				DisplayType:      TrackedValueDisplayTypePlot,
+				Value:            0,
+				MaxHistoryLength: 300,
+				History:          []interface{}{},
+			}),
 			"targetHotbedTemperature": NewTrackedValueInternal(&TrackedValue{
 				PlotColor:        "#b86bff",
 				PlotDash:         []float64{5, 5},

@@ -24,6 +24,7 @@
     "apexcharts": "^3.17.1",
     "apollo-upload-client": "^12.1.0",
     "bulma": "^0.8.1",
+    "bulma-extensions": "^6.2.7",
     "core-js": "^3.6.4",
     "fuse.js": "^3.6.1",
     "graphql": "^14.6.0",

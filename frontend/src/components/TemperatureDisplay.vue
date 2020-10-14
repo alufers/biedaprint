@@ -45,7 +45,8 @@ export default class TemperatureDisplay extends mixins(LoadableMixin) {
     "hotendTemperature",
     "targetHotendTemperature",
     "hotbedTemperature",
-    "targetHotbedTemperature"
+    "targetHotbedTemperature",
+    "fanSpeed"
   ];
   chartOptions: ApexOptions = {
     chart: {

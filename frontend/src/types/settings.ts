@@ -34,6 +34,7 @@ export type StartupCommand = string;
 export type PresetName = string;
 export type HotendTemperature = number;
 export type HotbedTemperature = number;
+export type FanSpeed = number;
 /**
  * Handy temperature presets shown in a dropdown when manually setting the temeperatures.
  */
@@ -70,5 +71,6 @@ export interface Presets {
   name: PresetName;
   hotendTemperature: HotendTemperature;
   hotbedTemperature: HotbedTemperature;
+  fanSpeed?: FanSpeed;
   [k: string]: any;
 }

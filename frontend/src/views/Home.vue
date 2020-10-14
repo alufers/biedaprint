@@ -2,12 +2,12 @@
   <div>
     <div class="columns">
       <div class="column is-one-third">
-        <PrinterConnectionWidget class="box"/>
-        <CurrentPrintWidget class="box"/>
+        <PrinterConnectionWidget class="box" />
+        <CurrentPrintWidget class="box" />
       </div>
       <div class="column">
         <div class="box">
-          <TemperatureDisplay/>
+          <TemperatureDisplay />
           <HeaterControl
             name="Hotend"
             temperatureTrackedValueName="hotendTemperature"
@@ -22,6 +22,12 @@
             targetTrackedValueName="targetHotbedTemperature"
             temperatureGcode="M140"
           />
+          <FanSpeedControl
+            name="Fan speed"
+            fanSpeedTrackedValue="fanSpeed"
+            temperaturePresetKey="fanSpeed"
+            temperatureGcode="M106"
+          />
         </div>
       </div>
     </div>
@@ -32,6 +38,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import TemperatureDisplay from "@/components/TemperatureDisplay.vue";
 import HeaterControl from "@/components/HeaterControl.vue";
+import FanSpeedControl from "@/components/FanSpeedControl.vue";
 import PrinterConnectionWidget from "@/components/PrinterConnectionWidget.vue";
 import CurrentPrintWidget from "@/components/CurrentPrintWidget.vue";
 
@@ -40,8 +47,9 @@ import CurrentPrintWidget from "@/components/CurrentPrintWidget.vue";
     TemperatureDisplay,
     HeaterControl,
     PrinterConnectionWidget,
-    CurrentPrintWidget
-  }
+    CurrentPrintWidget,
+    FanSpeedControl,
+  },
 })
 export default class Home extends Vue {}
 </script>

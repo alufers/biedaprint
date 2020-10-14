@@ -163,6 +163,13 @@
                 "title": "Hotbed temperature",
                 "default": 0,
                 "examples": [60]
+              },
+              "fanSpeed": {
+                "$id": "#/properties/temperatures/properties/temperaturePresets/items/properties/fanSpeed",
+                "type": "integer",
+                "title": "Fan speed",
+                "default": 0,
+                "examples": [55]
               }
             }
           }

@@ -16,6 +16,7 @@ import Component from "vue-class-component";
 import Navbar from "./components/Navbar.vue";
 import Alerts from "./components/Alerts.vue";
 import "bulma/css/bulma.css";
+import "bulma-extensions/dist/css/bulma-extensions.min.css";
 import "@fortawesome/fontawesome-free/css/all.css";
 
 @Component({

@@ -2,7 +2,7 @@
   <div>
     <div class="field">
       <label class="label">
-        <HighlightableText>{{fieldDescriptor.title}}</HighlightableText>
+        <HighlightableText>{{ fieldDescriptor.title }}</HighlightableText>
       </label>
 
       <table class="table">
@@ -10,21 +10,36 @@
           <th>Name</th>
           <th>Hotend temperature (°C)</th>
           <th>Hotbed temperature (°C)</th>
+          <th>Fan speed</th>
           <th></th>
         </thead>
         <tbody>
           <tr v-for="(tp, i) in value" :key="i">
             <td>
-              <input class="input" type="text" v-model="tp.name">
+              <input class="input" type="text" v-model="tp.name" />
             </td>
             <td>
-              <input class="input" type="number" v-model.number="tp.hotendTemperature">
+              <input
+                class="input"
+                type="number"
+                v-model.number="tp.hotendTemperature"
+              />
             </td>
             <td>
-              <input class="input" type="number" v-model.number="tp.hotbedTemperature">
+              <input
+                class="input"
+                type="number"
+                v-model.number="tp.hotbedTemperature"
+              />
             </td>
             <td>
-              <button class="button is-danger" @click="deleteTemperaturePreset(i)">
+              <input class="input" type="number" v-model.number="tp.fanSpeed" />
+            </td>
+            <td>
+              <button
+                class="button is-danger"
+                @click="deleteTemperaturePreset(i)"
+              >
                 <span class="icon is-small">
                   <i class="fas fa-trash"></i>
                 </span>
@@ -46,7 +61,7 @@
         </tfoot>
       </table>
       <p class="help">
-        <HighlightableText>{{fieldDescriptor.description}}</HighlightableText>
+        <HighlightableText>{{ fieldDescriptor.description }}</HighlightableText>
       </p>
     </div>
   </div>
@@ -63,18 +78,18 @@ import { JsonSchema } from "../../../util/settingsSchema";
 
 @Component({
   components: {
-    HighlightableText
-  }
+    HighlightableText,
+  },
 })
 export default class TemperaturePresetsTable extends Vue {
   @Prop({
     required: true,
-    type: Object
+    type: Object,
   })
   fieldDescriptor: JsonSchema;
 
   @Prop({
-    type: Array
+    type: Array,
   })
   value: TemperaturePreset[];
 
@@ -85,13 +100,17 @@ export default class TemperaturePresetsTable extends Vue {
         __typename: "TemperaturePreset",
         name: "New",
         hotendTemperature: 0,
-        hotbedTemperature: 0
-      }
+        hotbedTemperature: 0,
+        fanSpeed: 0,
+      },
     ]);
   }
 
   deleteTemperaturePreset(i: number) {
-    this.$emit("input", this.value.filter((_, ix) => ix !== i));
+    this.$emit(
+      "input",
+      this.value.filter((_, ix) => ix !== i)
+    );
   }
 
   @Watch("value", { deep: true })
@@ -101,5 +120,4 @@ export default class TemperaturePresetsTable extends Vue {
 }
 </script>
 
-<style>
-</style>
+<style></style>
