@@ -402,7 +402,7 @@ _gostring_ _wrap_CuraInterface_getAllSettingsString_curaslicer_10dd3d3907799d3c(
 }
 
 
-void _wrap_CuraInterface_addSetting_curaslicer_10dd3d3907799d3c(CuraInterface *_swig_go_0, _gostring_ _swig_go_1, _gostring_ _swig_go_2) {
+void _wrap_CuraInterface_addGlobalSetting_curaslicer_10dd3d3907799d3c(CuraInterface *_swig_go_0, _gostring_ _swig_go_1, _gostring_ _swig_go_2) {
   CuraInterface *arg1 = (CuraInterface *) 0 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
@@ -419,10 +419,40 @@ void _wrap_CuraInterface_addSetting_curaslicer_10dd3d3907799d3c(CuraInterface *_
   arg3[_swig_go_2.n] = '\0';
   
   
-  (arg1)->addSetting((char const *)arg2,(char const *)arg3);
+  (arg1)->addGlobalSetting((char const *)arg2,(char const *)arg3);
   
   free(arg2); 
   free(arg3); 
+}
+
+
+void _wrap_CuraInterface_addExtruder_curaslicer_10dd3d3907799d3c(CuraInterface *_swig_go_0) {
+  CuraInterface *arg1 = (CuraInterface *) 0 ;
+  
+  arg1 = *(CuraInterface **)&_swig_go_0; 
+  
+  (arg1)->addExtruder();
+  
+}
+
+
+intgo _wrap_CuraInterface_loadModelIntoMeshGroup_curaslicer_10dd3d3907799d3c(CuraInterface *_swig_go_0, _gostring_ _swig_go_1) {
+  CuraInterface *arg1 = (CuraInterface *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int result;
+  intgo _swig_go_result;
+  
+  arg1 = *(CuraInterface **)&_swig_go_0; 
+  
+  arg2 = (char *)malloc(_swig_go_1.n + 1);
+  memcpy(arg2, _swig_go_1.p, _swig_go_1.n);
+  arg2[_swig_go_1.n] = '\0';
+  
+  
+  result = (int)(arg1)->loadModelIntoMeshGroup((char const *)arg2);
+  _swig_go_result = result; 
+  free(arg2); 
+  return _swig_go_result;
 }
 
 

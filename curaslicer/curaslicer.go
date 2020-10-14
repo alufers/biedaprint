@@ -31,11 +31,14 @@ typedef struct { void* array; intgo len; intgo cap; } _goslice_;
 typedef _gostring_ swig_type_1;
 typedef _gostring_ swig_type_2;
 typedef _gostring_ swig_type_3;
+typedef _gostring_ swig_type_4;
 extern void _wrap_Swig_free_curaslicer_10dd3d3907799d3c(uintptr_t arg1);
 extern uintptr_t _wrap_Swig_malloc_curaslicer_10dd3d3907799d3c(swig_intgo arg1);
 extern uintptr_t _wrap_new_CuraInterface_curaslicer_10dd3d3907799d3c(void);
 extern swig_type_1 _wrap_CuraInterface_getAllSettingsString_curaslicer_10dd3d3907799d3c(uintptr_t arg1);
-extern void _wrap_CuraInterface_addSetting_curaslicer_10dd3d3907799d3c(uintptr_t arg1, swig_type_2 arg2, swig_type_3 arg3);
+extern void _wrap_CuraInterface_addGlobalSetting_curaslicer_10dd3d3907799d3c(uintptr_t arg1, swig_type_2 arg2, swig_type_3 arg3);
+extern void _wrap_CuraInterface_addExtruder_curaslicer_10dd3d3907799d3c(uintptr_t arg1);
+extern swig_intgo _wrap_CuraInterface_loadModelIntoMeshGroup_curaslicer_10dd3d3907799d3c(uintptr_t arg1, swig_type_4 arg2);
 extern void _wrap_CuraInterface_performSlice_curaslicer_10dd3d3907799d3c(uintptr_t arg1);
 extern void _wrap_delete_CuraInterface_curaslicer_10dd3d3907799d3c(uintptr_t arg1);
 #undef intgo
@@ -107,17 +110,33 @@ func (arg1 SwigcptrCuraInterface) GetAllSettingsString() (_swig_ret string) {
 	return swig_r_1
 }
 
-func (arg1 SwigcptrCuraInterface) AddSetting(arg2 string, arg3 string) {
+func (arg1 SwigcptrCuraInterface) AddGlobalSetting(arg2 string, arg3 string) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_CuraInterface_addSetting_curaslicer_10dd3d3907799d3c(C.uintptr_t(_swig_i_0), *(*C.swig_type_2)(unsafe.Pointer(&_swig_i_1)), *(*C.swig_type_3)(unsafe.Pointer(&_swig_i_2)))
+	C._wrap_CuraInterface_addGlobalSetting_curaslicer_10dd3d3907799d3c(C.uintptr_t(_swig_i_0), *(*C.swig_type_2)(unsafe.Pointer(&_swig_i_1)), *(*C.swig_type_3)(unsafe.Pointer(&_swig_i_2)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
 	if Swig_escape_always_false {
 		Swig_escape_val = arg3
 	}
+}
+
+func (arg1 SwigcptrCuraInterface) AddExtruder() {
+	_swig_i_0 := arg1
+	C._wrap_CuraInterface_addExtruder_curaslicer_10dd3d3907799d3c(C.uintptr_t(_swig_i_0))
+}
+
+func (arg1 SwigcptrCuraInterface) LoadModelIntoMeshGroup(arg2 string) (_swig_ret int) {
+	var swig_r int
+	_swig_i_0 := arg1
+	_swig_i_1 := arg2
+	swig_r = (int)(C._wrap_CuraInterface_loadModelIntoMeshGroup_curaslicer_10dd3d3907799d3c(C.uintptr_t(_swig_i_0), *(*C.swig_type_4)(unsafe.Pointer(&_swig_i_1))))
+	if Swig_escape_always_false {
+		Swig_escape_val = arg2
+	}
+	return swig_r
 }
 
 func (arg1 SwigcptrCuraInterface) PerformSlice() {
@@ -134,7 +153,9 @@ type CuraInterface interface {
 	Swigcptr() uintptr
 	SwigIsCuraInterface()
 	GetAllSettingsString() (_swig_ret string)
-	AddSetting(arg2 string, arg3 string)
+	AddGlobalSetting(arg2 string, arg3 string)
+	AddExtruder()
+	LoadModelIntoMeshGroup(arg2 string) (_swig_ret int)
 	PerformSlice()
 }
 
